@@ -1597,7 +1597,8 @@ body.vscode-dark code.language-json .hljs-comment {
 <h1 id="badminton-elo-ranking-system-badminton-ranking-system">Badminton Elo Ranking System (<code>badminton-ranking-system</code>)</h1>
 <p>A generic, zero-config badminton Elo ranking system supporting separate <strong>Singles</strong> and <strong>Doubles</strong> leaderboards where each player maintains an individual rating (<code>1000</code> starting Elo) and can pair up with any partner.</p>
 <ul>
-<li><strong>Live Web App (GitHub Pages — Sole UI):</strong> <a href="https://tbruneel.github.io/badminton-ranking-system/">https://tbruneel.github.io/badminton-ranking-system/</a></li>
+<li><strong>Live VUB SportMix Page:</strong> <a href="https://tbruneel.github.io/badminton-ranking-system/vub-sportmix-badminton/">https://tbruneel.github.io/badminton-ranking-system/vub-sportmix-badminton/</a></li>
+<li><strong>Generic Template UI:</strong> <a href="https://tbruneel.github.io/badminton-ranking-system/">https://tbruneel.github.io/badminton-ranking-system/</a></li>
 <li><strong>Google Sheet Database:</strong> <a href="https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit">https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit</a></li>
 </ul>
 <hr>
@@ -1647,9 +1648,10 @@ body.vscode-dark code.language-json .hljs-comment {
 <li>Copy the generated <code>/exec</code> URL.</li>
 </ul>
 </li>
-<li><strong>Configure <a href="./index.html"><code>index.html</code></a>:</strong>
+<li><strong>Configure <a href="./index.html"><code>index.html</code></a> or Add a Subpath Page:</strong>
 <ul>
-<li>Update <code>CONFIG.apiUrl</code> in <a href="./index.html"><code>index.html</code></a> with your <code>/exec</code> URL (or open <code>index.html?api=&lt;YOUR_EXEC_URL&gt;</code>).</li>
+<li><strong>Single deployment:</strong> Update <code>CONFIG.apiUrl</code> and <code>CONFIG.title</code> in <a href="./index.html"><code>index.html</code></a> with your <code>/exec</code> URL.</li>
+<li><strong>Multiple subpath deployments in the same repo:</strong> Copy <a href="./vub-sportmix-badminton/index.html"><code>vub-sportmix-badminton/index.html</code></a> into <code>&lt;your-subpath&gt;/index.html</code> and set <code>window.RANKING_CONFIG = { title: &quot;...&quot;, apiUrl: &quot;...&quot; }</code>. Every subpath automatically shares the root <a href="./index.html"><code>index.html</code></a> UI template and deploys to <code>https://&lt;user&gt;.github.io/&lt;repo&gt;/&lt;your-subpath&gt;/</code>.</li>
 </ul>
 </li>
 </ol>
