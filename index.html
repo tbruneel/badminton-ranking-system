@@ -37,8 +37,8 @@
               Badminton Elo Rankings
             </h1>
             <span id="syncBadge" class="inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
-              <span id="syncDot" class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
-              <span id="syncText">Syncing...</span>
+              <span id="syncDot" class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
+              <span id="syncText">Connecting...</span>
             </span>
           </div>
           <p id="appSubtitle" class="text-xs text-slate-500 truncate hidden sm:block">
@@ -48,7 +48,7 @@
       </div>
 
       <!-- Right Action Controls -->
-      <div class="flex items-center gap-2 shrink-0">
+      <div id="headerControls" class="hidden items-center gap-2 shrink-0">
         <div id="adminQuickActions" class="hidden items-center gap-2">
           <button
             onclick="openMatchModal()"
@@ -80,11 +80,61 @@
   </header>
 
   <!-- ===================================================================== -->
-  <!-- MAIN CONTENT CONTAINER (Adapts from mobile to wide desktop)           -->
+  <!-- STATE A: LOADING SCREEN                                               -->
   <!-- ===================================================================== -->
-  <main class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+  <div id="loadingScreen" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 flex flex-col items-center justify-center text-center">
+    <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-center mb-4">
+      <div class="w-5 h-5 rounded-full border-2 border-slate-300 border-t-slate-900 animate-spin"></div>
+    </div>
+    <h2 class="text-base font-bold text-slate-900">Loading Rankings Database...</h2>
+    <p class="text-xs text-slate-500 mt-1">Fetching live player ratings and match history from Google Sheets</p>
+  </div>
 
-    <!--Admin Unlocked Banner (Shown on mobile/tablet or when unlocked) -->
+  <!-- ===================================================================== -->
+  <!-- STATE B: CLEAN CONNECTION ERROR PAGE                                  -->
+  <!-- ===================================================================== -->
+  <div id="errorScreen" class="hidden max-w-xl mx-auto px-4 sm:px-6 py-16">
+    <div class="bg-white rounded-2xl border border-rose-200/90 shadow-xs p-6 sm:p-8 text-center space-y-5">
+      <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-100 text-rose-600 flex items-center justify-center mx-auto text-xl font-bold">
+        !
+      </div>
+      <div class="space-y-1.5">
+        <h2 class="text-lg font-bold text-slate-900">Unable to Connect to Spreadsheet Database</h2>
+        <p class="text-xs sm:text-sm text-slate-500">
+          The ranking interface could not load data from the Google Apps Script backend.
+        </p>
+      </div>
+
+      <div class="text-left rounded-xl bg-slate-50 border border-slate-200/80 p-3.5 space-y-2 text-xs">
+        <div class="flex items-center justify-between text-slate-400 font-semibold uppercase tracking-wider text-[10px]">
+          <span>Diagnostic Details</span>
+          <span>JSON API</span>
+        </div>
+        <div id="errorScreenMessage" class="font-mono text-rose-600 break-words">
+          Connection failed.
+        </div>
+        <div class="pt-1 border-t border-slate-200/70 text-[11px] text-slate-400 break-all">
+          Endpoint: <span id="errorScreenEndpoint" class="font-mono text-slate-600"></span>
+        </div>
+      </div>
+
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
+        <button
+          onclick="loadAppStateFromBackend()"
+          class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold shadow-xs transition"
+        >
+          Retry Connection
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================================================================== -->
+  <!-- STATE C: MAIN CONTENT CONTAINER (Shown only when connected)           -->
+  <!-- ===================================================================== -->
+  <main id="appMainContent" class="hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+
+    <!-- Admin Unlocked Banner -->
     <div id="adminUnlockedBanner" class="hidden rounded-2xl bg-slate-900 text-white p-4 sm:px-5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
       <div class="flex items-center gap-2.5">
         <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
@@ -222,7 +272,7 @@
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
 
         <!-- LEFT COLUMN (7 cols on lg): Leaderboard Table -->
-        <div id="panelLeaderboard" class="lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+        <div id="panelLeaderboard" class="lg:block lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
           <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between">
             <div>
               <h3 id="leaderboardHeading" class="text-sm sm:text-base font-bold text-slate-900">Doubles Leaderboard</h3>
@@ -269,7 +319,7 @@
       <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3 min-w-0">
           <div id="profileAvatar" class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-700 font-bold text-base flex items-center justify-center shrink-0">
-            TB
+            --
           </div>
           <div class="min-w-0">
             <h3 id="profileName" class="text-base sm:text-lg font-bold text-slate-900 truncate">Player Name</h3>
@@ -469,12 +519,12 @@
   <script>
     /**
      * GENERIC DEPLOYMENT CONFIGURATION
-     * To connect this UI to any new Google Sheet + Apps Script deployment:
+     * To connect this UI to any Google Sheet + Apps Script deployment:
      * 1. Paste your deployed Web App `/exec` URL into `apiUrl` below (or pass `?api=<URL>` in the browser URL).
      * 2. Customize `title` / `subtitle` or let `useSpreadsheetTitle` adopt the Google Sheet's title automatically.
      */
     const CONFIG = {
-      title: "VUB SportMix: Badminton",
+      title: "Badminton Elo Rankings",
       subtitle: "SliceWin Elo Rating System • Base 1000 • Singles & Doubles",
       useSpreadsheetTitle: true,
       apiUrl: "https://script.google.com/macros/s/AKfycby5RCpoQTejZtJkr0paWIntBpcqkxDN9KEt5w3dacGemRmmT631MUVCq8y5cZtIpfMA/exec",
@@ -484,38 +534,7 @@
     };
 
     const urlParams = new URLSearchParams(window.location.search);
-    const ACTIVE_API_URL = urlParams.get("api") || CONFIG.apiUrl;
-
-    // Offline fallback data (used ONLY if the API cannot be reached)
-    const fallbackPlayers = [
-      "Mirajul Sarker", "Ali Wahaj", "Iftadul Sakib", "Dan Wu", "Shehzad Khan",
-      "Phat Kieu", "Tuur Bruneel", "Khanh Hien", "Tai Kugimoto",
-      "Gabriel Laurent", "Edvard Eriksson", "Lucas Peeters"
-    ];
-
-    const fallbackDoublesMatches = [
-      { matchNum: 1, date: "2026-09-17", t1: ["Iftadul Sakib", "Dan Wu"], t2: ["Gabriel Laurent", "Edvard Eriksson"], sets: [[21, 14]] },
-      { matchNum: 2, date: "2026-09-17", t1: ["Ali Wahaj", "Tuur Bruneel"], t2: ["Shehzad Khan", "Lucas Peeters"], sets: [[21, 16]] },
-      { matchNum: 3, date: "2026-09-17", t1: ["Phat Kieu", "Shehzad Khan"], t2: ["Tuur Bruneel", "Tai Kugimoto"], sets: [[21, 15]] },
-      { matchNum: 4, date: "2026-09-24", t1: ["Iftadul Sakib", "Ali Wahaj"], t2: ["Dan Wu", "Gabriel Laurent"], sets: [[21, 17]] },
-      { matchNum: 5, date: "2026-09-24", t1: ["Dan Wu", "Tai Kugimoto"], t2: ["Ali Wahaj", "Edvard Eriksson"], sets: [[21, 13]] },
-      { matchNum: 6, date: "2026-09-24", t1: ["Iftadul Sakib", "Tuur Bruneel"], t2: ["Phat Kieu", "Lucas Peeters"], sets: [[21, 16]] },
-      { matchNum: 7, date: "2026-10-01", t1: ["Dan Wu", "Shehzad Khan"], t2: ["Tuur Bruneel", "Gabriel Laurent"], sets: [[21, 14]] },
-      { matchNum: 8, date: "2026-10-01", t1: ["Ali Wahaj", "Phat Kieu"], t2: ["Iftadul Sakib", "Edvard Eriksson"], sets: [[21, 18]] },
-      { matchNum: 9, date: "2026-10-01", t1: ["Iftadul Sakib", "Ali Wahaj"], t2: ["Shehzad Khan", "Lucas Peeters"], sets: [[21, 15]] },
-      { matchNum: 10, date: "2026-10-01", t1: ["Tuur Bruneel", "Mirajul Sarker"], t2: ["Dan Wu", "Gabriel Laurent"], sets: [[21, 18]] },
-      { matchNum: 11, date: "2026-10-08", t1: ["Iftadul Sakib", "Dan Wu"], t2: ["Phat Kieu", "Edvard Eriksson"], sets: [[21, 12]] },
-      { matchNum: 12, date: "2026-10-08", t1: ["Ali Wahaj", "Shehzad Khan"], t2: ["Tuur Bruneel", "Lucas Peeters"], sets: [[21, 17]] },
-      { matchNum: 13, date: "2026-10-08", t1: ["Dan Wu", "Phat Kieu"], t2: ["Ali Wahaj", "Lucas Peeters"], sets: [[21, 13]] },
-      { matchNum: 14, date: "2026-10-08", t1: ["Iftadul Sakib", "Khanh Hien"], t2: ["Gabriel Laurent", "Edvard Eriksson"], sets: [[21, 9]] },
-      { matchNum: 15, date: "2026-10-08", t1: ["Ali Wahaj", "Tuur Bruneel"], t2: ["Shehzad Khan", "Lucas Peeters"], sets: [[21, 18]] },
-      { matchNum: 16, date: "2026-10-13", t1: ["Tuur Bruneel", "Edvard Eriksson"], t2: ["Gabriel Laurent", "Shehzad Khan"], sets: [[15, 12], [12, 15], [11, 15]] },
-      { matchNum: 17, date: "2026-10-13", t1: ["Tuur Bruneel", "Shehzad Khan"], t2: ["Iftadul Sakib", "Ali Wahaj"], sets: [[21, 5]] }
-    ];
-
-    const fallbackSinglesMatches = [
-      { matchNum: 1, date: "2026-10-13", p1: "Tuur Bruneel", p2: "Edvard Eriksson", sets: [[21, 9]] }
-    ];
+    const ACTIVE_API_URL = (urlParams.get("api") || CONFIG.apiUrl || "").trim();
 
     let appState = {
       discipline: "doubles",       // "doubles" | "singles"
@@ -524,9 +543,9 @@
       profilePlayer: null,         // currently inspected player name
       profileDiscipline: "doubles",
       adminPassword: "",           // held only in memory while unlocked
-      serverPlayers: null,         // Array once synced (can be empty on a brand-new sheet)
-      serverDoublesHistory: null,
-      serverSinglesHistory: null
+      serverPlayers: [],
+      serverDoublesHistory: [],
+      serverSinglesHistory: []
     };
 
     document.getElementById("appTitle").textContent = CONFIG.title;
@@ -534,6 +553,9 @@
     document.title = CONFIG.title;
 
     async function callBackendPost(bodyObj) {
+      if (!ACTIVE_API_URL) {
+        throw new Error("No API URL configured in CONFIG.apiUrl.");
+      }
       const res = await fetch(ACTIVE_API_URL, {
         method: "POST",
         credentials: "omit",
@@ -541,9 +563,12 @@
         headers: { "Content-Type": "text/plain;charset=utf-8" },
         body: JSON.stringify(bodyObj)
       });
+      if (!res.ok) {
+        throw new Error(`HTTP ${res.status} (${res.statusText || "Request failed"})`);
+      }
       const json = await res.json();
       if (!json || !json.ok) {
-        throw new Error((json && json.error) || "Request failed.");
+        throw new Error((json && json.error) || "Backend returned an error.");
       }
       return json;
     }
@@ -586,67 +611,34 @@
     }
 
     function getComputedData() {
-      if (Array.isArray(appState.serverPlayers)) {
-        const singles = appState.serverPlayers.map((p, idx) => ({
-          name: p.name, short: p.short || getShortName(p.name), initials: p.initials || getInitials(p.name),
-          elo: p.singlesElo, w: p.singlesW, l: p.singlesL, t: p.singlesT, order: idx
-        }));
-        const doubles = appState.serverPlayers.map((p, idx) => ({
-          name: p.name, short: p.short || getShortName(p.name), initials: p.initials || getInitials(p.name),
-          elo: p.doublesElo, w: p.doublesW, l: p.doublesL, t: p.doublesT, order: idx
-        }));
-        return {
-          playerNames: appState.serverPlayers.map(p => p.name),
-          singlesMap: Object.fromEntries(singles.map(p => [p.name, p])),
-          doublesMap: Object.fromEntries(doubles.map(p => [p.name, p])),
-          sortedSingles: [...singles].sort((a, b) => b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order),
-          sortedDoubles: [...doubles].sort((a, b) => b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order),
-          doublesHistory: appState.serverDoublesHistory || [],
-          singlesHistory: appState.serverSinglesHistory || []
-        };
-      }
-
-      // Offline calculation from fallback data
-      const singlesMap = {};
-      const doublesMap = {};
-      fallbackPlayers.forEach((p, idx) => {
-        singlesMap[p] = { name: p, short: getShortName(p), initials: getInitials(p), elo: CONFIG.startingElo, w: 0, l: 0, t: 0, order: idx };
-        doublesMap[p] = { name: p, short: getShortName(p), initials: getInitials(p), elo: CONFIG.startingElo, w: 0, l: 0, t: 0, order: idx };
-      });
-
-      const doublesHistory = [];
-      for (const m of fallbackDoublesMatches) {
-        const [p1, p2] = m.t1;
-        const [p3, p4] = m.t2;
-        const pre = { t1p1: doublesMap[p1].elo, t1p2: doublesMap[p2].elo, t2p1: doublesMap[p3].elo, t2p2: doublesMap[p4].elo };
-        const avg1 = (pre.t1p1 + pre.t1p2) / 2.0;
-        const avg2 = (pre.t2p1 + pre.t2p2) / 2.0;
-        const { delta1, winner } = computeEloDelta(avg1, avg2, m.sets);
-        doublesMap[p1].elo += delta1; doublesMap[p2].elo += delta1;
-        doublesMap[p3].elo -= delta1; doublesMap[p4].elo -= delta1;
-        if (winner === 1) { doublesMap[p1].w++; doublesMap[p2].w++; doublesMap[p3].l++; doublesMap[p4].l++; }
-        else { doublesMap[p3].w++; doublesMap[p4].w++; doublesMap[p1].l++; doublesMap[p2].l++; }
-        doublesHistory.push({ ...m, preElo: pre, delta1, delta2: -delta1, winner });
-      }
-
-      const singlesHistory = [];
-      for (const m of fallbackSinglesMatches) {
-        const { p1, p2 } = m;
-        const pre = { p1: singlesMap[p1].elo, p2: singlesMap[p2].elo };
-        const { delta1, winner } = computeEloDelta(pre.p1, pre.p2, m.sets);
-        singlesMap[p1].elo += delta1; singlesMap[p2].elo -= delta1;
-        if (winner === 1) { singlesMap[p1].w++; singlesMap[p2].l++; }
-        else { singlesMap[p2].w++; singlesMap[p1].l++; }
-        singlesHistory.push({ ...m, preElo: pre, delta1, delta2: -delta1, winner });
-      }
-
+      const singles = appState.serverPlayers.map((p, idx) => ({
+        name: p.name,
+        short: p.short || getShortName(p.name),
+        initials: p.initials || getInitials(p.name),
+        elo: p.singlesElo,
+        w: p.singlesW,
+        l: p.singlesL,
+        t: p.singlesT,
+        order: idx
+      }));
+      const doubles = appState.serverPlayers.map((p, idx) => ({
+        name: p.name,
+        short: p.short || getShortName(p.name),
+        initials: p.initials || getInitials(p.name),
+        elo: p.doublesElo,
+        w: p.doublesW,
+        l: p.doublesL,
+        t: p.doublesT,
+        order: idx
+      }));
       return {
-        playerNames: fallbackPlayers,
-        singlesMap, doublesMap,
-        sortedSingles: Object.values(singlesMap).sort((a, b) => b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order),
-        sortedDoubles: Object.values(doublesMap).sort((a, b) => b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order),
-        doublesHistory: doublesHistory.reverse(),
-        singlesHistory: singlesHistory.reverse()
+        playerNames: appState.serverPlayers.map(p => p.name),
+        singlesMap: Object.fromEntries(singles.map(p => [p.name, p])),
+        doublesMap: Object.fromEntries(doubles.map(p => [p.name, p])),
+        sortedSingles: [...singles].sort((a, b) => b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order),
+        sortedDoubles: [...doubles].sort((a, b) => b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order),
+        doublesHistory: appState.serverDoublesHistory,
+        singlesHistory: appState.serverSinglesHistory
       };
     }
 
@@ -658,9 +650,9 @@
         return `<div class="col-span-3 py-6 text-center text-xs text-slate-400">No players in roster yet. Unlock Admin to add players.</div>`;
       }
       const styles = [
-        { rank: "#1", medal: "🥇", ring: "border-amber-400 bg-amber-50/60 text-amber-900", card: "border-amber-200/90 bg-gradient-to-br from-amber-50/50 to-white", badge: "bg-amber-100 text-amber-800" },
-        { rank: "#2", medal: "🥈", ring: "border-slate-300 bg-slate-100 text-slate-700", card: "border-slate-200/80 bg-slate-50/40", badge: "bg-slate-200/70 text-slate-700" },
-        { rank: "#3", medal: "🥉", ring: "border-orange-300 bg-orange-50/60 text-orange-900", card: "border-orange-200/70 bg-orange-50/20", badge: "bg-orange-100 text-orange-800" }
+        { rank: "#1", medal: "🥇", ring: "border-amber-400 bg-amber-50/60 text-amber-900", card: "border-amber-200/90 bg-gradient-to-br from-amber-50/50 to-white" },
+        { rank: "#2", medal: "🥈", ring: "border-slate-300 bg-slate-100 text-slate-700", card: "border-slate-200/80 bg-slate-50/40" },
+        { rank: "#3", medal: "🥉", ring: "border-orange-300 bg-orange-50/60 text-orange-900", card: "border-orange-200/70 bg-orange-50/20" }
       ];
 
       return [0, 1, 2].map(i => {
@@ -752,7 +744,7 @@
       if (filteredList.length === 0) {
         lbContainer.innerHTML = `
           <div class="p-8 text-center text-sm text-slate-400">
-            ${q ? "No players match your filter." : "No players registered yet."}
+            ${q ? "No players match your filter." : "No players registered in the database yet."}
           </div>
         `;
       } else {
@@ -809,7 +801,6 @@
         }).join("");
       }
 
-      // Filter match history by search query too if entered
       const filteredHistory = history.filter(m => {
         if (!q) return true;
         if (isDoubles) {
@@ -965,7 +956,6 @@
       document.getElementById("profileAvatar").textContent = getInitials(playerName);
       document.getElementById("profileName").textContent = playerName;
 
-      // Count player's matches in both disciplines for tab labels
       const dMatches = data.doublesHistory.filter(m => m.t1.includes(playerName) || m.t2.includes(playerName));
       const sMatches = data.singlesHistory.filter(m => m.p1 === playerName || m.p2 === playerName);
 
@@ -989,21 +979,23 @@
       const total = pStats.w + pStats.l + pStats.t;
       const winRate = total > 0 ? Math.round((pStats.w / total) * 100) + "%" : "—";
 
-      // Build chronological personal match log to compute running Elo & peak Elo
       const rawMatchesChrono = [...(isDoubles ? dMatches : sMatches)].reverse();
       let runningElo = CONFIG.startingElo;
-      let peakElo = CONFIG.startingElo;
+      let peakElo = Math.max(CONFIG.startingElo, pStats.elo);
 
       const enrichedMatches = rawMatchesChrono.map(m => {
         if (isDoubles) {
           const onT1 = m.t1.includes(playerName);
-          const partner = onT1 ? (m.t1[0] === playerName ? m.t1[1] : m.t1[0]) : (m.t2[0] === playerName ? m.t2[1] : m.t2[0]);
+          const isFirstPartner = onT1 ? (m.t1[0] === playerName) : (m.t2[0] === playerName);
+          const partner = onT1 ? (isFirstPartner ? m.t1[1] : m.t1[0]) : (isFirstPartner ? m.t2[1] : m.t2[0]);
           const opponents = onT1 ? m.t2 : m.t1;
           const won = (onT1 && m.winner === 1) || (!onT1 && m.winner === 2);
           const delta = onT1 ? m.delta1 : m.delta2;
-          const preElo = runningElo;
-          runningElo += delta;
-          if (runningElo > peakElo) peakElo = runningElo;
+          const sheetPre = m.preElo ? (onT1 ? (isFirstPartner ? m.preElo.t1p1 : m.preElo.t1p2) : (isFirstPartner ? m.preElo.t2p1 : m.preElo.t2p2)) : null;
+          const preElo = typeof sheetPre === "number" && !isNaN(sheetPre) ? sheetPre : runningElo;
+          const postElo = preElo + delta;
+          runningElo = postElo;
+          if (postElo > peakElo) peakElo = postElo;
           const setsFormatted = m.sets.map(([a, b]) => onT1 ? `${a}–${b}` : `${b}–${a}`);
           return {
             matchNum: m.matchNum,
@@ -1014,16 +1006,18 @@
             setsFormatted,
             delta,
             preElo,
-            postElo: runningElo
+            postElo
           };
         } else {
           const isP1 = m.p1 === playerName;
           const opponent = isP1 ? m.p2 : m.p1;
           const won = (isP1 && m.winner === 1) || (!isP1 && m.winner === 2);
           const delta = isP1 ? m.delta1 : m.delta2;
-          const preElo = runningElo;
-          runningElo += delta;
-          if (runningElo > peakElo) peakElo = runningElo;
+          const sheetPre = m.preElo ? (isP1 ? m.preElo.p1 : m.preElo.p2) : null;
+          const preElo = typeof sheetPre === "number" && !isNaN(sheetPre) ? sheetPre : runningElo;
+          const postElo = preElo + delta;
+          runningElo = postElo;
+          if (postElo > peakElo) peakElo = postElo;
           const setsFormatted = m.sets.map(([a, b]) => isP1 ? `${a}–${b}` : `${b}–${a}`);
           return {
             matchNum: m.matchNum,
@@ -1033,10 +1027,10 @@
             setsFormatted,
             delta,
             preElo,
-            postElo: runningElo
+            postElo
           };
         }
-      }).reverse(); // newest first for display
+      }).reverse();
 
       document.getElementById("profileSummaryPill").textContent = `${isDoubles ? "Doubles" : "Singles"} Rank ${rankStr}`;
 
@@ -1147,14 +1141,13 @@
       if (tab === "leaderboard") {
         bL.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs";
         bH.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900";
-        pL.classList.remove("hidden");
-        pH.classList.add("hidden");
+        pL.className = "lg:block lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden";
+        pH.className = "hidden lg:block lg:col-span-5 space-y-3";
       } else {
         bH.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs";
         bL.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900";
-        pH.classList.remove("hidden");
-        pL.classList.add("hidden");
-        pL.classList.add("lg:block");
+        pL.className = "hidden lg:block lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden";
+        pH.className = "lg:block lg:col-span-5 space-y-3";
       }
     }
 
@@ -1362,8 +1355,31 @@
       }
     }
 
+    // =========================================================================
+    // INITIALIZATION, LIVE SYNC & ERROR STATE HANDLING
+    // =========================================================================
+    function showErrorPage(message) {
+      document.getElementById("loadingScreen").classList.add("hidden");
+      document.getElementById("appMainContent").classList.add("hidden");
+      document.getElementById("headerControls").classList.add("hidden");
+      document.getElementById("headerControls").classList.remove("flex");
+
+      const errScreen = document.getElementById("errorScreen");
+      errScreen.classList.remove("hidden");
+      document.getElementById("errorScreenMessage").textContent = message || "Could not reach the Google Sheet Web App endpoint.";
+      document.getElementById("errorScreenEndpoint").textContent = ACTIVE_API_URL || "(not configured)";
+
+      const badge = document.getElementById("syncBadge");
+      badge.className = "inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 shrink-0";
+      document.getElementById("syncDot").className = "w-1.5 h-1.5 rounded-full bg-rose-500";
+      document.getElementById("syncText").textContent = "Connection Error";
+    }
+
     function applyServerState(res) {
-      if (!res || !Array.isArray(res.players)) return;
+      if (!res || !Array.isArray(res.players)) {
+        showErrorPage("Invalid response payload received from backend.");
+        return;
+      }
       appState.serverPlayers = res.players;
       appState.serverDoublesHistory = res.doublesHistory || [];
       appState.serverSinglesHistory = res.singlesHistory || [];
@@ -1374,11 +1390,51 @@
         document.title = cleanTitle;
       }
 
+      document.getElementById("loadingScreen").classList.add("hidden");
+      document.getElementById("errorScreen").classList.add("hidden");
+      document.getElementById("appMainContent").classList.remove("hidden");
+      const hc = document.getElementById("headerControls");
+      hc.classList.remove("hidden");
+      hc.classList.add("flex");
+
       const badge = document.getElementById("syncBadge");
       badge.className = "inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0";
       document.getElementById("syncDot").className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
       document.getElementById("syncText").textContent = "Live";
       renderAll();
+    }
+
+    function loadAppStateFromBackend() {
+      document.getElementById("errorScreen").classList.add("hidden");
+      document.getElementById("appMainContent").classList.add("hidden");
+      document.getElementById("loadingScreen").classList.remove("hidden");
+
+      const badge = document.getElementById("syncBadge");
+      badge.className = "inline-flex items-center gap-1 text-[11px] font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0";
+      document.getElementById("syncDot").className = "w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse";
+      document.getElementById("syncText").textContent = "Connecting...";
+
+      if (!ACTIVE_API_URL) {
+        showErrorPage("Missing API URL. Set CONFIG.apiUrl in index.html or pass ?api=<EXEC_URL>.");
+        return;
+      }
+
+      fetch(ACTIVE_API_URL, { method: "GET", credentials: "omit", redirect: "follow" })
+        .then(async r => {
+          if (!r.ok) {
+            throw new Error(`HTTP ${r.status} (${r.statusText || "Request failed"})`);
+          }
+          return r.json();
+        })
+        .then(j => {
+          if (!j || !j.ok || !j.data) {
+            throw new Error((j && j.error) || "Backend returned an invalid response.");
+          }
+          applyServerState(j.data);
+        })
+        .catch(err => {
+          showErrorPage((err && err.message) || "Failed to fetch data from Google Apps Script.");
+        });
     }
 
     function saveMatchFromModal() {
@@ -1462,16 +1518,8 @@
         .catch(onFail);
     }
 
-    // Initial render & fetch live state from Google Apps Script API
-    renderAll();
-    fetch(ACTIVE_API_URL, { method: "GET", credentials: "omit", redirect: "follow" })
-      .then(r => r.json())
-      .then(j => {
-        if (j && j.data) applyServerState(j.data);
-      })
-      .catch(() => {
-        document.getElementById("syncText").textContent = "Offline Demo";
-      });
+    // Connect to Google Sheet Backend on load
+    loadAppStateFromBackend();
   </script>
 </body>
 </html>

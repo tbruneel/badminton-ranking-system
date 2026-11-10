@@ -20,8 +20,8 @@
  * 5. Copy the `/exec` Web App URL into `CONFIG.apiUrl` in `index.html`.
  */
 
-// Optional fallback ID if run outside a container-bound sheet; leave blank to auto-detect the bound sheet.
-const FALLBACK_SPREADSHEET_ID = '1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q';
+// Optional override if running standalone (unbound). Leave empty when bound to a Google Sheet.
+const SPREADSHEET_ID_OVERRIDE = '';
 
 const INITIAL_PLAYER_SLOTS = 50;   // Rows 2..50 pre-filled on init (auto-expands beyond 50)
 const INITIAL_MATCH_SLOTS = 100;   // Rows 3..102 pre-filled on init (auto-expands beyond 100)
@@ -42,6 +42,9 @@ function onOpen() {
  */
 function getSpreadsheet_() {
   const props = PropertiesService.getScriptProperties();
+  if (SPREADSHEET_ID_OVERRIDE) {
+    return SpreadsheetApp.openById(SPREADSHEET_ID_OVERRIDE);
+  }
   let ss = null;
   try {
     ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -49,14 +52,14 @@ function getSpreadsheet_() {
     ss = null;
   }
   if (ss) {
-    if (!props.getProperty('SPREADSHEET_ID')) {
+    if (props.getProperty('SPREADSHEET_ID') !== ss.getId()) {
       props.setProperty('SPREADSHEET_ID', ss.getId());
     }
     return ss;
   }
-  const savedId = props.getProperty('SPREADSHEET_ID') || FALLBACK_SPREADSHEET_ID;
+  const savedId = props.getProperty('SPREADSHEET_ID');
   if (!savedId) {
-    throw new Error('No bound Google Sheet found. Open the sheet and run "🔒 Badminton Admin -> Initialize / Repair Database" once.');
+    throw new Error('No bound Google Sheet found. Bind this script via Extensions -> Apps Script or set SPREADSHEET_ID_OVERRIDE.');
   }
   return SpreadsheetApp.openById(savedId);
 }
@@ -131,14 +134,14 @@ function playerRowFormulas_(r) {
   return [
     `=IF(A${r}="","",INDEX(SPLIT(TRIM(A${r})," "),1))`,
     `=IF(A${r}="","",UPPER(LEFT(TRIM(A${r}),1)&IF(ISNUMBER(FIND(" ",TRIM(A${r}))),LEFT(TRIM(MID(TRIM(A${r}),FIND(" ",TRIM(A${r}))+1,99)),1),"")))`,
-    `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C$500,A${r},Singles_Matches!$M$3:$M$500,"P1")+COUNTIFS(Singles_Matches!$D$3:$D$500,A${r},Singles_Matches!$M$3:$M$500,"P2"))`,
-    `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C$500,A${r},Singles_Matches!$M$3:$M$500,"P2")+COUNTIFS(Singles_Matches!$D$3:$D$500,A${r},Singles_Matches!$M$3:$M$500,"P1"))`,
-    `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C$500,A${r},Singles_Matches!$M$3:$M$500,"TIE")+COUNTIFS(Singles_Matches!$D$3:$D$500,A${r},Singles_Matches!$M$3:$M$500,"TIE"))`,
-    `=IF(A${r}="","",1000+SUMIF(Singles_Matches!$C$3:$C$500,A${r},Singles_Matches!$P$3:$P$500)+SUMIF(Singles_Matches!$D$3:$D$500,A${r},Singles_Matches!$Q$3:$Q$500))`,
-    `=IF(A${r}="","",COUNTIFS(Doubles_Matches!$C$3:$C$500,A${r},Doubles_Matches!$O$3:$O$500,"T1")+COUNTIFS(Doubles_Matches!$D$3:$D$500,A${r},Doubles_Matches!$O$3:$O$500,"T1")+COUNTIFS(Doubles_Matches!$E$3:$E$500,A${r},Doubles_Matches!$O$3:$O$500,"T2")+COUNTIFS(Doubles_Matches!$F$3:$F$500,A${r},Doubles_Matches!$O$3:$O$500,"T2"))`,
-    `=IF(A${r}="","",COUNTIFS(Doubles_Matches!$C$3:$C$500,A${r},Doubles_Matches!$O$3:$O$500,"T2")+COUNTIFS(Doubles_Matches!$D$3:$D$500,A${r},Doubles_Matches!$O$3:$O$500,"T2")+COUNTIFS(Doubles_Matches!$E$3:$E$500,A${r},Doubles_Matches!$O$3:$O$500,"T1")+COUNTIFS(Doubles_Matches!$F$3:$F$500,A${r},Doubles_Matches!$O$3:$O$500,"T1"))`,
-    `=IF(A${r}="","",COUNTIFS(Doubles_Matches!$C$3:$C$500,A${r},Doubles_Matches!$O$3:$O$500,"TIE")+COUNTIFS(Doubles_Matches!$D$3:$D$500,A${r},Doubles_Matches!$O$3:$O$500,"TIE")+COUNTIFS(Doubles_Matches!$E$3:$E$500,A${r},Doubles_Matches!$O$3:$O$500,"TIE")+COUNTIFS(Doubles_Matches!$F$3:$F$500,A${r},Doubles_Matches!$O$3:$O$500,"TIE"))`,
-    `=IF(A${r}="","",1000+SUMIF(Doubles_Matches!$C$3:$C$500,A${r},Doubles_Matches!$T$3:$T$500)+SUMIF(Doubles_Matches!$D$3:$D$500,A${r},Doubles_Matches!$T$3:$T$500)+SUMIF(Doubles_Matches!$E$3:$E$500,A${r},Doubles_Matches!$U$3:$U$500)+SUMIF(Doubles_Matches!$F$3:$F$500,A${r},Doubles_Matches!$U$3:$U$500))`
+    `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$M$3:$M,"P1")+COUNTIFS(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$M$3:$M,"P2"))`,
+    `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$M$3:$M,"P2")+COUNTIFS(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$M$3:$M,"P1"))`,
+    `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$M$3:$M,"TIE")+COUNTIFS(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$M$3:$M,"TIE"))`,
+    `=IF(A${r}="","",1000+SUMIF(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$P$3:$P)+SUMIF(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$Q$3:$Q))`,
+    `=IF(A${r}="","",COUNTIFS(Doubles_Matches!$C$3:$C,A${r},Doubles_Matches!$O$3:$O,"T1")+COUNTIFS(Doubles_Matches!$D$3:$D,A${r},Doubles_Matches!$O$3:$O,"T1")+COUNTIFS(Doubles_Matches!$E$3:$E,A${r},Doubles_Matches!$O$3:$O,"T2")+COUNTIFS(Doubles_Matches!$F$3:$F,A${r},Doubles_Matches!$O$3:$O,"T2"))`,
+    `=IF(A${r}="","",COUNTIFS(Doubles_Matches!$C$3:$C,A${r},Doubles_Matches!$O$3:$O,"T2")+COUNTIFS(Doubles_Matches!$D$3:$D,A${r},Doubles_Matches!$O$3:$O,"T2")+COUNTIFS(Doubles_Matches!$E$3:$E,A${r},Doubles_Matches!$O$3:$O,"T1")+COUNTIFS(Doubles_Matches!$F$3:$F,A${r},Doubles_Matches!$O$3:$O,"T1"))`,
+    `=IF(A${r}="","",COUNTIFS(Doubles_Matches!$C$3:$C,A${r},Doubles_Matches!$O$3:$O,"TIE")+COUNTIFS(Doubles_Matches!$D$3:$D,A${r},Doubles_Matches!$O$3:$O,"TIE")+COUNTIFS(Doubles_Matches!$E$3:$E,A${r},Doubles_Matches!$O$3:$O,"TIE")+COUNTIFS(Doubles_Matches!$F$3:$F,A${r},Doubles_Matches!$O$3:$O,"TIE"))`,
+    `=IF(A${r}="","",1000+SUMIF(Doubles_Matches!$C$3:$C,A${r},Doubles_Matches!$T$3:$T)+SUMIF(Doubles_Matches!$D$3:$D,A${r},Doubles_Matches!$T$3:$T)+SUMIF(Doubles_Matches!$E$3:$E,A${r},Doubles_Matches!$U$3:$U)+SUMIF(Doubles_Matches!$F$3:$F,A${r},Doubles_Matches!$U$3:$U))`
   ];
 }
 
