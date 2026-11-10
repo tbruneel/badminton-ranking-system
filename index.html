@@ -261,8 +261,8 @@
             <div class="col-span-1">Rank</div>
             <div class="col-span-5">Player</div>
             <div class="col-span-3 text-center">Record</div>
-            <div class="col-span-1 text-right">Win Rate</div>
-            <div class="col-span-2 text-right">Elo</div>
+            <div class="col-span-1 text-right">Win%</div>
+            <div class="col-span-2 text-right">ELO</div>
           </div>
 
           <div id="leaderboardRows" class="divide-y divide-slate-100"></div>
@@ -395,7 +395,7 @@
       <div class="flex items-center justify-between">
         <div>
           <h3 class="text-base sm:text-lg font-bold text-slate-900">Log Match Result</h3>
-          <p class="text-xs text-slate-500">Automatically updates Google Sheet &amp; recalculates Elo</p>
+          <p class="text-xs text-slate-500">Automatically updates Google Sheet &amp; recalculates ELO</p>
         </div>
         <button onclick="closeMatchModal()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-sm">✕</button>
       </div>
@@ -476,7 +476,7 @@
       <div class="flex items-center justify-between">
         <div>
           <h3 class="text-base font-bold text-slate-900">Add Player to Roster</h3>
-          <p class="text-xs text-slate-500">Starts at 1000 Elo in both Singles and Doubles</p>
+          <p class="text-xs text-slate-500">Starts at 1000 ELO in both Singles and Doubles</p>
         </div>
         <button onclick="closePlayerModal()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-sm">✕</button>
       </div>
@@ -642,18 +642,22 @@
       return total > 0 ? Math.round((won / total) * 100) + "%" : "—";
     }
 
-    function formatWltInlineHtml(w, l, t, showWinRate = false) {
+    function formatWltInlineHtml(w, l, t, showWinRate = false, digits = null, alignPct = false) {
       const total = w + l + t;
+      const wNum = digits ? `<span class="inline-block text-right" style="min-width:${digits.w}ch">${w}</span>` : `${w}`;
+      const lNum = digits ? `<span class="inline-block text-right" style="min-width:${digits.l}ch">${l}</span>` : `${l}`;
+      const tNum = digits ? `<span class="inline-block text-right" style="min-width:${digits.t}ch">${t}</span>` : `${t}`;
+      const pctWidthCls = alignPct ? "inline-block w-11 text-right" : "ml-0.5";
       const pctHtml = showWinRate
-        ? `<span class="text-slate-400 font-normal">(${formatWinRateStr(w, total)})</span>`
+        ? `<span class="text-slate-400 font-normal ${pctWidthCls}">(${formatWinRateStr(w, total)})</span>`
         : "";
       return `
-        <span class="inline-flex items-center gap-1.5 tabular-nums whitespace-nowrap">
-          <span class="text-emerald-600 font-semibold">${w}W</span>
-          <span class="text-slate-300">·</span>
-          <span class="text-rose-500 font-semibold">${l}L</span>
-          <span class="text-slate-300">·</span>
-          <span class="text-slate-600 font-semibold">${t}T</span>
+        <span class="inline-flex items-center gap-1 tabular-nums whitespace-nowrap">
+          <span class="text-emerald-600 font-semibold">${wNum}W</span>
+          <span class="text-slate-300">•</span>
+          <span class="text-rose-500 font-semibold">${lNum}L</span>
+          <span class="text-slate-300">•</span>
+          <span class="text-slate-600 font-semibold">${tNum}T</span>
           ${pctHtml}
         </span>
       `;
@@ -661,9 +665,16 @@
 
     function formatWlCardHtml(w, l, t = null) {
       const tiePart = t !== null
-        ? ` <span class="text-slate-300 font-semibold">·</span> <span class="text-slate-600">${t}T</span>`
+        ? `<span class="text-slate-300 font-semibold">•</span><span class="text-slate-600">${t}T</span>`
         : "";
-      return `<span class="text-emerald-600">${w}W</span> <span class="text-slate-300 font-semibold">·</span> <span class="text-rose-500">${l}L</span>${tiePart}`;
+      return `
+        <span class="inline-flex items-center gap-1 tabular-nums whitespace-nowrap">
+          <span class="text-emerald-600">${w}W</span>
+          <span class="text-slate-300 font-semibold">•</span>
+          <span class="text-rose-500">${l}L</span>
+          ${tiePart}
+        </span>
+      `;
     }
 
     // =========================================================================
@@ -730,7 +741,7 @@
             </div>
             <div class="text-right shrink-0">
               <div class="text-base font-extrabold text-slate-900 tabular-nums">${p.elo}</div>
-              <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">Elo</div>
+              <div class="text-[10px] font-semibold uppercase tracking-wider text-slate-400">ELO</div>
             </div>
           </button>
         `;
@@ -787,6 +798,11 @@
           </div>
         `;
       } else {
+        const lbDigits = {
+          w: Math.max(1, ...filteredList.map(p => String(p.w).length)),
+          l: Math.max(1, ...filteredList.map(p => String(p.l).length)),
+          t: Math.max(1, ...filteredList.map(p => String(p.t).length))
+        };
         lbContainer.innerHTML = filteredList.map(p => {
           const total = p.w + p.l + p.t;
           const winRateStr = formatWinRateStr(p.w, total);
@@ -820,7 +836,7 @@
               </div>
 
               <div class="hidden sm:flex sm:col-span-3 items-center justify-center text-xs">
-                ${formatWltInlineHtml(p.w, p.l, p.t, false)}
+                ${formatWltInlineHtml(p.w, p.l, p.t, false, lbDigits)}
               </div>
 
               <div class="hidden sm:block sm:col-span-1 text-right text-xs font-medium text-slate-500 tabular-nums">
@@ -1178,7 +1194,7 @@
       if (pStats.elo > peakElo) peakElo = pStats.elo;
       const peakDateStr = peakDate ? String(peakDate).trim().split(/\s+/)[0].replace(/-/g, "/") : "Base rating";
 
-      document.getElementById("profileSummaryPill").textContent = `${isDoubles ? "Doubles" : "Singles"} Rank ${rankStr} · ${pStats.elo} Elo`;
+      document.getElementById("profileSummaryPill").textContent = `${isDoubles ? "Doubles" : "Singles"} Rank ${rankStr} · ${pStats.elo} ELO`;
 
       const totalSets = setsWon + setsLost;
       const setWinPct = formatWinRateStr(setsWon, totalSets);
@@ -1186,6 +1202,11 @@
       const ptWinPct = formatWinRateStr(ptsFor, totalPts);
 
       const h2hList = Object.values(h2hMap).sort((a, b) => (b.w + b.l + b.t) - (a.w + a.l + a.t) || b.w - a.w);
+      const h2hDigits = {
+        w: Math.max(1, ...h2hList.map(r => String(r.w).length)),
+        l: Math.max(1, ...h2hList.map(r => String(r.l).length)),
+        t: Math.max(1, ...h2hList.map(r => String(r.t).length))
+      };
       const h2hRowsHtml = h2hList.length === 0
         ? `<div class="py-4 text-center text-xs text-slate-400">No ${isDoubles ? "Doubles" : "Singles"} opponents recorded yet.</div>`
         : h2hList.map(r => {
@@ -1196,8 +1217,8 @@
                   ${escapeHtml(r.name)}
                 </button>
                 <div class="flex items-center gap-3 shrink-0 tabular-nums">
-                  <span class="text-slate-400">${rTotal} ${rTotal === 1 ? "match" : "matches"}</span>
-                  ${formatWltInlineHtml(r.w, r.l, r.t, true)}
+                  <span class="text-slate-400 text-right">${rTotal} ${rTotal === 1 ? "match" : "matches"}</span>
+                  ${formatWltInlineHtml(r.w, r.l, r.t, true, h2hDigits, true)}
                 </div>
               </div>
             `;
@@ -1205,14 +1226,14 @@
 
       statsEl.innerHTML = `
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <!-- Row 1: Elo & Match Performance -->
+          <!-- Row 1: ELO & Match Performance -->
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Current Elo</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Current ELO</div>
             <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${pStats.elo}</div>
             <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">Rank ${rankStr} of ${sortedList.length}</div>
           </div>
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Peak Elo</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Peak ELO</div>
             <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${peakElo}</div>
             <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${escapeHtml(peakDateStr)}</div>
           </div>
@@ -1224,9 +1245,9 @@
             <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${total} ${total === 1 ? "match" : "matches"} played</div>
           </div>
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Match Win Rate</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Match Win%</div>
             <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${winRate}</div>
-            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${total > 0 ? `${pStats.w} won of ${total} played` : "No matches played"}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${total > 0 ? `${pStats.w}/${total} ${total === 1 ? "match" : "matches"} won` : "No matches played"}</div>
           </div>
 
           <!-- Row 2: Set & Point Performance (Hierarchical & Uniform with Match Performance) -->
@@ -1238,9 +1259,9 @@
             <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalSets} ${totalSets === 1 ? "set" : "sets"} played</div>
           </div>
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Set Win Rate</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Set Win%</div>
             <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${setWinPct}</div>
-            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalSets > 0 ? `${setsWon} won of ${totalSets} played` : "No sets played"}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalSets > 0 ? `${setsWon}/${totalSets} ${totalSets === 1 ? "set" : "sets"} won` : "No sets played"}</div>
           </div>
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
             <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Point Record</div>
@@ -1250,9 +1271,9 @@
             <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalPts} ${totalPts === 1 ? "point" : "points"} played</div>
           </div>
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Point Win Rate</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Point Win%</div>
             <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${ptWinPct}</div>
-            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalPts > 0 ? `${ptsFor} won of ${totalPts} played` : "No points played"}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalPts > 0 ? `${ptsFor}/${totalPts} ${totalPts === 1 ? "point" : "points"} won` : "No points played"}</div>
           </div>
         </div>
 
@@ -1551,7 +1572,7 @@
         return;
       }
       if (sets.length === 0) {
-        box.innerHTML = `<span class="text-slate-500">Enter Set 1 score to preview Elo rating change.</span>`;
+        box.innerHTML = `<span class="text-slate-500">Enter Set 1 score to preview ELO rating change.</span>`;
         return;
       }
       const p1 = document.getElementById("mT1P1").value;
@@ -1575,7 +1596,7 @@
             <span class="font-bold">${sets.map(s => s.join("–")).join(", ")}</span>
           </div>
           ${winner === 0
-            ? `<div class="pt-1 font-semibold text-slate-600">Tie Match (1–1 in sets) — Elo ratings unchanged (0)</div>`
+            ? `<div class="pt-1 font-semibold text-slate-600">Tie Match (1–1 in sets) — ELO ratings unchanged (0)</div>`
             : `<div class="flex justify-between pt-1 font-semibold">
                 <span>${escapeHtml(getShortName(p1))} &amp; ${escapeHtml(getShortName(p2))}: <span class="${delta1 > 0 ? 'text-emerald-700' : 'text-rose-600'}">${s1}</span></span>
                 <span>${escapeHtml(getShortName(p3))} &amp; ${escapeHtml(getShortName(p4))}: <span class="${-delta1 > 0 ? 'text-emerald-700' : 'text-rose-600'}">${s2}</span></span>
@@ -1594,11 +1615,11 @@
         const s2 = -delta1 > 0 ? `+${-delta1}` : `${-delta1}`;
         box.innerHTML = `
           <div class="flex justify-between text-slate-600">
-            <span>Elo: <b>${e1}</b> vs <b>${e2}</b></span>
+            <span>ELO: <b>${e1}</b> vs <b>${e2}</b></span>
             <span class="font-bold">${sets.map(s => s.join("–")).join(", ")}</span>
           </div>
           ${winner === 0
-            ? `<div class="pt-1 font-semibold text-slate-600">Tie Match (1–1 in sets) — Elo ratings unchanged (0)</div>`
+            ? `<div class="pt-1 font-semibold text-slate-600">Tie Match (1–1 in sets) — ELO ratings unchanged (0)</div>`
             : `<div class="flex justify-between pt-1 font-semibold">
                 <span>${escapeHtml(getShortName(p1))}: <span class="${delta1 > 0 ? 'text-emerald-700' : 'text-rose-600'}">${s1}</span></span>
                 <span>${escapeHtml(getShortName(p3))}: <span class="${-delta1 > 0 ? 'text-emerald-700' : 'text-rose-600'}">${s2}</span></span>
