@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VUB SportMix: Badminton Ranking System — Documentation</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased py-10 px-4">
+  <main class="max-w-3xl mx-auto bg-white border border-slate-200 rounded-3xl shadow-xs p-6 sm:p-10 space-y-8">
+    <!-- Header -->
+    <header class="border-b border-slate-200 pb-6 space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-semibold">
+        🏸 VUB SportMix: Badminton
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
+        Badminton Elo Ranking System
+      </h1>
+      <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
+        A mobile-first Badminton Ranking System modeled after the <a href="https://slicewin.com/elo-system" target="_blank" rel="noopener" class="text-teal-700 font-semibold underline">SliceWin Elo System</a>, integrated with <strong>Google Sheets</strong> and <strong>Google Apps Script</strong>, and served via <strong>GitHub Pages</strong> so it works seamlessly on mobile Chrome without Google multi-account issues.
+      </p>
+      <div class="flex flex-wrap gap-3 pt-2">
+        <a href="index.html" class="px-4 py-2.5 rounded-xl bg-[#26383a] text-white text-xs font-bold hover:opacity-90 transition">
+          📱 Open Live Ranking App →
+        </a>
+        <a href="https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit" target="_blank" rel="noopener" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 text-xs font-bold hover:bg-slate-200 transition">
+          📊 Open Google Sheet Backend
+        </a>
+      </div>
+    </header>
+
+    <!-- Key Features -->
+    <section class="space-y-4">
+      <h2 class="text-lg font-bold text-slate-900">✨ Key Features</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+          <div class="font-bold text-slate-900">🎾 Separate Singles &amp; Doubles Elo</div>
+          <p class="text-slate-600">Every player maintains an independent Singles and Doubles Elo rating, each starting at a baseline of <strong>1000 points</strong>.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+          <div class="font-bold text-slate-900">🤝 Random-Partner Doubles</div>
+          <p class="text-slate-600">Form pairs with any partner for each match. Team strength is the average of both partners' personal Doubles Elos.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+          <div class="font-bold text-slate-900">🏆 Podiums, Leaderboards &amp; History</div>
+          <p class="text-slate-600">Mobile-friendly Top 3 Podium cards, searchable Leaderboards with W/L/T records, and chronological Match History cards.</p>
+        </div>
+        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
+          <div class="font-bold text-slate-900">🔒 Read-Only Public + Admin Unlock</div>
+          <p class="text-slate-600">Public visitors cannot modify data. Organizers tap <strong>🔒 Admin</strong> to unlock match logging and player management.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Elo Math -->
+    <section class="space-y-3">
+      <h2 class="text-lg font-bold text-slate-900">🧮 SliceWin Elo Calculation</h2>
+      <div class="p-5 rounded-2xl bg-slate-900 text-slate-100 text-xs sm:text-sm space-y-2.5 font-mono">
+        <div>1. Team Avg (Doubles): R_team1 = (R_p1 + R_p2) / 2,  R_team2 = (R_p3 + R_p4) / 2</div>
+        <div>2. Expected Score:     E_1 = 1 / (1 + 10 ^ ((R_team2 - R_team1) / 400))</div>
+        <div>3. Margin Multiplier:  K_eff = 40 + 40 * (|Pts_1 - Pts_2| / (Pts_1 + Pts_2))</div>
+        <div>4. Rating Change:      Delta_1 = ROUND(K_eff * (S_1 - E_1)),  Delta_2 = -Delta_1</div>
+      </div>
+    </section>
+
+    <!-- Security Architecture -->
+    <section class="space-y-3">
+      <h2 class="text-lg font-bold text-slate-900">🔐 Security &amp; Multi-Account Chrome Fix</h2>
+      <ul class="list-disc pl-5 space-y-2 text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <li><strong>Salted SHA-256 Password Hashing:</strong> The Admin Password is never stored in plain text in <code>code.gs</code>, <code>index.html</code>, or <code>ScriptProperties</code>. Only a random UUID salt (<code>ADMIN_SALT</code>) and <code>SHA-256(salt + ":" + password)</code> digest (<code>ADMIN_PASSWORD_HASH</code>) are stored.</li>
+        <li><strong>Constant-Time Verification &amp; Brute-Force Lockout:</strong> Hashes are compared using bitwise constant-time equality, and <code>CacheService</code> locks out login attempts for 15 minutes after 5 failed tries.</li>
+        <li><strong>HTTPS POST-Only &amp; Android Chrome Multi-Account Fix:</strong> Hosting <code>index.html</code> on GitHub Pages and calling the Apps Script backend with <code>fetch(..., { credentials: "omit" })</code> prevents Android Chrome from attaching conflicting multi-account Google cookies (bypassing Google Issue #69270374).</li>
+        <li><strong>Formula-Injection &amp; Input Validation:</strong> Blocks leading <code>=</code>, <code>+</code>, <code>-</code>, <code>@</code> characters, enforces distinct roster players and <code>0–30</code> non-tie set scores, and locks writes via <code>LockService.getScriptLock()</code>.</li>
+      </ul>
+    </section>
+
+    <!-- Setup Guide -->
+    <section class="space-y-3 border-t border-slate-200 pt-6">
+      <h2 class="text-lg font-bold text-slate-900">🛠️ Setup &amp; Deployment</h2>
+      <ol class="list-decimal pl-5 space-y-2 text-xs sm:text-sm text-slate-700 leading-relaxed">
+        <li>In your Google Sheet, open <strong>Extensions &gt; Apps Script</strong>, paste <code>code.gs</code> into <code>Code.gs</code> and <code>index.html</code> into <code>Index.html</code>, and save.</li>
+        <li>Reload your Google Sheet, click <strong>🔒 Badminton Admin &gt; Set / Change Admin Password...</strong> in the top menu bar, and set your password.</li>
+        <li>In Apps Script, click <strong>Deploy &gt; Manage deployments &gt; Edit (✏️) &gt; Version: New version &gt; Deploy</strong> (<em>Execute as: Me</em>, <em>Who has access: Anyone</em>).</li>
+      </ol>
+    </section>
+  </main>
+</body>
+</html>
