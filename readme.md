@@ -1,76 +1,69 @@
-# 🏸 VUB SportMix: Badminton Ranking System
+# VUB SportMix: Badminton Ranking System (`badminton-ranking-system`)
 
-A mobile-first Badminton Elo Ranking System modeled after the [SliceWin Elo System](https://slicewin.com/elo-system), backed by **Google Sheets** and **Google Apps Script**, and served via **GitHub Pages** so it works in any mobile browser (including Android Chrome with multiple signed-in Google accounts).
+A mobile-first badminton Elo ranking system modeled after the [SliceWin Elo System](https://slicewin.com/elo-system), supporting separate **Singles** and **Doubles** leaderboards where each player maintains an individual rating (`1000` starting Elo) and can pair up with any partner.
 
----
-
-## 🔗 Live Links
-
-- **📱 Mobile Web App (GitHub Pages):** [https://tbruneel.github.io/badminton-ranking-system/](https://tbruneel.github.io/badminton-ranking-system/)
-- **📊 Google Sheet Backend:** [VUB SportMix: Badminton Ranking System](https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit)
-- **📖 HTML Documentation:** [readme.md.html](https://tbruneel.github.io/badminton-ranking-system/readme.md.html)
+- **Live Web App (GitHub Pages — Sole UI):** <https://tbruneel.github.io/badminton-ranking-system/>
+- **Google Sheet Database:** <https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit>
 
 ---
 
-## ✨ Key Features
+## Architecture
 
-1. **Separate Singles & Doubles Rankings:**
-   - Every player maintains an independent **Singles Elo** and **Doubles Elo**, each starting at **1000 points**.
-2. **Random-Partner Doubles Support:**
-   - Players can pair up with any partner for each Doubles match.
-   - The system computes each pair's average pre-match Elo, determines expected win probability, applies a score-margin multiplier, and updates each player's personal Doubles Elo.
-3. **Interactive Mobile UI (`index.html`):**
-   - **Club Overview & Podiums:** Displays club session hours, amenities, and interactive Top 3 Podium cards (`#1 Gold`, `#2 Silver`, `#3 Bronze`) for Singles and Doubles.
-   - **Leaderboards:** Searchable rankings with player initials, `W / L / T` records, trophy icons, and current Elo ratings.
-   - **Match History:** Chronological match cards showing partner combinations, set scores, winning team trophy, and `+Δ / -Δ` Elo adjustments.
-4. **Hardened Organizer Admin Mode (`🔒 Admin`):**
-   - Public visitors have **read-only** access (no match-logging or player-editing buttons).
-   - Organizers tap **`🔒 Admin`** in the top-right corner and enter the Admin Password to unlock **`＋ Log Match`** and **`＋👤 Add Player`**.
+| Layer | File / Resource | Role |
+| :--- | :--- | :--- |
+| **Frontend UI** | [`index.html`](./index.html) | Hosted on **GitHub Pages** (`https://tbruneel.github.io/badminton-ranking-system/`). Serves as the sole user interface (Read-Only public rankings by default + password-protected `🔒 Admin` mode). Communicates with the backend via `fetch(..., { credentials: "omit" })` to avoid Google's mobile multi-account redirect bug (`Google Issue #69270374`). |
+| **JSON Backend API** | [`code.gs`](./code.gs) | Bound to the Google Sheet and deployed as a Google Apps Script Web App (`/exec`). Serves **pure JSON** via `doGet` and `doPost` (`ContentService.MimeType.JSON`) — no HTML is served from Apps Script. |
+| **Minimal Database** | Google Sheet (`1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q`) | Contains solely 3 clean database tables (`Players`, `Doubles_Matches`, `Singles_Matches`) with Row 1 column headers and live chronological Elo formulas. |
 
 ---
 
-## 🧮 SliceWin Elo Calculation
+## Minimal Google Sheet Database Schema
 
-For a match between Team/Player $A$ (rating $R_A$) and Team/Player $B$ (rating $R_B$):
-
-1. **Team Rating (Doubles):**
-   $$R_A = \frac{R_{A_1} + R_{A_2}}{2}, \qquad R_B = \frac{R_{B_1} + R_{B_2}}{2}$$
-2. **Expected Score ($E_A$):**
-   $$E_A = \frac{1}{1 + 10^{(R_B - R_A) / 400}}$$
-3. **Score Margin Multiplier ($K_{\text{eff}}$):**
-   $$K_{\text{eff}} = K_{\text{base}} + K_{\text{margin}} \cdot \frac{|\text{Points}_A - \text{Points}_B|}{\text{Points}_A + \text{Points}_B}$$
-   *(Default: $K_{\text{base}} = 40$, $K_{\text{margin}} = 40$)*
-4. **Elo Update ($\Delta$):**
-   $$\Delta_A = \text{ROUND}\!\left(K_{\text{eff}} \cdot (S_A - E_A)\right), \qquad \Delta_B = -\Delta_A$$
-   where $S_A = 1$ if Team $A$ wins more sets, or $0$ if Team $B$ wins more sets.
-
----
-
-## 🔐 Security Architecture
-
-- **Zero Plain-Text Password Storage:**
-  - The Admin Password is never stored in `code.gs`, `index.html`, or in plain text inside `ScriptProperties`.
-  - When set via the Google Sheet menu (`🔒 Badminton Admin > Set / Change Admin Password...`), `code.gs` generates a random UUID salt (`ADMIN_SALT`) and stores only `ADMIN_PASSWORD_HASH = SHA-256(salt + ":" + password)` in `ScriptProperties`.
-- **Constant-Time Verification & Brute-Force Lockout:**
-  - `timingSafeEqual_()` compares hashes in constant time.
-  - `CacheService` locks out authentication for **15 minutes** after **5 failed attempts**.
-- **HTTPS `POST`-Only Credentials & `credentials: "omit"`:**
-  - Admin passwords are sent only inside encrypted HTTPS `POST` request bodies (never in URL query parameters).
-  - Using `fetch(..., { credentials: "omit" })` from GitHub Pages strips browser Google cookies so Android Chrome's multi-account `script.google.com` bug (`Google Issue #69270374`) is bypassed completely.
-- **Input Sanitization & Atomic Writes:**
-  - Rejects strings starting with `=`, `+`, `-`, `@` to prevent spreadsheet formula injection.
-  - Validates distinct players from the roster and whole-number set scores (`0–30`, no ties).
-  - Serializes writes using `LockService.getScriptLock()`.
+1. **`Players` (`A1:K50`)**
+   - **Headers (`Row 1`):** `Player Name`, `Short Name`, `Initials`, `Singles W`, `Singles L`, `Singles T`, `Singles Elo`, `Doubles W`, `Doubles L`, `Doubles T`, `Doubles Elo`
+   - **Rows `2–50`:** Master player roster and live `COUNTIFS` / `SUMIF` aggregations over `Singles_Matches` and `Doubles_Matches` starting from base Elo `1000`.
+2. **`Doubles_Matches` (`A1:U102`)**
+   - **Headers (`Row 1`):** `Match #`, `Date`, `Team 1 Player 1`, `Team 1 Player 2`, `Team 2 Player 1`, `Team 2 Player 2`, `S1 T1`, `S1 T2`, `S2 T1`, `S2 T2`, `S3 T1`, `S3 T2`, `Sets T1`, `Sets T2`, `Winner`, `T1 P1 Pre-Elo`, `T1 P2 Pre-Elo`, `T2 P1 Pre-Elo`, `T2 P2 Pre-Elo`, `T1 Elo Delta`, `T2 Elo Delta`
+   - **Row `2`:** Baseline anchor row (`1000` initial rating).
+   - **Rows `3–102`:** Chronological Doubles match log and per-match Elo deltas.
+3. **`Singles_Matches` (`A1:Q102`)**
+   - **Headers (`Row 1`):** `Match #`, `Date`, `Player 1`, `Player 2`, `S1 P1`, `S1 P2`, `S2 P1`, `S2 P2`, `S3 P1`, `S3 P2`, `Sets P1`, `Sets P2`, `Winner`, `P1 Pre-Elo`, `P2 Pre-Elo`, `P1 Elo Delta`, `P2 Elo Delta`
+   - **Row `2`:** Baseline anchor row (`1000` initial rating).
+   - **Rows `3–102`:** Chronological Singles match log and per-match Elo deltas.
 
 ---
 
-## 🛠️ Setup & Deployment Guide
+## SliceWin Elo Rating Formulas
 
-1. **Update Google Apps Script:**
-   - Open the [Google Sheet](https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit) → **Extensions > Apps Script**.
-   - Paste `code.gs` into `Code.gs` and `index.html` into `Index.html`, then save (**Ctrl+S**).
-2. **Set Your Admin Password:**
-   - Reload the Google Sheet in your browser.
-   - Click **`🔒 Badminton Admin > Set / Change Admin Password...`** in the top toolbar and enter your password (at least 8 characters).
-3. **Publish New Apps Script Version:**
-   - In Apps Script, click **Deploy > Manage deployments > Edit (✏️) > Version: New version > Deploy** (`Execute as: Me`, `Who has access: Anyone`).
+- **Starting Rating:** Every player starts at **`1000` Elo** in both Singles and Doubles.
+- **Doubles Team Rating (Random Partners Supported):** Each team's effective rating is the average of the two partners' current Doubles Elos prior to the match:
+  $$R_{\text{Team 1}} = \frac{R_{A_1} + R_{A_2}}{2}, \qquad R_{\text{Team 2}} = \frac{R_{B_1} + R_{B_2}}{2}$$
+- **Expected Win Probability:**
+  $$E_1 = \frac{1}{1 + 10^{(R_{\text{Team 2}} - R_{\text{Team 1}}) / 400}}, \qquad E_2 = 1 - E_1$$
+- **Score-Margin Adjusted K-Factor ($K_{\text{base}} = 40$, $K_{\text{margin}} = 40$):**
+  $$K_{\text{eff}} = 40 + 40 \times \frac{|\text{Pts}_1 - \text{Pts}_2|}{\max(1, \text{Pts}_1 + \text{Pts}_2)}$$
+- **Rating Update:**
+  $$\Delta_1 = \text{ROUND}\!\left(K_{\text{eff}} \times (S_1 - E_1)\right), \qquad \Delta_2 = -\Delta_1$$
+
+---
+
+## Security & Admin Authentication
+
+- **Public Read-Only Default:** Visitors opening the GitHub Pages app can browse the **Club Podiums**, **Doubles & Singles Leaderboards**, and **Match History** without logging in.
+- **Salted SHA-256 Admin Password (Never Stored in Plain Text):**
+  1. Open the Google Sheet and click **🔒 Badminton Admin → Set / Change Admin Password...** in the top menu bar.
+  2. `promptAndSaveAdminPassword()` generates a random UUID salt (`ADMIN_SALT`) and computes `ADMIN_PASSWORD_HASH = SHA-256(ADMIN_SALT + ":" + password)` using `Utilities.computeDigest()`.
+  3. Only `ADMIN_SALT` and `ADMIN_PASSWORD_HASH` are stored in `ScriptProperties`.
+- **Brute-Force & Injection Protection:**
+  - Constant-time hash comparison (`timingSafeEqual_`).
+  - Automatic **15-minute lockout** (`CacheService`) after 5 failed password attempts.
+  - Concurrency locking (`LockService.getScriptLock()`), strict set score validation (`0–30`, no tied sets), and formula-injection sanitization (`^[=+\-@]` blocked).
+
+---
+
+## Updating the Google Apps Script Deployment
+
+1. Open the [Google Sheet](https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit) and click **Extensions → Apps Script**.
+2. If an `Index.html` file exists in the Apps Script sidebar, click the **⋮** menu next to `Index.html` and click **Delete** (GitHub Pages is now the sole UI).
+3. Replace the contents of `Code.gs` with [`code.gs`](./code.gs) from this repository and press **Ctrl+S**.
+4. Click **Deploy → Manage deployments → ✏️ Edit (pencil icon) → Version: New version → Deploy**.

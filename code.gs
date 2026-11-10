@@ -1,6 +1,11 @@
 /**
- * VUB SportMix: Badminton Ranking System — Google Apps Script Backend
+ * VUB SportMix: Badminton Ranking System — Google Apps Script JSON Backend API
  * Bound to Spreadsheet ID: 1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q
+ *
+ * ARCHITECTURE:
+ * - Frontend UI: Hosted exclusively on GitHub Pages (`index.html`)
+ * - Backend API: This script (`code.gs`) serves only JSON via `doGet` and `doPost`
+ * - Database: Minimal 3-tab Google Sheet (`Players`, `Doubles_Matches`, `Singles_Matches`)
  *
  * HOW TO SET YOUR ADMIN PASSWORD (NOT STORED IN PLAIN TEXT):
  * 1. Reload your Google Sheet in the browser.
@@ -98,9 +103,6 @@ function verifyAdminPasscode_(providedKey) {
   }
 }
 
-/**
- * Called by Index.html via google.script.run.verifyAdminPassword(password)
- */
 function verifyAdminPassword(password) {
   verifyAdminPasscode_(password);
   return { ok: true };
@@ -140,16 +142,20 @@ function jsonResponse_(obj) {
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function doGet(e) {
-  if (e && e.parameter && e.parameter.api === '1') {
+/**
+ * Pure JSON GET endpoint — returns current rankings and match history.
+ */
+function doGet() {
+  try {
     return jsonResponse_({ ok: true, data: getAppState() });
+  } catch (err) {
+    return jsonResponse_({ ok: false, error: err.message || String(err) });
   }
-  return HtmlService.createHtmlOutputFromFile('Index')
-    .setTitle('VUB SportMix: Badminton')
-    .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL)
-    .addMetaTag('viewport', 'width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no');
 }
 
+/**
+ * Pure JSON POST endpoint — handles state reads and authenticated admin mutations.
+ */
 function doPost(e) {
   try {
     const body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
@@ -181,7 +187,7 @@ function getAppState() {
   const doublesSheet = ss.getSheetByName('Doubles_Matches');
   const singlesSheet = ss.getSheetByName('Singles_Matches');
 
-  const pRows = playersSheet.getRange('A4:K30').getValues().filter(r => String(r[0]).trim() !== '');
+  const pRows = playersSheet.getRange('A2:K50').getValues().filter(r => String(r[0]).trim() !== '');
   const players = pRows.map((r, idx) => ({
     name: String(r[0]).trim(),
     short: String(r[1]).trim() || String(r[0]).trim().split(/\s+/)[0],
@@ -197,7 +203,7 @@ function getAppState() {
     order: idx
   }));
 
-  const dRows = doublesSheet.getRange('A6:Y55').getDisplayValues().filter(r => r[2] !== '' && r[14] !== '');
+  const dRows = doublesSheet.getRange('A3:U102').getDisplayValues().filter(r => r[2] !== '' && r[14] !== '');
   const doublesHistory = dRows.map(r => ({
     matchNum: Number(r[0]),
     date: r[1],
@@ -207,11 +213,11 @@ function getAppState() {
       .filter(s => s[0] !== '' && s[1] !== '')
       .map(s => [Number(s[0]), Number(s[1])]),
     winner: r[14] === 'T1' ? 1 : (r[14] === 'T2' ? 2 : 0),
-    delta1: Number(r[20] || 0),
-    delta2: Number(r[22] || 0)
+    delta1: Number(r[19] || 0),
+    delta2: Number(r[20] || 0)
   })).reverse();
 
-  const sRows = singlesSheet.getRange('A6:S55').getDisplayValues().filter(r => r[2] !== '' && r[12] !== '');
+  const sRows = singlesSheet.getRange('A3:Q102').getDisplayValues().filter(r => r[2] !== '' && r[12] !== '');
   const singlesHistory = sRows.map(r => ({
     matchNum: Number(r[0]),
     date: r[1],
@@ -221,8 +227,8 @@ function getAppState() {
       .filter(s => s[0] !== '' && s[1] !== '')
       .map(s => [Number(s[0]), Number(s[1])]),
     winner: r[12] === 'P1' ? 1 : (r[12] === 'P2' ? 2 : 0),
-    delta1: Number(r[16] || 0),
-    delta2: Number(r[17] || 0)
+    delta1: Number(r[15] || 0),
+    delta2: Number(r[16] || 0)
   })).reverse();
 
   return { players, doublesHistory, singlesHistory };
@@ -230,7 +236,7 @@ function getAppState() {
 
 function getKnownPlayerSet_(ss) {
   const playersSheet = ss.getSheetByName('Players');
-  const names = playersSheet.getRange('A4:A30').getValues()
+  const names = playersSheet.getRange('A2:A50').getValues()
     .map(r => String(r[0]).trim())
     .filter(Boolean);
   return new Set(names);
@@ -261,16 +267,16 @@ function logDoublesMatch(payload, adminPassword) {
     });
 
     const sheet = ss.getSheetByName('Doubles_Matches');
-    const colC = sheet.getRange('C6:C55').getValues();
+    const colC = sheet.getRange('C3:C102').getValues();
     let targetRow = -1;
     for (let i = 0; i < colC.length; i++) {
       if (String(colC[i][0]).trim() === '') {
-        targetRow = 6 + i;
+        targetRow = 3 + i;
         break;
       }
     }
     if (targetRow === -1) {
-      throw new Error('Match log is full (rows 6–55).');
+      throw new Error('Match log is full (rows 3–102).');
     }
 
     const s1 = sets[0] || ['', ''];
@@ -308,16 +314,16 @@ function logSinglesMatch(payload, adminPassword) {
     }
 
     const sheet = ss.getSheetByName('Singles_Matches');
-    const colC = sheet.getRange('C6:C55').getValues();
+    const colC = sheet.getRange('C3:C102').getValues();
     let targetRow = -1;
     for (let i = 0; i < colC.length; i++) {
       if (String(colC[i][0]).trim() === '') {
-        targetRow = 6 + i;
+        targetRow = 3 + i;
         break;
       }
     }
     if (targetRow === -1) {
-      throw new Error('Singles match log is full (rows 6–55).');
+      throw new Error('Singles match log is full (rows 3–102).');
     }
 
     const s1 = sets[0] || ['', ''];
@@ -347,18 +353,18 @@ function addPlayerToSheet(playerName, adminPassword) {
     }
     const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
     const sheet = ss.getSheetByName('Players');
-    const colA = sheet.getRange('A4:A30').getValues();
+    const colA = sheet.getRange('A2:A50').getValues();
     for (let i = 0; i < colA.length; i++) {
       if (String(colA[i][0]).trim().toLowerCase() === cleanName.toLowerCase()) {
         throw new Error('Player already exists in roster.');
       }
       if (String(colA[i][0]).trim() === '') {
-        sheet.getRange(4 + i, 1).setValue(cleanName);
+        sheet.getRange(2 + i, 1).setValue(cleanName);
         SpreadsheetApp.flush();
         return getAppState();
       }
     }
-    throw new Error('Player roster is full (rows 4–30).');
+    throw new Error('Player roster is full (rows 2–50).');
   } finally {
     lock.releaseLock();
   }

@@ -387,7 +387,6 @@
     };
 
     const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5RCpoQTejZtJkr0paWIntBpcqkxDN9KEt5w3dacGemRmmT631MUVCq8y5cZtIpfMA/exec";
-    const hasAppsScript = typeof google !== "undefined" && google.script && google.script.run;
 
     async function callBackendPost(bodyObj) {
       const res = await fetch(APPS_SCRIPT_URL, {
@@ -753,38 +752,20 @@
       btn.textContent = "Verifying...";
       btn.disabled = true;
 
-      if (hasAppsScript) {
-        google.script.run
-          .withSuccessHandler(() => {
-            btn.textContent = "Unlock Admin Controls";
-            btn.disabled = false;
-            appState.adminPassword = pwd;
-            setAdminUnlockedUI(true);
-            closeAdminAuthModal();
-          })
-          .withFailureHandler(err => {
-            btn.textContent = "Unlock Admin Controls";
-            btn.disabled = false;
-            errEl.textContent = (err && err.message) || "Invalid Admin Password.";
-            errEl.classList.remove("hidden");
-          })
-          .verifyAdminPassword(pwd);
-      } else {
-        callBackendPost({ action: "verifyAdmin", adminPassword: pwd })
-          .then(() => {
-            btn.textContent = "Unlock Admin Controls";
-            btn.disabled = false;
-            appState.adminPassword = pwd;
-            setAdminUnlockedUI(true);
-            closeAdminAuthModal();
-          })
-          .catch(err => {
-            btn.textContent = "Unlock Admin Controls";
-            btn.disabled = false;
-            errEl.textContent = (err && err.message) || "Invalid Admin Password.";
-            errEl.classList.remove("hidden");
-          });
-      }
+      callBackendPost({ action: "verifyAdmin", adminPassword: pwd })
+        .then(() => {
+          btn.textContent = "Unlock Admin Controls";
+          btn.disabled = false;
+          appState.adminPassword = pwd;
+          setAdminUnlockedUI(true);
+          closeAdminAuthModal();
+        })
+        .catch(err => {
+          btn.textContent = "Unlock Admin Controls";
+          btn.disabled = false;
+          errEl.textContent = (err && err.message) || "Invalid Admin Password.";
+          errEl.classList.remove("hidden");
+        });
     }
 
     function lockAdminMode() {
@@ -946,21 +927,11 @@
         errEl.classList.remove("hidden");
       };
 
-      if (hasAppsScript) {
-        if (appState.modalMode === "doubles") {
-          google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFail)
-            .logDoublesMatch({ t1: [p1, p2], t2: [p3, p4], sets }, appState.adminPassword);
-        } else {
-          google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFail)
-            .logSinglesMatch({ p1, p2: p3, sets }, appState.adminPassword);
-        }
-      } else {
-        const action = appState.modalMode === "doubles" ? "logDoubles" : "logSingles";
-        const payload = appState.modalMode === "doubles" ? { t1: [p1, p2], t2: [p3, p4], sets } : { p1, p2: p3, sets };
-        callBackendPost({ action, payload, adminPassword: appState.adminPassword })
-          .then(res => onSuccess(res.data))
-          .catch(onFail);
-      }
+      const action = appState.modalMode === "doubles" ? "logDoubles" : "logSingles";
+      const payload = appState.modalMode === "doubles" ? { t1: [p1, p2], t2: [p3, p4], sets } : { p1, p2: p3, sets };
+      callBackendPost({ action, payload, adminPassword: appState.adminPassword })
+        .then(res => onSuccess(res.data))
+        .catch(onFail);
     }
 
     function openPlayerModal() {
@@ -1004,26 +975,17 @@
         errEl.classList.remove("hidden");
       };
 
-      if (hasAppsScript) {
-        google.script.run.withSuccessHandler(onSuccess).withFailureHandler(onFail)
-          .addPlayerToSheet(name, appState.adminPassword);
-      } else {
-        callBackendPost({ action: "addPlayer", name, adminPassword: appState.adminPassword })
-          .then(res => onSuccess(res.data))
-          .catch(onFail);
-      }
+      callBackendPost({ action: "addPlayer", name, adminPassword: appState.adminPassword })
+        .then(res => onSuccess(res.data))
+        .catch(onFail);
     }
 
     renderAll();
     document.getElementById("syncBadge").textContent = "Syncing...";
-    if (hasAppsScript) {
-      google.script.run.withSuccessHandler(applyServerState).getAppState();
-    } else {
-      fetch(APPS_SCRIPT_URL + "?api=1", { method: "GET", credentials: "omit", redirect: "follow" })
-        .then(r => r.json())
-        .then(j => { if (j && j.data) applyServerState(j.data); })
-        .catch(() => { document.getElementById("syncBadge").textContent = "Offline"; });
-    }
+    fetch(APPS_SCRIPT_URL, { method: "GET", credentials: "omit", redirect: "follow" })
+      .then(r => r.json())
+      .then(j => { if (j && j.data) applyServerState(j.data); })
+      .catch(() => { document.getElementById("syncBadge").textContent = "Offline"; });
   </script>
 </body>
 </html>

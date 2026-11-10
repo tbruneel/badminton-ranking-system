@@ -1,88 +1,1786 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VUB SportMix: Badminton Ranking System — Documentation</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+<title>readme.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*---------------------------------------------------------------------------------------------
+ *  GitHub Official Primer Markdown Stylesheet â€” GitHub Light Default (Standalone Export Edition)
+ *  Derived from:
+ *    - sindresorhus/github-markdown-css (@primer/css)
+ *  Adapted for yzane.markdown-pdf bare <body> template, 902px centered layout, and GitHub Alerts.
+ *--------------------------------------------------------------------------------------------*/
+
+html {
+  background-color: #ffffff;
+  color: #1f2328;
+  color-scheme: light;
+  scrollbar-color: #8c959f #f6f8fa;
+  padding: 0;
+}
+/*light */
+body {
+  color-scheme: light;
+  /** CSS default easing. Use for hover state changes and micro-interactions. */
+  /** Accelerating motion. Use for elements exiting the viewport (moving off-screen). */
+  /** Smooth acceleration and deceleration. Use for elements moving or morphing within the viewport. */
+  /** Decelerating motion. Use for elements entering the viewport or appearing on screen. */
+  /** Constant motion with no acceleration. Use for continuous animations like progress bars or loaders. */
+  -ms-text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  margin: 0;
+  font-weight: 400;
+  color: #1f2328;
+  background-color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+  font-size: 16px;
+  line-height: 1.5;
+  word-wrap: break-word;
+}
+
+body a {
+  text-decoration: underline;
+  text-underline-offset: .2rem;
+}
+
+body .octicon {
+  display: inline-block;
+  fill: currentColor;
+  vertical-align: text-bottom;
+}
+
+body h1:hover .anchor .octicon-link:before,
+body h2:hover .anchor .octicon-link:before,
+body h3:hover .anchor .octicon-link:before,
+body h4:hover .anchor .octicon-link:before,
+body h5:hover .anchor .octicon-link:before,
+body h6:hover .anchor .octicon-link:before {
+  width: 16px;
+  height: 16px;
+  content: ' ';
+  display: inline-block;
+  background-color: currentColor;
+  -webkit-mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' version='1.1' aria-hidden='true'><path fill-rule='evenodd' d='M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z'></path></svg>");
+  mask-image: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' version='1.1' aria-hidden='true'><path fill-rule='evenodd' d='M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z'></path></svg>");
+}
+
+body details,
+body figcaption,
+body figure {
+  display: block;
+}
+
+body summary {
+  display: list-item;
+}
+
+body [hidden] {
+  display: none !important;
+}
+
+body a {
+  background-color: rgba(0,0,0,0);
+  color: #0969da;
+  text-decoration: underline;
+  text-underline-offset: .2rem;
+}
+
+body abbr[title] {
+  border-bottom: none;
+  -webkit-text-decoration: underline dotted;
+  text-decoration: underline dotted;
+}
+
+body b,
+body strong {
+  font-weight: 600;
+}
+
+body dfn {
+  font-style: italic;
+}
+
+body h1 {
+  margin: .67em 0;
+  font-weight: 600;
+  padding-bottom: .3em;
+  font-size: 2em;
+  border-bottom: 1px solid #d1d9e0b3;
+}
+
+body mark {
+  background-color: #fff8c5;
+  color: #1f2328;
+}
+
+body small {
+  font-size: 90%;
+}
+
+body sub,
+body sup {
+  font-size: 75%;
+  line-height: 0;
+  position: relative;
+  vertical-align: baseline;
+}
+
+body sub {
+  bottom: -0.25em;
+}
+
+body sup {
+  top: -0.5em;
+}
+
+body img {
+  border-style: none;
+  max-width: 100%;
+  box-sizing: content-box;
+}
+
+body code,
+body kbd,
+body pre,
+body samp {
+  font-family: monospace;
+  font-size: 1em;
+}
+
+body figure {
+  margin: 1em 2.5rem;
+}
+
+body hr {
+  box-sizing: content-box;
+  overflow: hidden;
+  height: 1px;
+  padding: 0;
+  margin: 1.5rem 0;
+  background-color: #d1d9e0;
+  border: 0;
+}
+
+body input {
+  font: inherit;
+  margin: 0;
+  overflow: visible;
+  font-family: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+
+body [type=button],
+body [type=reset],
+body [type=submit] {
+  -webkit-appearance: button;
+  appearance: button;
+}
+
+body [type=checkbox],
+body [type=radio] {
+  box-sizing: border-box;
+  padding: 0;
+}
+
+body [type=number]::-webkit-inner-spin-button,
+body [type=number]::-webkit-outer-spin-button {
+  height: auto;
+}
+
+body [type=search]::-webkit-search-cancel-button,
+body [type=search]::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+body ::-webkit-input-placeholder {
+  color: inherit;
+  opacity: .54;
+}
+
+body ::-webkit-file-upload-button {
+  -webkit-appearance: button;
+  appearance: button;
+  font: inherit;
+}
+
+body a:hover {
+  text-decoration: underline;
+}
+
+body ::placeholder {
+  color: #59636e;
+  opacity: 1;
+}
+
+body hr::before {
+  display: table;
+  content: "";
+}
+
+body hr::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+body table {
+  border-spacing: 0;
+  border-collapse: collapse;
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow: auto;
+  font-variant: tabular-nums;
+}
+
+body td,
+body th {
+  padding: 0;
+}
+
+body details summary {
+  cursor: pointer;
+}
+
+body a:focus,
+body [role=button]:focus,
+body input[type=radio]:focus,
+body input[type=checkbox]:focus {
+  outline: 2px solid #0969da;
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+body a:focus:not(:focus-visible),
+body [role=button]:focus:not(:focus-visible),
+body input[type=radio]:focus:not(:focus-visible),
+body input[type=checkbox]:focus:not(:focus-visible) {
+  outline: solid 1px rgba(0,0,0,0);
+}
+
+body a:focus-visible,
+body [role=button]:focus-visible,
+body input[type=radio]:focus-visible,
+body input[type=checkbox]:focus-visible {
+  outline: 2px solid #0969da;
+  outline-offset: -2px;
+  box-shadow: none;
+}
+
+body a:not([class]):focus,
+body a:not([class]):focus-visible,
+body input[type=radio]:focus,
+body input[type=radio]:focus-visible,
+body input[type=checkbox]:focus,
+body input[type=checkbox]:focus-visible {
+  outline-offset: 0;
+}
+
+body kbd {
+  display: inline-block;
+  padding: 0.25rem;
+  font: 11px ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  line-height: 10px;
+  color: #1f2328;
+  vertical-align: middle;
+  background-color: #f6f8fa;
+  border: solid 1px #d1d9e0b3;
+  border-bottom-color: #d1d9e0b3;
+  border-radius: 6px;
+  box-shadow: inset 0 -1px 0 #d1d9e0b3;
+}
+
+body h1,
+body h2,
+body h3,
+body h4,
+body h5,
+body h6 {
+  margin-top: 1.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  line-height: 1.25;
+}
+
+body h2 {
+  font-weight: 600;
+  padding-bottom: .3em;
+  font-size: 1.5em;
+  border-bottom: 1px solid #d1d9e0b3;
+}
+
+body h3 {
+  font-weight: 600;
+  font-size: 1.25em;
+}
+
+body h4 {
+  font-weight: 600;
+  font-size: 1em;
+}
+
+body h5 {
+  font-weight: 600;
+  font-size: .875em;
+}
+
+body h6 {
+  font-weight: 600;
+  font-size: .85em;
+  color: #59636e;
+}
+
+body p {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+body blockquote {
+  margin: 0;
+  padding: 0 1em;
+  color: #59636e;
+  border-left: .25em solid #d1d9e0;
+}
+
+body ul,
+body ol {
+  margin-top: 0;
+  margin-bottom: 0;
+  padding-left: 2em;
+}
+
+body ol ol,
+body ul ol {
+  list-style-type: lower-roman;
+}
+
+body ul ul ol,
+body ul ol ol,
+body ol ul ol,
+body ol ol ol {
+  list-style-type: lower-alpha;
+}
+
+body dd {
+  margin-left: 0;
+}
+
+body tt,
+body code,
+body samp {
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  font-size: 12px;
+}
+
+body pre {
+  margin-top: 0;
+  margin-bottom: 0;
+  font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, Liberation Mono, monospace;
+  font-size: 12px;
+  word-wrap: normal;
+}
+
+body .octicon {
+  display: inline-block;
+  overflow: visible !important;
+  vertical-align: text-bottom;
+  fill: currentColor;
+}
+
+body input::-webkit-outer-spin-button,
+body input::-webkit-inner-spin-button {
+  margin: 0;
+  appearance: none;
+}
+
+body .mr-2 {
+  margin-right: 0.5rem !important;
+}
+
+body::before {
+  display: table;
+  content: "";
+}
+
+body::after {
+  display: table;
+  clear: both;
+  content: "";
+}
+
+body>*:first-child,
+body>.markdown-body>*:first-child {
+  margin-top: 0 !important;
+}
+
+body>*:last-child,
+body>.markdown-body>*:last-child {
+  margin-bottom: 0 !important;
+}
+
+body a:not([href]) {
+  color: inherit;
+  text-decoration: none;
+}
+
+body .absent {
+  color: #d1242f;
+}
+
+body .anchor {
+  float: left;
+  padding-right: 0.25rem;
+  margin-left: -20px;
+  line-height: 1;
+}
+
+body .anchor:focus {
+  outline: none;
+}
+
+body p,
+body blockquote,
+body ul,
+body ol,
+body dl,
+body table,
+body pre,
+body details {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+body blockquote>:first-child {
+  margin-top: 0;
+}
+
+body blockquote>:last-child {
+  margin-bottom: 0;
+}
+
+body h1 .octicon-link,
+body h2 .octicon-link,
+body h3 .octicon-link,
+body h4 .octicon-link,
+body h5 .octicon-link,
+body h6 .octicon-link {
+  color: #1f2328;
+  vertical-align: middle;
+  visibility: hidden;
+}
+
+body h1:hover .anchor,
+body h2:hover .anchor,
+body h3:hover .anchor,
+body h4:hover .anchor,
+body h5:hover .anchor,
+body h6:hover .anchor {
+  text-decoration: none;
+}
+
+body h1:hover .anchor .octicon-link,
+body h2:hover .anchor .octicon-link,
+body h3:hover .anchor .octicon-link,
+body h4:hover .anchor .octicon-link,
+body h5:hover .anchor .octicon-link,
+body h6:hover .anchor .octicon-link {
+  visibility: visible;
+}
+
+body h1 tt,
+body h1 code,
+body h2 tt,
+body h2 code,
+body h3 tt,
+body h3 code,
+body h4 tt,
+body h4 code,
+body h5 tt,
+body h5 code,
+body h6 tt,
+body h6 code {
+  padding: 0 .2em;
+  font-size: inherit;
+}
+
+body summary h1,
+body summary h2,
+body summary h3,
+body summary h4,
+body summary h5,
+body summary h6 {
+  display: inline-block;
+}
+
+body summary h1 .anchor,
+body summary h2 .anchor,
+body summary h3 .anchor,
+body summary h4 .anchor,
+body summary h5 .anchor,
+body summary h6 .anchor {
+  margin-left: -40px;
+}
+
+body summary h1,
+body summary h2 {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+body ul.no-list,
+body ol.no-list {
+  padding: 0;
+  list-style-type: none;
+}
+
+body ol[type="a s"] {
+  list-style-type: lower-alpha;
+}
+
+body ol[type="A s"] {
+  list-style-type: upper-alpha;
+}
+
+body ol[type="i s"] {
+  list-style-type: lower-roman;
+}
+
+body ol[type="I s"] {
+  list-style-type: upper-roman;
+}
+
+body ol[type="1"] {
+  list-style-type: decimal;
+}
+
+body div>ol:not([type]) {
+  list-style-type: decimal;
+}
+
+body ul ul,
+body ul ol,
+body ol ol,
+body ol ul {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+body li>p {
+  margin-top: 1rem;
+}
+
+body li+li {
+  margin-top: .25em;
+}
+
+body dl {
+  padding: 0;
+}
+
+body dl dt {
+  padding: 0;
+  margin-top: 1rem;
+  font-size: 1em;
+  font-style: italic;
+  font-weight: 600;
+}
+
+body dl dd {
+  padding: 0 1rem;
+  margin-bottom: 1rem;
+}
+
+body table th {
+  font-weight: 600;
+}
+
+body table th,
+body table td {
+  padding: 6px 13px;
+  border: 1px solid #d1d9e0;
+}
+
+body table td>:last-child {
+  margin-bottom: 0;
+}
+
+body table tr {
+  background-color: #ffffff;
+  border-top: 1px solid #d1d9e0b3;
+}
+
+body table tr:nth-child(2n) {
+  background-color: #f6f8fa;
+}
+
+body table img {
+  background-color: rgba(0,0,0,0);
+}
+
+body img[align=right] {
+  padding-left: 20px;
+}
+
+body img[align=left] {
+  padding-right: 20px;
+}
+
+body .emoji {
+  max-width: none;
+  vertical-align: text-top;
+  background-color: rgba(0,0,0,0);
+}
+
+body span.frame {
+  display: block;
+  overflow: hidden;
+}
+
+body span.frame>span {
+  display: block;
+  float: left;
+  width: auto;
+  padding: 7px;
+  margin: 13px 0 0;
+  overflow: hidden;
+  border: 1px solid #d1d9e0;
+}
+
+body span.frame span img {
+  display: block;
+  float: left;
+}
+
+body span.frame span span {
+  display: block;
+  padding: 5px 0 0;
+  clear: both;
+  color: #1f2328;
+}
+
+body span.align-center {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+body span.align-center>span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: center;
+}
+
+body span.align-center span img {
+  margin: 0 auto;
+  text-align: center;
+}
+
+body span.align-right {
+  display: block;
+  overflow: hidden;
+  clear: both;
+}
+
+body span.align-right>span {
+  display: block;
+  margin: 13px 0 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+body span.align-right span img {
+  margin: 0;
+  text-align: right;
+}
+
+body span.float-left {
+  display: block;
+  float: left;
+  margin-right: 13px;
+  overflow: hidden;
+}
+
+body span.float-left span {
+  margin: 13px 0 0;
+}
+
+body span.float-right {
+  display: block;
+  float: right;
+  margin-left: 13px;
+  overflow: hidden;
+}
+
+body span.float-right>span {
+  display: block;
+  margin: 13px auto 0;
+  overflow: hidden;
+  text-align: right;
+}
+
+body code,
+body tt {
+  padding: .2em .4em;
+  margin: 0;
+  font-size: 85%;
+  white-space: break-spaces;
+  background-color: #818b981f;
+  border-radius: 6px;
+}
+
+body code br,
+body tt br {
+  display: none;
+}
+
+body del code {
+  text-decoration: inherit;
+}
+
+body samp {
+  font-size: 85%;
+}
+
+body pre code {
+  font-size: 100%;
+}
+
+body pre>code {
+  padding: 0;
+  margin: 0;
+  word-break: normal;
+  white-space: pre;
+  background: rgba(0,0,0,0);
+  border: 0;
+}
+
+body .highlight {
+  margin-bottom: 1rem;
+}
+
+body .highlight pre {
+  margin-bottom: 0;
+  word-break: normal;
+}
+
+body .highlight pre,
+body pre {
+  padding: 1rem;
+  overflow: auto;
+  font-size: 85%;
+  line-height: 1.45;
+  color: #1f2328;
+  background-color: #f6f8fa;
+  border-radius: 6px;
+}
+
+body pre code,
+body pre tt {
+  display: inline;
+  padding: 0;
+  margin: 0;
+  overflow: visible;
+  line-height: inherit;
+  word-wrap: normal;
+  background-color: rgba(0,0,0,0);
+  border: 0;
+}
+
+body .csv-data td,
+body .csv-data th {
+  padding: 5px;
+  overflow: hidden;
+  font-size: 12px;
+  line-height: 1;
+  text-align: left;
+  white-space: nowrap;
+}
+
+body .csv-data .blob-num {
+  padding: 10px 0.5rem 9px;
+  text-align: right;
+  background: #ffffff;
+  border: 0;
+}
+
+body .csv-data tr {
+  border-top: 0;
+}
+
+body .csv-data th {
+  font-weight: 600;
+  background: #f6f8fa;
+  border-top: 0;
+}
+
+body [data-footnote-ref]::before {
+  content: "[";
+}
+
+body [data-footnote-ref]::after {
+  content: "]";
+}
+
+body .footnotes {
+  font-size: 12px;
+  color: #59636e;
+  border-top: 1px solid #d1d9e0;
+}
+
+body .footnotes ol {
+  padding-left: 1rem;
+}
+
+body .footnotes ol ul {
+  display: inline-block;
+  padding-left: 1rem;
+  margin-top: 1rem;
+}
+
+body .footnotes li {
+  position: relative;
+}
+
+body .footnotes li:target::before {
+  position: absolute;
+  top: calc(0.5rem*-1);
+  right: calc(0.5rem*-1);
+  bottom: calc(0.5rem*-1);
+  left: calc(1.5rem*-1);
+  pointer-events: none;
+  content: "";
+  border: 2px solid #0969da;
+  border-radius: 6px;
+}
+
+body .footnotes li:target {
+  color: #1f2328;
+}
+
+body .footnotes .data-footnote-backref g-emoji {
+  font-family: monospace;
+}
+
+body .pl-c {
+  color: #59636e;
+}
+
+body .pl-c1,
+body .pl-s .pl-v {
+  color: #0550ae;
+}
+
+body .pl-e,
+body .pl-en {
+  color: #6639ba;
+}
+
+body .pl-smi,
+body .pl-s .pl-s1 {
+  color: #1f2328;
+}
+
+body .pl-ent {
+  color: #0550ae;
+}
+
+body .pl-k {
+  color: #cf222e;
+}
+
+body .pl-s,
+body .pl-pds,
+body .pl-s .pl-pse .pl-s1,
+body .pl-sr,
+body .pl-sr .pl-cce,
+body .pl-sr .pl-sre,
+body .pl-sr .pl-sra {
+  color: #0a3069;
+}
+
+body .pl-v,
+body .pl-smw {
+  color: #953800;
+}
+
+body .pl-bu {
+  color: #82071e;
+}
+
+body .pl-ii {
+  color: #d1242f;
+  background-color: #ffebe9;
+}
+
+body .pl-c2 {
+  color: #f6f8fa;
+  background-color: #cf222e;
+}
+
+body .pl-sr .pl-cce {
+  font-weight: bold;
+  color: #116329;
+}
+
+body .pl-ml {
+  color: #3b2300;
+}
+
+body .pl-mh,
+body .pl-mh .pl-en,
+body .pl-ms {
+  font-weight: bold;
+  color: #0550ae;
+}
+
+body .pl-mi {
+  font-style: italic;
+  color: #1f2328;
+}
+
+body .pl-mb {
+  font-weight: bold;
+  color: #1f2328;
+}
+
+body .pl-md {
+  color: #82071e;
+  background-color: #ffebe9;
+}
+
+body .pl-mi1 {
+  color: #116329;
+  background-color: #dafbe1;
+}
+
+body .pl-mc {
+  color: #953800;
+  background-color: #ffd8b5;
+}
+
+body .pl-mi2 {
+  color: #d1d9e0;
+  background-color: #0550ae;
+}
+
+body .pl-mdr {
+  font-weight: bold;
+  color: #8250df;
+}
+
+body .pl-ba {
+  color: #59636e;
+}
+
+body .pl-sg {
+  color: #818b98;
+}
+
+body .pl-corl {
+  text-decoration: underline;
+  color: #0a3069;
+}
+
+body [role=button]:focus:not(:focus-visible),
+body [role=tabpanel][tabindex="0"]:focus:not(:focus-visible),
+body button:focus:not(:focus-visible),
+body summary:focus:not(:focus-visible),
+body a:focus:not(:focus-visible) {
+  outline: none;
+  box-shadow: none;
+}
+
+body [tabindex="0"]:focus:not(:focus-visible),
+body details-dialog:focus:not(:focus-visible) {
+  outline: none;
+}
+
+body g-emoji {
+  display: inline-block;
+  min-width: 1ch;
+  font-family: "Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol";
+  font-size: 1em;
+  font-style: normal !important;
+  font-weight: 400;
+  line-height: 1;
+  vertical-align: -0.075em;
+}
+
+body g-emoji img {
+  width: 1em;
+  height: 1em;
+}
+
+body a:has(>p,>div,>pre,>blockquote) {
+  display: block;
+}
+
+body a:has(>p,>div,>pre,>blockquote):not(:has(.snippet-clipboard-content,>pre)) {
+  width: fit-content;
+}
+
+body a:has(>p,>div,>pre,>blockquote):has(.snippet-clipboard-content,>pre):focus-visible {
+  outline: 2px solid #0969da;
+  outline-offset: 2px;
+}
+
+body .task-list-item {
+  list-style-type: none;
+}
+
+body .task-list-item label {
+  font-weight: 400;
+}
+
+body .task-list-item.enabled label {
+  cursor: pointer;
+}
+
+body .task-list-item+.task-list-item {
+  margin-top: 0.25rem;
+}
+
+body .task-list-item .handle {
+  display: none;
+}
+
+body .task-list-item-checkbox {
+  margin: 0 .2em .25em -1.4em;
+  vertical-align: middle;
+}
+
+body ul:dir(rtl) .task-list-item-checkbox {
+  margin: 0 -1.6em .25em .2em;
+}
+
+body ol:dir(rtl) .task-list-item-checkbox {
+  margin: 0 -1.6em .25em .2em;
+}
+
+body .contains-task-list:hover .task-list-item-convert-container,
+body .contains-task-list:focus-within .task-list-item-convert-container {
+  display: block;
+  width: auto;
+  height: 24px;
+  overflow: visible;
+  clip-path: none;
+}
+
+body ::-webkit-calendar-picker-indicator {
+  filter: invert(50%);
+}
+
+body .markdown-alert {
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  color: inherit;
+  border-left: .25em solid #d1d9e0;
+}
+
+body .markdown-alert>:first-child {
+  margin-top: 0;
+}
+
+body .markdown-alert>:last-child {
+  margin-bottom: 0;
+}
+
+body .markdown-alert .markdown-alert-title {
+  display: flex;
+  font-weight: 500;
+  align-items: center;
+  line-height: 1;
+}
+
+body .markdown-alert.markdown-alert-note {
+  border-left-color: #0969da;
+}
+
+body .markdown-alert.markdown-alert-note .markdown-alert-title {
+  color: #0969da;
+}
+
+body .markdown-alert.markdown-alert-important {
+  border-left-color: #8250df;
+}
+
+body .markdown-alert.markdown-alert-important .markdown-alert-title {
+  color: #8250df;
+}
+
+body .markdown-alert.markdown-alert-warning {
+  border-left-color: #9a6700;
+}
+
+body .markdown-alert.markdown-alert-warning .markdown-alert-title {
+  color: #9a6700;
+}
+
+body .markdown-alert.markdown-alert-tip {
+  border-left-color: #1a7f37;
+}
+
+body .markdown-alert.markdown-alert-tip .markdown-alert-title {
+  color: #1a7f37;
+}
+
+body .markdown-alert.markdown-alert-caution {
+  border-left-color: #cf222e;
+}
+
+body .markdown-alert.markdown-alert-caution .markdown-alert-title {
+  color: #d1242f;
+}
+
+body>*:first-child>.heading-element:first-child {
+  margin-top: 0 !important;
+}
+
+body .highlight pre:has(+.zeroclipboard-container) {
+  min-height: 52px;
+}
+
+/* GitHub-compatible 902px container & print override */
+body {
+  width: 902px;
+  margin: 0 auto;
+  padding: 32px;
+  box-sizing: border-box;
+}
+
+@media print {
+  body {
+    width: auto;
+    padding: 1em 26px 0;
+  }
+}
+
+/* GitHub Alert spacing & Octicon alignment */
+body .markdown-alert > p:empty {
+  display: none;
+}
+
+body .markdown-alert .markdown-alert-title .octicon {
+  margin-right: 0.5rem;
+}
+
+
+/* Neutralize VS Code built-in media/markdown.css & media/highlight.css specificity conflicts */
+body.vscode-light h1,
+body.vscode-dark h1,
+body.vscode-light h2,
+body.vscode-dark h2 {
+  border-bottom: 1px solid #d1d9e0b3;
+}
+
+body.vscode-light hr,
+body.vscode-dark hr {
+  height: 1px;
+  background-color: #d1d9e0;
+  border: 0;
+}
+
+body.vscode-light table th,
+body.vscode-dark table th,
+body.vscode-light table td,
+body.vscode-dark table td,
+body table > tbody > tr + tr > td {
+  border: 1px solid #d1d9e0;
+}
+
+body li p {
+  margin-bottom: 1rem;
+}
+
+body code,
+body tt {
+  color: inherit;
+  line-height: inherit;
+}
+
+body a:hover,
+body a code {
+  color: #0969da;
+}
+
+body blockquote {
+  background: transparent;
+  border-radius: 0;
+}
+
+body pre,
+body pre.hljs,
+body pre:not(.hljs) {
+  position: relative;
+  padding: 0 48px 0 0;
+  border-radius: 6px;
+  border: 0;
+  overflow: visible;
+  background-color: #f6f8fa;
+  color: #1f2328;
+}
+
+body pre:not(.hljs) > code,
+body pre.hljs code > div {
+  display: block;
+  padding: 1rem;
+  border-radius: 6px;
+  border: 0;
+  overflow: auto;
+  background-color: transparent;
+  color: inherit;
+}
+
+body pre code {
+  display: block;
+  color: inherit;
+  background: transparent;
+  padding: 0;
+}
+
+/* GitHub Primer code block copy button */
+body .code-block-copy-button {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background-color: transparent;
+  color: #59636e;
+  cursor: pointer;
+  opacity: 1;
+  transition: background-color 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+
+body pre:hover > .code-block-copy-button,
+body .code-block-copy-button:focus {
+  opacity: 1;
+}
+
+body .code-block-copy-button:hover {
+  background-color: #eaedf0;
+  color: #59636e;
+  border-color: transparent;
+}
+
+body .code-block-copy-button:active {
+  background-color: #e1e5e9;
+}
+
+body .code-block-copy-button.copied {
+  color: #1a7f37;
+  border-color: transparent;
+  opacity: 1;
+}
+
+body .code-block-copy-button:hover::before,
+body .code-block-copy-button:focus-visible::before,
+body .code-block-copy-button.copied::before {
+  content: "Copy code to clipboard";
+  position: absolute;
+  right: calc(100% + 4px);
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 4px 8px;
+  border-radius: 6px;
+  background-color: #25292e;
+  color: #ffffff;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Noto Sans", Helvetica, Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 20px;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 10;
+}
+
+body .code-block-copy-button.copied::before {
+  content: "Copied!";
+}
+
+body .code-block-copy-button:not(.copied) svg path:first-child {
+  d: path("M0 6.75C0 5.784.784 5 1.75 5h1.5a.75.75 0 0 1 0 1.5h-1.5a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-1.5a.75.75 0 0 1 1.5 0v1.5A1.75 1.75 0 0 1 9.25 16h-7.5A1.75 1.75 0 0 1 0 14.25Z");
+}
+
+body .code-block-copy-button:not(.copied) svg path:last-child {
+  d: path("M5 1.75C5 .784 5.784 0 6.75 0h7.5C15.216 0 16 .784 16 1.75v7.5A1.75 1.75 0 0 1 14.25 11h-7.5A1.75 1.75 0 0 1 5 9.25Zm1.75-.25a.25.25 0 0 0-.25.25v7.5c0 .138.112.25.25.25h7.5a.25.25 0 0 0 .25-.25v-7.5a.25.25 0 0 0-.25-.25Z");
+}
+
+body .code-block-copy-button.copied svg path {
+  d: path("M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.751.751 0 0 1 .018-1.042.751.751 0 0 1 1.042-.018L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z");
+}
+
+@media print {
+  body .code-block-copy-button {
+    display: none !important;
+  }
+}
+
+
+/* GitHub Light Primer syntax highlighting for highlight.js (.hljs-*) */
+body .hljs,
+body .hljs-subst,
+body.vscode-light .hljs,
+body.vscode-light .hljs-subst,
+body.vscode-dark .hljs,
+body.vscode-dark .hljs-subst {
+  color: #1f2328;
+}
+body .hljs-doctag,
+body .hljs-keyword,
+body .hljs-meta .hljs-keyword,
+body .hljs-meta-keyword,
+body .hljs-template-tag,
+body .hljs-template-variable,
+body .hljs-type,
+body .hljs-variable.language_,
+body.vscode-light .hljs-doctag,
+body.vscode-light .hljs-keyword,
+body.vscode-light .hljs-meta .hljs-keyword,
+body.vscode-light .hljs-meta-keyword,
+body.vscode-light .hljs-template-tag,
+body.vscode-light .hljs-template-variable,
+body.vscode-light .hljs-type,
+body.vscode-light .hljs-variable.language_,
+body.vscode-dark .hljs-doctag,
+body.vscode-dark .hljs-keyword,
+body.vscode-dark .hljs-meta .hljs-keyword,
+body.vscode-dark .hljs-meta-keyword,
+body.vscode-dark .hljs-template-tag,
+body.vscode-dark .hljs-template-variable,
+body.vscode-dark .hljs-type,
+body.vscode-dark .hljs-variable.language_ {
+  color: #cf222e;
+}
+body .hljs-title,
+body .hljs-title.class_,
+body .hljs-title.class_.inherited__,
+body .hljs-title.function_,
+body .hljs-function,
+body.vscode-light .hljs-title,
+body.vscode-light .hljs-title.class_,
+body.vscode-light .hljs-title.class_.inherited__,
+body.vscode-light .hljs-title.function_,
+body.vscode-light .hljs-function,
+body.vscode-dark .hljs-title,
+body.vscode-dark .hljs-title.class_,
+body.vscode-dark .hljs-title.class_.inherited__,
+body.vscode-dark .hljs-title.function_,
+body.vscode-dark .hljs-function {
+  color: #6639ba;
+}
+body .hljs-attr,
+body .hljs-attribute,
+body .hljs-literal,
+body .hljs-meta,
+body .hljs-number,
+body .hljs-operator,
+body .hljs-variable,
+body .hljs-selector-attr,
+body .hljs-selector-class,
+body .hljs-selector-id,
+body.vscode-light .hljs-attr,
+body.vscode-light .hljs-attribute,
+body.vscode-light .hljs-literal,
+body.vscode-light .hljs-meta,
+body.vscode-light .hljs-number,
+body.vscode-light .hljs-operator,
+body.vscode-light .hljs-variable,
+body.vscode-light .hljs-selector-attr,
+body.vscode-light .hljs-selector-class,
+body.vscode-light .hljs-selector-id,
+body.vscode-dark .hljs-attr,
+body.vscode-dark .hljs-attribute,
+body.vscode-dark .hljs-literal,
+body.vscode-dark .hljs-meta,
+body.vscode-dark .hljs-number,
+body.vscode-dark .hljs-operator,
+body.vscode-dark .hljs-variable,
+body.vscode-dark .hljs-selector-attr,
+body.vscode-dark .hljs-selector-class,
+body.vscode-dark .hljs-selector-id {
+  color: #0550ae;
+}
+body .hljs-regexp,
+body .hljs-string,
+body .hljs-meta .hljs-string,
+body .hljs-meta-string,
+body.vscode-light .hljs-regexp,
+body.vscode-light .hljs-string,
+body.vscode-light .hljs-meta .hljs-string,
+body.vscode-light .hljs-meta-string,
+body.vscode-dark .hljs-regexp,
+body.vscode-dark .hljs-string,
+body.vscode-dark .hljs-meta .hljs-string,
+body.vscode-dark .hljs-meta-string {
+  color: #0a3069;
+}
+body .hljs-built_in,
+body .hljs-builtin-name,
+body .hljs-symbol,
+body .hljs-params,
+body .hljs-class,
+body.vscode-light .hljs-built_in,
+body.vscode-light .hljs-builtin-name,
+body.vscode-light .hljs-symbol,
+body.vscode-light .hljs-params,
+body.vscode-light .hljs-class,
+body.vscode-dark .hljs-built_in,
+body.vscode-dark .hljs-builtin-name,
+body.vscode-dark .hljs-symbol,
+body.vscode-dark .hljs-params,
+body.vscode-dark .hljs-class {
+  color: #953800;
+}
+body .hljs-comment,
+body .hljs-code,
+body .hljs-formula,
+body.vscode-light .hljs-comment,
+body.vscode-light .hljs-code,
+body.vscode-light .hljs-formula,
+body.vscode-dark .hljs-comment,
+body.vscode-dark .hljs-code,
+body.vscode-dark .hljs-formula {
+  color: #59636e;
+  font-style: normal;
+}
+body .hljs-name,
+body .hljs-quote,
+body .hljs-selector-tag,
+body .hljs-selector-pseudo,
+body .hljs-tag,
+body.vscode-light .hljs-name,
+body.vscode-light .hljs-quote,
+body.vscode-light .hljs-selector-tag,
+body.vscode-light .hljs-selector-pseudo,
+body.vscode-light .hljs-tag,
+body.vscode-dark .hljs-name,
+body.vscode-dark .hljs-quote,
+body.vscode-dark .hljs-selector-tag,
+body.vscode-dark .hljs-selector-pseudo,
+body.vscode-dark .hljs-tag {
+  color: #116329;
+}
+body .hljs-section,
+body.vscode-light .hljs-section,
+body.vscode-dark .hljs-section {
+  color: #0550ae;
+  font-weight: bold;
+}
+body .hljs-bullet,
+body.vscode-light .hljs-bullet,
+body.vscode-dark .hljs-bullet {
+  color: #953800;
+}
+body .hljs-Addition,
+body .hljs-addition,
+body.vscode-light .hljs-addition,
+body.vscode-dark .hljs-addition {
+  color: #116329;
+  background-color: #dafbe1;
+}
+body .hljs-deletion,
+body.vscode-light .hljs-deletion,
+body.vscode-dark .hljs-deletion {
+  color: #82071e;
+  background-color: #ffebe9;
+}
+
+/* GitHub PrettyLights (.pl-ii) marks // comments in strict ```json blocks as invalid tokens */
+body code.language-json .hljs-comment,
+body pre.hljs:has(> code > div > .hljs-punctuation:first-child) code:not(.language-jsonc):not(.language-json5) .hljs-comment,
+body.vscode-light code.language-json .hljs-comment,
+body.vscode-dark code.language-json .hljs-comment {
+  color: #d1242f;
+  background-color: #ffebe9;
+}
+
+.page {
+  page-break-after: always;
+}
+</style>
+
+
 </head>
-<body class="bg-slate-50 text-slate-900 antialiased py-10 px-4">
-  <main class="max-w-3xl mx-auto bg-white border border-slate-200 rounded-3xl shadow-xs p-6 sm:p-10 space-y-8">
-    <!-- Header -->
-    <header class="border-b border-slate-200 pb-6 space-y-3">
-      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 text-teal-800 border border-teal-200 text-xs font-semibold">
-        🏸 VUB SportMix: Badminton
-      </div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900">
-        Badminton Elo Ranking System
-      </h1>
-      <p class="text-sm sm:text-base text-slate-600 leading-relaxed">
-        A mobile-first Badminton Ranking System modeled after the <a href="https://slicewin.com/elo-system" target="_blank" rel="noopener" class="text-teal-700 font-semibold underline">SliceWin Elo System</a>, integrated with <strong>Google Sheets</strong> and <strong>Google Apps Script</strong>, and served via <strong>GitHub Pages</strong> so it works seamlessly on mobile Chrome without Google multi-account issues.
-      </p>
-      <div class="flex flex-wrap gap-3 pt-2">
-        <a href="index.html" class="px-4 py-2.5 rounded-xl bg-[#26383a] text-white text-xs font-bold hover:opacity-90 transition">
-          📱 Open Live Ranking App →
-        </a>
-        <a href="https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit" target="_blank" rel="noopener" class="px-4 py-2.5 rounded-xl bg-slate-100 text-slate-800 border border-slate-200 text-xs font-bold hover:bg-slate-200 transition">
-          📊 Open Google Sheet Backend
-        </a>
-      </div>
-    </header>
-
-    <!-- Key Features -->
-    <section class="space-y-4">
-      <h2 class="text-lg font-bold text-slate-900">✨ Key Features</h2>
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
-          <div class="font-bold text-slate-900">🎾 Separate Singles &amp; Doubles Elo</div>
-          <p class="text-slate-600">Every player maintains an independent Singles and Doubles Elo rating, each starting at a baseline of <strong>1000 points</strong>.</p>
-        </div>
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
-          <div class="font-bold text-slate-900">🤝 Random-Partner Doubles</div>
-          <p class="text-slate-600">Form pairs with any partner for each match. Team strength is the average of both partners' personal Doubles Elos.</p>
-        </div>
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
-          <div class="font-bold text-slate-900">🏆 Podiums, Leaderboards &amp; History</div>
-          <p class="text-slate-600">Mobile-friendly Top 3 Podium cards, searchable Leaderboards with W/L/T records, and chronological Match History cards.</p>
-        </div>
-        <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-1">
-          <div class="font-bold text-slate-900">🔒 Read-Only Public + Admin Unlock</div>
-          <p class="text-slate-600">Public visitors cannot modify data. Organizers tap <strong>🔒 Admin</strong> to unlock match logging and player management.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- Elo Math -->
-    <section class="space-y-3">
-      <h2 class="text-lg font-bold text-slate-900">🧮 SliceWin Elo Calculation</h2>
-      <div class="p-5 rounded-2xl bg-slate-900 text-slate-100 text-xs sm:text-sm space-y-2.5 font-mono">
-        <div>1. Team Avg (Doubles): R_team1 = (R_p1 + R_p2) / 2,  R_team2 = (R_p3 + R_p4) / 2</div>
-        <div>2. Expected Score:     E_1 = 1 / (1 + 10 ^ ((R_team2 - R_team1) / 400))</div>
-        <div>3. Margin Multiplier:  K_eff = 40 + 40 * (|Pts_1 - Pts_2| / (Pts_1 + Pts_2))</div>
-        <div>4. Rating Change:      Delta_1 = ROUND(K_eff * (S_1 - E_1)),  Delta_2 = -Delta_1</div>
-      </div>
-    </section>
-
-    <!-- Security Architecture -->
-    <section class="space-y-3">
-      <h2 class="text-lg font-bold text-slate-900">🔐 Security &amp; Multi-Account Chrome Fix</h2>
-      <ul class="list-disc pl-5 space-y-2 text-xs sm:text-sm text-slate-700 leading-relaxed">
-        <li><strong>Salted SHA-256 Password Hashing:</strong> The Admin Password is never stored in plain text in <code>code.gs</code>, <code>index.html</code>, or <code>ScriptProperties</code>. Only a random UUID salt (<code>ADMIN_SALT</code>) and <code>SHA-256(salt + ":" + password)</code> digest (<code>ADMIN_PASSWORD_HASH</code>) are stored.</li>
-        <li><strong>Constant-Time Verification &amp; Brute-Force Lockout:</strong> Hashes are compared using bitwise constant-time equality, and <code>CacheService</code> locks out login attempts for 15 minutes after 5 failed tries.</li>
-        <li><strong>HTTPS POST-Only &amp; Android Chrome Multi-Account Fix:</strong> Hosting <code>index.html</code> on GitHub Pages and calling the Apps Script backend with <code>fetch(..., { credentials: "omit" })</code> prevents Android Chrome from attaching conflicting multi-account Google cookies (bypassing Google Issue #69270374).</li>
-        <li><strong>Formula-Injection &amp; Input Validation:</strong> Blocks leading <code>=</code>, <code>+</code>, <code>-</code>, <code>@</code> characters, enforces distinct roster players and <code>0–30</code> non-tie set scores, and locks writes via <code>LockService.getScriptLock()</code>.</li>
-      </ul>
-    </section>
-
-    <!-- Setup Guide -->
-    <section class="space-y-3 border-t border-slate-200 pt-6">
-      <h2 class="text-lg font-bold text-slate-900">🛠️ Setup &amp; Deployment</h2>
-      <ol class="list-decimal pl-5 space-y-2 text-xs sm:text-sm text-slate-700 leading-relaxed">
-        <li>In your Google Sheet, open <strong>Extensions &gt; Apps Script</strong>, paste <code>code.gs</code> into <code>Code.gs</code> and <code>index.html</code> into <code>Index.html</code>, and save.</li>
-        <li>Reload your Google Sheet, click <strong>🔒 Badminton Admin &gt; Set / Change Admin Password...</strong> in the top menu bar, and set your password.</li>
-        <li>In Apps Script, click <strong>Deploy &gt; Manage deployments &gt; Edit (✏️) &gt; Version: New version &gt; Deploy</strong> (<em>Execute as: Me</em>, <em>Who has access: Anyone</em>).</li>
-      </ol>
-    </section>
-  </main>
+<body>
+<h1 id="vub-sportmix-badminton-ranking-system-badminton-ranking-system">VUB SportMix: Badminton Ranking System (<code>badminton-ranking-system</code>)</h1>
+<p>A mobile-first badminton Elo ranking system modeled after the <a href="https://slicewin.com/elo-system">SliceWin Elo System</a>, supporting separate <strong>Singles</strong> and <strong>Doubles</strong> leaderboards where each player maintains an individual rating (<code>1000</code> starting Elo) and can pair up with any partner.</p>
+<ul>
+<li><strong>Live Web App (GitHub Pages — Sole UI):</strong> <a href="https://tbruneel.github.io/badminton-ranking-system/">https://tbruneel.github.io/badminton-ranking-system/</a></li>
+<li><strong>Google Sheet Database:</strong> <a href="https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit">https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit</a></li>
+</ul>
+<hr>
+<h2 id="architecture">Architecture</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Layer</th>
+<th style="text-align:left">File / Resource</th>
+<th style="text-align:left">Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left"><strong>Frontend UI</strong></td>
+<td style="text-align:left"><a href="./index.html"><code>index.html</code></a></td>
+<td style="text-align:left">Hosted on <strong>GitHub Pages</strong> (<code>https://tbruneel.github.io/badminton-ranking-system/</code>). Serves as the sole user interface (Read-Only public rankings by default + password-protected <code>🔒 Admin</code> mode). Communicates with the backend via <code>fetch(..., { credentials: &quot;omit&quot; })</code> to avoid Google&#39;s mobile multi-account redirect bug (<code>Google Issue #69270374</code>).</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>JSON Backend API</strong></td>
+<td style="text-align:left"><a href="./code.gs"><code>code.gs</code></a></td>
+<td style="text-align:left">Bound to the Google Sheet and deployed as a Google Apps Script Web App (<code>/exec</code>). Serves <strong>pure JSON</strong> via <code>doGet</code> and <code>doPost</code> (<code>ContentService.MimeType.JSON</code>) — no HTML is served from Apps Script.</td>
+</tr>
+<tr>
+<td style="text-align:left"><strong>Minimal Database</strong></td>
+<td style="text-align:left">Google Sheet (<code>1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q</code>)</td>
+<td style="text-align:left">Contains solely 3 clean database tables (<code>Players</code>, <code>Doubles_Matches</code>, <code>Singles_Matches</code>) with Row 1 column headers and live chronological Elo formulas.</td>
+</tr>
+</tbody>
+</table>
+<hr>
+<h2 id="minimal-google-sheet-database-schema">Minimal Google Sheet Database Schema</h2>
+<ol>
+<li><strong><code>Players</code> (<code>A1:K50</code>)</strong>
+<ul>
+<li><strong>Headers (<code>Row 1</code>):</strong> <code>Player Name</code>, <code>Short Name</code>, <code>Initials</code>, <code>Singles W</code>, <code>Singles L</code>, <code>Singles T</code>, <code>Singles Elo</code>, <code>Doubles W</code>, <code>Doubles L</code>, <code>Doubles T</code>, <code>Doubles Elo</code></li>
+<li><strong>Rows <code>2–50</code>:</strong> Master player roster and live <code>COUNTIFS</code> / <code>SUMIF</code> aggregations over <code>Singles_Matches</code> and <code>Doubles_Matches</code> starting from base Elo <code>1000</code>.</li>
+</ul>
+</li>
+<li><strong><code>Doubles_Matches</code> (<code>A1:U102</code>)</strong>
+<ul>
+<li><strong>Headers (<code>Row 1</code>):</strong> <code>Match #</code>, <code>Date</code>, <code>Team 1 Player 1</code>, <code>Team 1 Player 2</code>, <code>Team 2 Player 1</code>, <code>Team 2 Player 2</code>, <code>S1 T1</code>, <code>S1 T2</code>, <code>S2 T1</code>, <code>S2 T2</code>, <code>S3 T1</code>, <code>S3 T2</code>, <code>Sets T1</code>, <code>Sets T2</code>, <code>Winner</code>, <code>T1 P1 Pre-Elo</code>, <code>T1 P2 Pre-Elo</code>, <code>T2 P1 Pre-Elo</code>, <code>T2 P2 Pre-Elo</code>, <code>T1 Elo Delta</code>, <code>T2 Elo Delta</code></li>
+<li><strong>Row <code>2</code>:</strong> Baseline anchor row (<code>1000</code> initial rating).</li>
+<li><strong>Rows <code>3–102</code>:</strong> Chronological Doubles match log and per-match Elo deltas.</li>
+</ul>
+</li>
+<li><strong><code>Singles_Matches</code> (<code>A1:Q102</code>)</strong>
+<ul>
+<li><strong>Headers (<code>Row 1</code>):</strong> <code>Match #</code>, <code>Date</code>, <code>Player 1</code>, <code>Player 2</code>, <code>S1 P1</code>, <code>S1 P2</code>, <code>S2 P1</code>, <code>S2 P2</code>, <code>S3 P1</code>, <code>S3 P2</code>, <code>Sets P1</code>, <code>Sets P2</code>, <code>Winner</code>, <code>P1 Pre-Elo</code>, <code>P2 Pre-Elo</code>, <code>P1 Elo Delta</code>, <code>P2 Elo Delta</code></li>
+<li><strong>Row <code>2</code>:</strong> Baseline anchor row (<code>1000</code> initial rating).</li>
+<li><strong>Rows <code>3–102</code>:</strong> Chronological Singles match log and per-match Elo deltas.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="slicewin-elo-rating-formulas">SliceWin Elo Rating Formulas</h2>
+<ul>
+<li><strong>Starting Rating:</strong> Every player starts at <strong><code>1000</code> Elo</strong> in both Singles and Doubles.</li>
+<li><strong>Doubles Team Rating (Random Partners Supported):</strong> Each team&#39;s effective rating is the average of the two partners&#39; current Doubles Elos prior to the match:
+<code>R_Team1 = (R_A1 + R_A2) / 2</code>, <code>R_Team2 = (R_B1 + R_B2) / 2</code></li>
+<li><strong>Expected Win Probability:</strong>
+<code>E_1 = 1 / (1 + 10^((R_Team2 - R_Team1) / 400))</code>, <code>E_2 = 1 - E_1</code></li>
+<li><strong>Score-Margin Adjusted K-Factor (<code>K_base = 40</code>, <code>K_margin = 40</code>):</strong>
+<code>K_eff = 40 + 40 * (|Pts_1 - Pts_2| / max(1, Pts_1 + Pts_2))</code></li>
+<li><strong>Rating Update:</strong>
+<code>Delta_1 = ROUND(K_eff * (S_1 - E_1))</code>, <code>Delta_2 = -Delta_1</code></li>
+</ul>
+<hr>
+<h2 id="security--admin-authentication">Security &amp; Admin Authentication</h2>
+<ul>
+<li><strong>Public Read-Only Default:</strong> Visitors opening the GitHub Pages app can browse the <strong>Club Podiums</strong>, <strong>Doubles &amp; Singles Leaderboards</strong>, and <strong>Match History</strong> without logging in.</li>
+<li><strong>Salted SHA-256 Admin Password (Never Stored in Plain Text):</strong>
+<ol>
+<li>Open the Google Sheet and click <strong>🔒 Badminton Admin → Set / Change Admin Password...</strong> in the top menu bar.</li>
+<li><code>promptAndSaveAdminPassword()</code> generates a random UUID salt (<code>ADMIN_SALT</code>) and computes <code>ADMIN_PASSWORD_HASH = SHA-256(ADMIN_SALT + &quot;:&quot; + password)</code> using <code>Utilities.computeDigest()</code>.</li>
+<li>Only <code>ADMIN_SALT</code> and <code>ADMIN_PASSWORD_HASH</code> are stored in <code>ScriptProperties</code>.</li>
+</ol>
+</li>
+<li><strong>Brute-Force &amp; Injection Protection:</strong>
+<ul>
+<li>Constant-time hash comparison (<code>timingSafeEqual_</code>).</li>
+<li>Automatic <strong>15-minute lockout</strong> (<code>CacheService</code>) after 5 failed password attempts.</li>
+<li>Concurrency locking (<code>LockService.getScriptLock()</code>), strict set score validation (<code>0–30</code>, no tied sets), and formula-injection sanitization (<code>^[=+\-@]</code> blocked).</li>
+</ul>
+</li>
+</ul>
+<hr>
+<h2 id="updating-the-google-apps-script-deployment">Updating the Google Apps Script Deployment</h2>
+<ol>
+<li>Open the <a href="https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit">Google Sheet</a> and click <strong>Extensions → Apps Script</strong>.</li>
+<li>If an <code>Index.html</code> file exists in the Apps Script sidebar, click the <strong>⋮</strong> menu next to <code>Index.html</code> and click <strong>Delete</strong> (GitHub Pages is now the sole UI).</li>
+<li>Replace the contents of <code>Code.gs</code> with <a href="./code.gs"><code>code.gs</code></a> from this repository and press <strong>Ctrl+S</strong>.</li>
+<li>Click <strong>Deploy → Manage deployments → ✏️ Edit (pencil icon) → Version: New version → Deploy</strong>.</li>
+</ol>
+<script>
+(function () {
+  function createCopyIcon() {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    svg.setAttribute('width', '16');
+    svg.setAttribute('height', '16');
+    svg.setAttribute('viewBox', '0 0 16 16');
+    svg.setAttribute('fill', 'none');
+    var p1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p1.setAttribute('d', 'M4 4H2V14H11V12H4V4Z');
+    p1.setAttribute('fill', 'currentColor');
+    var p2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p2.setAttribute('fill-rule', 'evenodd');
+    p2.setAttribute('clip-rule', 'evenodd');
+    p2.setAttribute('d', 'M5 2H14V11H5V2ZM6 3H13V10H6V3Z');
+    p2.setAttribute('fill', 'currentColor');
+    svg.appendChild(p1);
+    svg.appendChild(p2);
+    return svg;
+  }
+  function createCheckIcon() {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    svg.setAttribute('width', '16');
+    svg.setAttribute('height', '16');
+    svg.setAttribute('viewBox', '0 0 16 16');
+    svg.setAttribute('fill', 'none');
+    var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', 'M6.27 10.87L3.63 8.23L2.56 9.3L6.27 13.01L14.07 5.21L13 4.14L6.27 10.87Z');
+    p.setAttribute('fill', 'currentColor');
+    svg.appendChild(p);
+    return svg;
+  }
+  function initCopyButtons() {
+    var blocks = document.querySelectorAll('pre > code');
+    for (var i = 0; i < blocks.length; i++) {
+      (function (code) {
+        var pre = code.parentElement;
+        if (!pre || pre.querySelector('.code-block-copy-button')) return;
+        var btn = document.createElement('button');
+        btn.className = 'code-block-copy-button';
+        btn.type = 'button';
+        btn.setAttribute('aria-label', 'Copy code block');
+        btn.appendChild(createCopyIcon());
+        var timer = null;
+        function markCopied() {
+          btn.replaceChildren(createCheckIcon());
+          btn.classList.add('copied');
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(function () {
+            btn.replaceChildren(createCopyIcon());
+            btn.classList.remove('copied');
+            timer = null;
+          }, 2000);
+        }
+        function fallbackCopy(text) {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand('copy');
+            markCopied();
+          } finally {
+            document.body.removeChild(ta);
+          }
+        }
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var text = code.textContent || '';
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(markCopied).catch(function () {
+              fallbackCopy(text);
+            });
+          } else {
+            fallbackCopy(text);
+          }
+        });
+        pre.appendChild(btn);
+      })(blocks[i]);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCopyButtons);
+  } else {
+    initCopyButtons();
+  }
+})();
+</script>
 </body>
 </html>
