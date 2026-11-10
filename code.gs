@@ -1,12 +1,12 @@
 /**
- * Generic Badminton Elo Ranking System — Google Apps Script JSON Backend API
+ * Badminton Elo Ranking System — Google Apps Script JSON Backend API
  *
  * ZERO-CONFIG DATABASE AUTO-SETUP:
  * Attach this script to ANY new/blank Google Sheet (Extensions -> Apps Script).
  * It automatically creates and maintains the 3 minimal database tabs:
  *   1. `Players`         (Master roster & live W/L/T + Elo aggregations)
- *   2. `Doubles_Matches` (Chronological 2v2 match log & SliceWin Elo engine)
- *   3. `Singles_Matches` (Chronological 1v1 match log & SliceWin Elo engine)
+ *   2. `Doubles_Matches` (Chronological 2v2 match log & Elo engine)
+ *   3. `Singles_Matches` (Chronological 1v1 match log & Elo engine)
  *
  * HOW TO DEPLOY FOR ANY NEW GOOGLE SHEET:
  * 1. Create a new blank Google Sheet and open Extensions -> Apps Script.
@@ -19,9 +19,6 @@
  *      - Who has access: Anyone
  * 5. Copy the `/exec` Web App URL into `CONFIG.apiUrl` in `index.html`.
  */
-
-// Optional override if running standalone (unbound). Leave empty when bound to a Google Sheet.
-const SPREADSHEET_ID_OVERRIDE = '';
 
 const INITIAL_PLAYER_SLOTS = 50;   // Rows 2..50 pre-filled on init (auto-expands beyond 50)
 const INITIAL_MATCH_SLOTS = 100;   // Rows 3..102 pre-filled on init (auto-expands beyond 100)
@@ -38,13 +35,10 @@ function onOpen() {
 }
 
 /**
- * Resolves the active container-bound spreadsheet (or falls back to stored/configured ID).
+ * Resolves the container-bound spreadsheet (with ScriptProperties cache fallback for web app execution).
  */
 function getSpreadsheet_() {
   const props = PropertiesService.getScriptProperties();
-  if (SPREADSHEET_ID_OVERRIDE) {
-    return SpreadsheetApp.openById(SPREADSHEET_ID_OVERRIDE);
-  }
   let ss = null;
   try {
     ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -59,7 +53,7 @@ function getSpreadsheet_() {
   }
   const savedId = props.getProperty('SPREADSHEET_ID');
   if (!savedId) {
-    throw new Error('No bound Google Sheet found. Bind this script via Extensions -> Apps Script or set SPREADSHEET_ID_OVERRIDE.');
+    throw new Error('No bound Google Sheet found. Bind this script via Extensions -> Apps Script and run "Initialize / Repair Database" once.');
   }
   return SpreadsheetApp.openById(savedId);
 }

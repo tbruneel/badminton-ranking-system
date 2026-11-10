@@ -1,6 +1,6 @@
 # Badminton Elo Ranking System (`badminton-ranking-system`)
 
-A generic, zero-config badminton Elo ranking system modeled after the [SliceWin Elo System](https://slicewin.com/elo-system), supporting separate **Singles** and **Doubles** leaderboards where each player maintains an individual rating (`1000` starting Elo) and can pair up with any partner.
+A generic, zero-config badminton Elo ranking system supporting separate **Singles** and **Doubles** leaderboards where each player maintains an individual rating (`1000` starting Elo) and can pair up with any partner.
 
 - **Live Web App (GitHub Pages — Sole UI):** <https://tbruneel.github.io/badminton-ranking-system/>
 - **Google Sheet Database:** <https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit>
@@ -54,7 +54,7 @@ A generic, zero-config badminton Elo ranking system modeled after the [SliceWin 
 
 ---
 
-## SliceWin Elo Rating Formulas
+## Elo Rating Formulas
 
 - **Starting Rating:** Every player starts at **`1000` Elo** in both Singles and Doubles.
 - **Doubles Team Rating (Random Partners Supported):** Each team's effective rating is the average of the two partners' current Doubles Elos prior to the match:
