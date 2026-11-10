@@ -1589,61 +1589,86 @@ body.vscode-dark code.language-json .hljs-comment {
 
 </head>
 <body>
-<h1 id="vub-sportmix-badminton-ranking-system-badminton-ranking-system">VUB SportMix: Badminton Ranking System (<code>badminton-ranking-system</code>)</h1>
-<p>A mobile-first badminton Elo ranking system modeled after the <a href="https://slicewin.com/elo-system">SliceWin Elo System</a>, supporting separate <strong>Singles</strong> and <strong>Doubles</strong> leaderboards where each player maintains an individual rating (<code>1000</code> starting Elo) and can pair up with any partner.</p>
+<h1 id="badminton-elo-ranking-system-badminton-ranking-system">Badminton Elo Ranking System (<code>badminton-ranking-system</code>)</h1>
+<p>A generic, zero-config badminton Elo ranking system modeled after the <a href="https://slicewin.com/elo-system">SliceWin Elo System</a>, supporting separate <strong>Singles</strong> and <strong>Doubles</strong> leaderboards where each player maintains an individual rating (<code>1000</code> starting Elo) and can pair up with any partner.</p>
 <ul>
 <li><strong>Live Web App (GitHub Pages — Sole UI):</strong> <a href="https://tbruneel.github.io/badminton-ranking-system/">https://tbruneel.github.io/badminton-ranking-system/</a></li>
 <li><strong>Google Sheet Database:</strong> <a href="https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit">https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit</a></li>
 </ul>
 <hr>
-<h2 id="architecture">Architecture</h2>
-<table>
-<thead>
-<tr>
-<th style="text-align:left">Layer</th>
-<th style="text-align:left">File / Resource</th>
-<th style="text-align:left">Role</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td style="text-align:left"><strong>Frontend UI</strong></td>
-<td style="text-align:left"><a href="./index.html"><code>index.html</code></a></td>
-<td style="text-align:left">Hosted on <strong>GitHub Pages</strong> (<code>https://tbruneel.github.io/badminton-ranking-system/</code>). Serves as the sole user interface (Read-Only public rankings by default + password-protected <code>🔒 Admin</code> mode). Communicates with the backend via <code>fetch(..., { credentials: &quot;omit&quot; })</code> to avoid Google&#39;s mobile multi-account redirect bug (<code>Google Issue #69270374</code>).</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>JSON Backend API</strong></td>
-<td style="text-align:left"><a href="./code.gs"><code>code.gs</code></a></td>
-<td style="text-align:left">Bound to the Google Sheet and deployed as a Google Apps Script Web App (<code>/exec</code>). Serves <strong>pure JSON</strong> via <code>doGet</code> and <code>doPost</code> (<code>ContentService.MimeType.JSON</code>) — no HTML is served from Apps Script.</td>
-</tr>
-<tr>
-<td style="text-align:left"><strong>Minimal Database</strong></td>
-<td style="text-align:left">Google Sheet (<code>1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q</code>)</td>
-<td style="text-align:left">Contains solely 3 clean database tables (<code>Players</code>, <code>Doubles_Matches</code>, <code>Singles_Matches</code>) with Row 1 column headers and live chronological Elo formulas.</td>
-</tr>
-</tbody>
-</table>
+<h2 id="key-features">Key Features</h2>
+<ul>
+<li><strong>Zero-Config Database Provisioning (<a href="./code.gs"><code>code.gs</code></a>)</strong> — Attach <code>code.gs</code> to <strong>any new/blank Google Sheet</strong> (<code>Extensions → Apps Script</code>). It automatically creates and maintains the 3 minimal database tables (<code>Players</code>, <code>Doubles_Matches</code>, <code>Singles_Matches</code>), writes all chronological Elo formulas, and removes empty default tabs.</li>
+<li><strong>Generic, Easily Configurable Frontend (<a href="./index.html"><code>index.html</code></a>)</strong> — Edit the single <code>CONFIG</code> object at the top of <code>index.html</code> (or pass <code>?api=&lt;WEB_APP_EXEC_URL&gt;</code>) to point the UI at any deployed Google Sheet backend. Automatically adopts the connected Google Sheet&#39;s title when <code>useSpreadsheetTitle: true</code>.</li>
+<li><strong>Responsive Modern Interface</strong> — Adapts seamlessly from mobile phones to wide desktop monitors:
+<ul>
+<li><strong>Two Stacked Podium Cards</strong> for <strong>Doubles</strong> and <strong>Singles</strong> Top 3 leaders.</li>
+<li><strong>Side-by-Side Leaderboard &amp; Match History</strong> on desktop (<code>lg:grid-cols-12</code>), and a clean segmented view switcher on mobile.</li>
+</ul>
+</li>
+<li><strong>Per-Player Match History (Singles &amp; Doubles)</strong> — Click any player in the podiums, leaderboard, or match cards to open their <strong>Player Profile Modal</strong>, featuring discipline toggles (<code>Doubles</code> / <code>Singles</code>), Current Elo, Peak Elo, Win Rate, and their complete chronological match log with partner/opponent breakdowns and personal Elo progression (<code>preElo → postElo</code>).</li>
+</ul>
+<hr>
+<h2 id="deploying-to-any-new--blank-google-sheet">Deploying to Any New / Blank Google Sheet</h2>
+<ol>
+<li><strong>Create a Blank Google Sheet:</strong>
+<ul>
+<li>Open <a href="https://sheets.new">sheets.new</a> and give your spreadsheet a name (e.g., <code>My Club Badminton Rankings</code>).</li>
+</ul>
+</li>
+<li><strong>Attach <a href="./code.gs"><code>code.gs</code></a>:</strong>
+<ul>
+<li>Click <strong>Extensions → Apps Script</strong>, paste the contents of <a href="./code.gs"><code>code.gs</code></a> into <code>Code.gs</code> (ensure no HTML files exist in the Apps Script sidebar), and press <strong>Ctrl+S</strong>.</li>
+</ul>
+</li>
+<li><strong>Initialize Database &amp; Admin Password:</strong>
+<ul>
+<li>Reload the Google Sheet and use the top menu <strong>🔒 Badminton Admin</strong>:
+<ul>
+<li>Click <strong>🛠️ Initialize / Repair Database</strong> (or let the first Web App API request auto-initialize the 3 tabs).</li>
+<li>Click <strong>🔑 Set / Change Admin Password...</strong> to store a salted SHA-256 hash (<code>ADMIN_SALT</code> + <code>ADMIN_PASSWORD_HASH</code>) in <code>ScriptProperties</code>.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><strong>Deploy as a JSON Web App API:</strong>
+<ul>
+<li>In Apps Script, click <strong>Deploy → New deployment → Web app</strong>:
+<ul>
+<li><strong>Execute as:</strong> <code>Me</code></li>
+<li><strong>Who has access:</strong> <code>Anyone</code></li>
+</ul>
+</li>
+<li>Copy the generated <code>/exec</code> URL.</li>
+</ul>
+</li>
+<li><strong>Configure <a href="./index.html"><code>index.html</code></a>:</strong>
+<ul>
+<li>Update <code>CONFIG.apiUrl</code> in <a href="./index.html"><code>index.html</code></a> with your <code>/exec</code> URL (or open <code>index.html?api=&lt;YOUR_EXEC_URL&gt;</code>).</li>
+</ul>
+</li>
+</ol>
 <hr>
 <h2 id="minimal-google-sheet-database-schema">Minimal Google Sheet Database Schema</h2>
 <ol>
-<li><strong><code>Players</code> (<code>A1:K50</code>)</strong>
+<li><strong><code>Players</code> (<code>A1:K50+</code>)</strong>
 <ul>
 <li><strong>Headers (<code>Row 1</code>):</strong> <code>Player Name</code>, <code>Short Name</code>, <code>Initials</code>, <code>Singles W</code>, <code>Singles L</code>, <code>Singles T</code>, <code>Singles Elo</code>, <code>Doubles W</code>, <code>Doubles L</code>, <code>Doubles T</code>, <code>Doubles Elo</code></li>
-<li><strong>Rows <code>2–50</code>:</strong> Master player roster and live <code>COUNTIFS</code> / <code>SUMIF</code> aggregations over <code>Singles_Matches</code> and <code>Doubles_Matches</code> starting from base Elo <code>1000</code>.</li>
+<li><strong>Rows <code>2+</code>:</strong> Master player roster and live <code>COUNTIFS</code> / <code>SUMIF</code> aggregations over <code>Singles_Matches</code> and <code>Doubles_Matches</code> starting from base Elo <code>1000</code>.</li>
 </ul>
 </li>
-<li><strong><code>Doubles_Matches</code> (<code>A1:U102</code>)</strong>
+<li><strong><code>Doubles_Matches</code> (<code>A1:U102+</code>)</strong>
 <ul>
 <li><strong>Headers (<code>Row 1</code>):</strong> <code>Match #</code>, <code>Date</code>, <code>Team 1 Player 1</code>, <code>Team 1 Player 2</code>, <code>Team 2 Player 1</code>, <code>Team 2 Player 2</code>, <code>S1 T1</code>, <code>S1 T2</code>, <code>S2 T1</code>, <code>S2 T2</code>, <code>S3 T1</code>, <code>S3 T2</code>, <code>Sets T1</code>, <code>Sets T2</code>, <code>Winner</code>, <code>T1 P1 Pre-Elo</code>, <code>T1 P2 Pre-Elo</code>, <code>T2 P1 Pre-Elo</code>, <code>T2 P2 Pre-Elo</code>, <code>T1 Elo Delta</code>, <code>T2 Elo Delta</code></li>
 <li><strong>Row <code>2</code>:</strong> Baseline anchor row (<code>1000</code> initial rating).</li>
-<li><strong>Rows <code>3–102</code>:</strong> Chronological Doubles match log and per-match Elo deltas.</li>
+<li><strong>Rows <code>3+</code>:</strong> Chronological Doubles match log and per-match Elo deltas.</li>
 </ul>
 </li>
-<li><strong><code>Singles_Matches</code> (<code>A1:Q102</code>)</strong>
+<li><strong><code>Singles_Matches</code> (<code>A1:Q102+</code>)</strong>
 <ul>
 <li><strong>Headers (<code>Row 1</code>):</strong> <code>Match #</code>, <code>Date</code>, <code>Player 1</code>, <code>Player 2</code>, <code>S1 P1</code>, <code>S1 P2</code>, <code>S2 P1</code>, <code>S2 P2</code>, <code>S3 P1</code>, <code>S3 P2</code>, <code>Sets P1</code>, <code>Sets P2</code>, <code>Winner</code>, <code>P1 Pre-Elo</code>, <code>P2 Pre-Elo</code>, <code>P1 Elo Delta</code>, <code>P2 Elo Delta</code></li>
 <li><strong>Row <code>2</code>:</strong> Baseline anchor row (<code>1000</code> initial rating).</li>
-<li><strong>Rows <code>3–102</code>:</strong> Chronological Singles match log and per-match Elo deltas.</li>
+<li><strong>Rows <code>3+</code>:</strong> Chronological Singles match log and per-match Elo deltas.</li>
 </ul>
 </li>
 </ol>
@@ -1660,33 +1685,6 @@ body.vscode-dark code.language-json .hljs-comment {
 <li><strong>Rating Update:</strong>
 <code>Delta_1 = ROUND(K_eff * (S_1 - E_1))</code>, <code>Delta_2 = -Delta_1</code></li>
 </ul>
-<hr>
-<h2 id="security--admin-authentication">Security &amp; Admin Authentication</h2>
-<ul>
-<li><strong>Public Read-Only Default:</strong> Visitors opening the GitHub Pages app can browse the <strong>Club Podiums</strong>, <strong>Doubles &amp; Singles Leaderboards</strong>, and <strong>Match History</strong> without logging in.</li>
-<li><strong>Salted SHA-256 Admin Password (Never Stored in Plain Text):</strong>
-<ol>
-<li>Open the Google Sheet and click <strong>🔒 Badminton Admin → Set / Change Admin Password...</strong> in the top menu bar.</li>
-<li><code>promptAndSaveAdminPassword()</code> generates a random UUID salt (<code>ADMIN_SALT</code>) and computes <code>ADMIN_PASSWORD_HASH = SHA-256(ADMIN_SALT + &quot;:&quot; + password)</code> using <code>Utilities.computeDigest()</code>.</li>
-<li>Only <code>ADMIN_SALT</code> and <code>ADMIN_PASSWORD_HASH</code> are stored in <code>ScriptProperties</code>.</li>
-</ol>
-</li>
-<li><strong>Brute-Force &amp; Injection Protection:</strong>
-<ul>
-<li>Constant-time hash comparison (<code>timingSafeEqual_</code>).</li>
-<li>Automatic <strong>15-minute lockout</strong> (<code>CacheService</code>) after 5 failed password attempts.</li>
-<li>Concurrency locking (<code>LockService.getScriptLock()</code>), strict set score validation (<code>0–30</code>, no tied sets), and formula-injection sanitization (<code>^[=+\-@]</code> blocked).</li>
-</ul>
-</li>
-</ul>
-<hr>
-<h2 id="updating-the-google-apps-script-deployment">Updating the Google Apps Script Deployment</h2>
-<ol>
-<li>Open the <a href="https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit">Google Sheet</a> and click <strong>Extensions → Apps Script</strong>.</li>
-<li>If an <code>Index.html</code> file exists in the Apps Script sidebar, click the <strong>⋮</strong> menu next to <code>Index.html</code> and click <strong>Delete</strong> (GitHub Pages is now the sole UI).</li>
-<li>Replace the contents of <code>Code.gs</code> with <a href="./code.gs"><code>code.gs</code></a> from this repository and press <strong>Ctrl+S</strong>.</li>
-<li>Click <strong>Deploy → Manage deployments → ✏️ Edit (pencil icon) → Version: New version → Deploy</strong>.</li>
-</ol>
 <script>
 (function () {
   function createCopyIcon() {
