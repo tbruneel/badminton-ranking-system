@@ -16,6 +16,7 @@
       color: #0f172a;
       margin: 0;
       padding: 0;
+      overflow-anchor: none;
     }
     .tabular-nums { font-variant-numeric: tabular-nums; }
   </style>
@@ -31,7 +32,7 @@
         <h1 id="appTitle" class="text-base sm:text-lg font-bold tracking-tight text-slate-900 truncate">
           Badminton Rankings
         </h1>
-        <span id="syncBadge" class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0">
+        <span id="syncBadge" class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap shrink-0">
           <span id="syncDot" class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
           <span id="syncText">Connecting...</span>
         </span>
@@ -42,14 +43,14 @@
         <div id="adminQuickActions" class="hidden items-center gap-2">
           <button
             onclick="openMatchModal()"
-            class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 active:scale-[0.99] transition shadow-xs"
+            class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 active:scale-[0.99] transition shadow-xs whitespace-nowrap shrink-0"
           >
             <span>＋</span>
             <span>Log Match</span>
           </button>
           <button
             onclick="openPlayerModal()"
-            class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 active:scale-[0.99] transition"
+            class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 active:scale-[0.99] transition whitespace-nowrap shrink-0"
           >
             <span>＋</span>
             <span class="hidden sm:inline">Add</span>
@@ -60,7 +61,7 @@
         <button
           id="adminHeaderBtn"
           onclick="handleAdminButtonClick()"
-          class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200/80 transition"
+          class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200/80 transition whitespace-nowrap shrink-0"
         >
           <span>🔒</span>
           <span>Admin</span>
@@ -120,20 +121,20 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- STATE C: MAIN CONTENT CONTAINER (Shown only when connected)           -->
+  <!-- STATE C: MAIN CONTENT CONTAINER (Uniform gap-4 across all sections)   -->
   <!-- ===================================================================== -->
-  <main id="appMainContent" class="hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
+  <main id="appMainContent" class="hidden max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-5 sm:py-6 flex flex-col gap-4">
 
     <!-- Admin Unlocked Banner -->
     <div id="adminUnlockedBanner" class="hidden rounded-2xl bg-slate-900 text-white p-4 sm:px-5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
       <div class="flex items-center gap-2.5">
-        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+        <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
         <span class="text-xs sm:text-sm font-semibold tracking-wide">Admin Mode Active — You can log matches and add players to the Google Sheet.</span>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="openMatchModal()" class="sm:hidden text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-500 text-white">＋ Log Match</button>
-        <button onclick="openPlayerModal()" class="sm:hidden text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/15 text-white">＋ Player</button>
-        <button onclick="lockAdminMode()" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition">
+        <button onclick="openMatchModal()" class="sm:hidden text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-500 text-white whitespace-nowrap">＋ Log Match</button>
+        <button onclick="openPlayerModal()" class="sm:hidden text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/15 text-white whitespace-nowrap">＋ Player</button>
+        <button onclick="lockAdminMode()" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition whitespace-nowrap">
           Lock Admin
         </button>
       </div>
@@ -144,34 +145,34 @@
     <!-- =================================================================== -->
     <section class="flex flex-col gap-4">
       <!-- Card 1: Doubles Podium -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-sm sm:text-base font-bold text-slate-900">Doubles Podium</h2>
-            <p id="doublesPodiumMeta" class="text-xs text-slate-500 mt-0.5">Individual Doubles ratings</p>
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-5">
+        <div class="flex items-center justify-between gap-2 mb-3.5">
+          <div class="min-w-0">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 truncate">Doubles Podium</h2>
+            <p id="doublesPodiumMeta" class="text-xs text-slate-500 mt-0.5 truncate">0 players · 0 matches</p>
           </div>
           <button
             onclick="selectDiscipline('doubles', true)"
-            class="text-xs font-semibold text-indigo-600 hover:text-indigo-700 px-2.5 py-1 rounded-lg hover:bg-indigo-50 transition"
+            class="text-xs font-semibold text-indigo-600 hover:text-indigo-700 px-2.5 py-1.5 rounded-lg hover:bg-indigo-50 transition whitespace-nowrap shrink-0"
           >
-            View Doubles Table →
+            View Table →
           </button>
         </div>
         <div id="podiumDoubles" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
       </div>
 
       <!-- Card 2: Singles Podium -->
-      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-6">
-        <div class="flex items-center justify-between mb-4">
-          <div>
-            <h2 class="text-sm sm:text-base font-bold text-slate-900">Singles Podium</h2>
-            <p id="singlesPodiumMeta" class="text-xs text-slate-500 mt-0.5">1v1 Singles ratings</p>
+      <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-4 sm:p-5">
+        <div class="flex items-center justify-between gap-2 mb-3.5">
+          <div class="min-w-0">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 truncate">Singles Podium</h2>
+            <p id="singlesPodiumMeta" class="text-xs text-slate-500 mt-0.5 truncate">0 players · 0 matches</p>
           </div>
           <button
             onclick="selectDiscipline('singles', true)"
-            class="text-xs font-semibold text-indigo-600 hover:text-indigo-700 px-2.5 py-1 rounded-lg hover:bg-indigo-50 transition"
+            class="text-xs font-semibold text-indigo-600 hover:text-indigo-700 px-2.5 py-1.5 rounded-lg hover:bg-indigo-50 transition whitespace-nowrap shrink-0"
           >
-            View Singles Table →
+            View Table →
           </button>
         </div>
         <div id="podiumSingles" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
@@ -179,9 +180,9 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- SECTION 2: LEADERBOARD & MATCH HISTORY (Responsive Adaptive Grid)   -->
+    <!-- SECTION 2: LEADERBOARD & MATCH HISTORY (Uniform gap-4, min-h-screen)-->
     <!-- =================================================================== -->
-    <section id="rankingsSection" class="space-y-5 scroll-mt-20">
+    <section id="rankingsSection" class="flex flex-col gap-4 scroll-mt-20 min-h-[75vh]">
       <!-- Controls Bar: Discipline Toggle + Mobile View Switcher + Search -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         <div class="flex flex-wrap items-center gap-2">
@@ -190,14 +191,14 @@
             <button
               id="btnModeDoubles"
               onclick="selectDiscipline('doubles', false)"
-              class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-xs"
+              class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap"
             >
               Doubles
             </button>
             <button
               id="btnModeSingles"
               onclick="selectDiscipline('singles', false)"
-              class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900"
+              class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap"
             >
               Singles
             </button>
@@ -208,14 +209,14 @@
             <button
               id="btnMobileTabLeaderboard"
               onclick="setMobileSubTab('leaderboard')"
-              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap"
             >
               Leaderboard
             </button>
             <button
               id="btnMobileTabHistory"
               onclick="setMobileSubTab('history')"
-              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900"
+              class="px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap"
             >
               Matches
             </button>
@@ -243,20 +244,20 @@
       </div>
 
       <!-- Adaptive 12-Column Grid: Side-by-Side on Desktop, Tabbed on Mobile -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
 
         <!-- LEFT COLUMN (7 cols on lg): Leaderboard Table -->
         <div id="panelLeaderboard" class="lg:block lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
-          <div class="px-4 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <div>
-              <h3 id="leaderboardHeading" class="text-sm sm:text-base font-bold text-slate-900">Doubles Leaderboard</h3>
-              <p class="text-xs text-slate-500">Click any player row to view their match history</p>
+          <div class="px-4 sm:px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <h3 id="leaderboardHeading" class="text-sm sm:text-base font-bold text-slate-900 truncate">Doubles Leaderboard</h3>
+              <p class="text-xs text-slate-500 truncate">Click any player to view their match history</p>
             </div>
-            <span id="leaderboardCountBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">0 Players</span>
+            <span id="leaderboardCountBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 whitespace-nowrap shrink-0">0 Players</span>
           </div>
 
           <!-- Table Header -->
-          <div class="hidden sm:grid sm:grid-cols-12 px-6 py-2.5 bg-slate-50/80 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+          <div class="hidden sm:grid sm:grid-cols-12 px-5 py-2.5 bg-slate-50/80 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
             <div class="col-span-1">Rank</div>
             <div class="col-span-5">Player</div>
             <div class="col-span-3 text-center">Record (W-L-T)</div>
@@ -268,16 +269,16 @@
         </div>
 
         <!-- RIGHT COLUMN (5 cols on lg): Match History Feed -->
-        <div id="panelHistory" class="hidden lg:block lg:col-span-5 space-y-3">
-          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs px-4 sm:px-5 py-4 flex items-center justify-between">
-            <div>
-              <h3 id="historyHeading" class="text-sm sm:text-base font-bold text-slate-900">Doubles Match History</h3>
-              <p class="text-xs text-slate-500">Chronological results &amp; Elo rating changes</p>
+        <div id="panelHistory" class="hidden lg:flex lg:flex-col lg:col-span-5 gap-4">
+          <div class="bg-white rounded-2xl border border-slate-200/80 shadow-xs px-4 sm:px-5 py-4 flex items-center justify-between gap-2">
+            <div class="min-w-0">
+              <h3 id="historyHeading" class="text-sm sm:text-base font-bold text-slate-900 truncate">Doubles Match History</h3>
+              <p class="text-xs text-slate-500 truncate">Chronological results &amp; Elo rating changes</p>
             </div>
-            <span id="historyCountBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">0 Matches</span>
+            <span id="historyCountBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600 whitespace-nowrap shrink-0">0 Matches</span>
           </div>
 
-          <div id="historyCards" class="space-y-3"></div>
+          <div id="historyCards" class="flex flex-col gap-4"></div>
         </div>
 
       </div>
@@ -300,37 +301,37 @@
             <p class="text-xs text-slate-500">Personal Rating &amp; Match History</p>
           </div>
         </div>
-        <button onclick="closePlayerProfile()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 flex items-center justify-center text-sm transition">
+        <button onclick="closePlayerProfile()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 flex items-center justify-center text-sm transition shrink-0">
           ✕
         </button>
       </div>
 
       <!-- Discipline Switcher inside Player Modal -->
-      <div class="px-5 pt-3 pb-3 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+      <div class="px-5 py-3 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
         <div class="inline-flex p-1 rounded-xl bg-slate-200/70">
           <button
             id="profileTabDoubles"
             onclick="setProfileDiscipline('doubles')"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap"
           >
             Doubles
           </button>
           <button
             id="profileTabSingles"
             onclick="setProfileDiscipline('singles')"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900"
+            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap"
           >
             Singles
           </button>
         </div>
-        <span id="profileSummaryPill" class="text-xs font-semibold text-slate-500"></span>
+        <span id="profileSummaryPill" class="text-xs font-semibold text-slate-500 whitespace-nowrap"></span>
       </div>
 
       <!-- Stats Bar -->
       <div id="profileStatsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-4 sm:px-5 bg-white border-b border-slate-100"></div>
 
       <!-- Scrollable Match List for this Player -->
-      <div id="profileMatchesList" class="p-4 sm:p-5 overflow-y-auto space-y-2.5 flex-1 bg-slate-50/50"></div>
+      <div id="profileMatchesList" class="p-4 sm:p-5 overflow-y-auto flex flex-col gap-3 flex-1 bg-slate-50/50"></div>
     </div>
   </div>
 
@@ -673,7 +674,7 @@
                 <div class="text-sm font-bold text-slate-900 truncate group-hover:text-indigo-600 transition">
                   ${escapeHtml(p.name)}
                 </div>
-                <div class="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5">
+                <div class="text-xs text-slate-500 mt-0.5 flex items-center gap-1.5 whitespace-nowrap">
                   <span class="text-emerald-600 font-semibold">${p.w}W</span>
                   <span>·</span>
                   <span class="text-rose-500 font-semibold">${p.l}L</span>
@@ -700,8 +701,8 @@
 
       const dCount = data.doublesHistory.length;
       const sCount = data.singlesHistory.length;
-      document.getElementById("doublesPodiumMeta").textContent = `${data.sortedDoubles.length} players • ${dCount} ${dCount === 1 ? "match" : "matches"} played`;
-      document.getElementById("singlesPodiumMeta").textContent = `${data.sortedSingles.length} players • ${sCount} ${sCount === 1 ? "match" : "matches"} played`;
+      document.getElementById("doublesPodiumMeta").textContent = `${data.sortedDoubles.length} players · ${dCount} ${dCount === 1 ? "match" : "matches"}`;
+      document.getElementById("singlesPodiumMeta").textContent = `${data.sortedSingles.length} players · ${sCount} ${sCount === 1 ? "match" : "matches"}`;
 
       renderRankingsAndHistory(data);
       populateModalSelects(data.playerNames);
@@ -744,18 +745,18 @@
           const total = p.w + p.l + p.t;
           const winPct = total > 0 ? Math.round((p.w / total) * 100) : 0;
           const rankBadge = p.rank === 1
-            ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-yellow-200/80 text-yellow-900 font-bold text-xs">1</span>`
+            ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-yellow-200/80 text-yellow-900 font-bold text-xs shrink-0">1</span>`
             : p.rank === 2
-            ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-slate-200 text-slate-700 font-bold text-xs">2</span>`
+            ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-slate-200 text-slate-700 font-bold text-xs shrink-0">2</span>`
             : p.rank === 3
-            ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-[#f3ded4] text-[#6d3720] font-bold text-xs">3</span>`
-            : `<span class="inline-flex items-center justify-center w-6 h-6 text-slate-400 font-semibold text-xs">${p.rank}</span>`;
+            ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-[#f3ded4] text-[#6d3720] font-bold text-xs shrink-0">3</span>`
+            : `<span class="inline-flex items-center justify-center w-6 h-6 text-slate-400 font-semibold text-xs shrink-0">${p.rank}</span>`;
 
           return `
             <button
               type="button"
               onclick="openPlayerProfile('${escapeJsStr(p.name)}', '${appState.discipline}')"
-              class="w-full text-left px-4 sm:px-6 py-3.5 hover:bg-slate-50/90 transition flex sm:grid sm:grid-cols-12 items-center justify-between gap-3 group"
+              class="w-full text-left px-4 sm:px-5 py-3.5 hover:bg-slate-50/90 transition flex sm:grid sm:grid-cols-12 items-center justify-between gap-3 group"
             >
               <div class="flex items-center gap-3 min-w-0 sm:col-span-6">
                 ${rankBadge}
@@ -766,7 +767,7 @@
                   <div class="text-sm font-semibold text-slate-900 truncate group-hover:text-indigo-600 transition">
                     ${escapeHtml(p.name)}
                   </div>
-                  <div class="sm:hidden text-xs text-slate-500 mt-0.5">
+                  <div class="sm:hidden text-xs text-slate-500 mt-0.5 whitespace-nowrap">
                     <span class="text-emerald-600 font-semibold">${p.w}W</span> ·
                     <span class="text-rose-500 font-semibold">${p.l}L</span>
                     ${p.t > 0 ? ` · ${p.t}T` : ""}
@@ -785,7 +786,7 @@
                 ${total > 0 ? winPct + "%" : "—"}
               </div>
 
-              <div class="sm:col-span-2 text-right">
+              <div class="sm:col-span-2 text-right shrink-0">
                 <span class="text-base font-bold text-slate-900 tabular-nums">${p.elo}</span>
               </div>
             </button>
@@ -825,7 +826,7 @@
       const cls = delta >= 0
         ? "bg-emerald-50 text-emerald-700 border-emerald-200/60"
         : "bg-rose-50 text-rose-600 border-rose-200/60";
-      return `<span class="inline-block min-w-[44px] text-center text-[11px] font-bold px-2 py-0.5 rounded-md border tabular-nums ${cls}">${str}</span>`;
+      return `<span class="inline-block min-w-[44px] text-center text-[11px] font-bold px-2 py-0.5 rounded-md border tabular-nums whitespace-nowrap shrink-0 ${cls}">${str}</span>`;
     }
 
     function renderDoublesMatchCard(m) {
@@ -833,21 +834,20 @@
       const s2Scores = m.sets.map(([a, b]) => `<span class="w-6 text-center tabular-nums ${b > a ? 'font-bold text-slate-900' : 'text-slate-400'}">${b}</span>`).join("");
 
       return `
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2.5">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2">
           <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
             <span>${escapeHtml(m.date)}${m.matchNum ? ` · Match #${m.matchNum}` : ""}</span>
             <span>Doubles</span>
           </div>
 
-          <!-- Team 1 -->
-          <div class="flex items-center justify-between gap-2 ${m.winner === 1 ? 'bg-slate-50/80 -mx-2 px-2 py-1.5 rounded-xl' : 'py-1'}">
+          <!-- Team 1 (Partners stacked vertically for consistent height on all widths) -->
+          <div class="flex items-center justify-between gap-3 ${m.winner === 1 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
             <div class="flex items-center gap-2 min-w-0">
-              <div class="flex flex-wrap items-center gap-1 text-sm font-semibold text-slate-900 truncate">
-                <button type="button" onclick="openPlayerProfile('${escapeJsStr(m.t1[0])}', 'doubles')" class="hover:text-indigo-600 transition truncate">${escapeHtml(m.t1[0])}</button>
-                <span class="text-slate-300">&amp;</span>
-                <button type="button" onclick="openPlayerProfile('${escapeJsStr(m.t1[1])}', 'doubles')" class="hover:text-indigo-600 transition truncate">${escapeHtml(m.t1[1])}</button>
+              <div class="flex flex-col min-w-0 text-sm font-semibold text-slate-900 leading-snug">
+                <button type="button" onclick="openPlayerProfile('${escapeJsStr(m.t1[0])}', 'doubles')" class="text-left hover:text-indigo-600 transition truncate">${escapeHtml(m.t1[0])}</button>
+                <button type="button" onclick="openPlayerProfile('${escapeJsStr(m.t1[1])}', 'doubles')" class="text-left text-slate-600 hover:text-indigo-600 transition truncate">${escapeHtml(m.t1[1])}</button>
               </div>
-              ${m.winner === 1 ? '<span class="text-xs" title="Winner">🏆</span>' : ''}
+              ${m.winner === 1 ? '<span class="text-xs shrink-0" title="Winner">🏆</span>' : ''}
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
               <div class="flex items-center gap-1 text-sm">${s1Scores}</div>
@@ -855,15 +855,16 @@
             </div>
           </div>
 
-          <!-- Team 2 -->
-          <div class="flex items-center justify-between gap-2 ${m.winner === 2 ? 'bg-slate-50/80 -mx-2 px-2 py-1.5 rounded-xl' : 'py-1'}">
+          <div class="border-t border-slate-100"></div>
+
+          <!-- Team 2 (Partners stacked vertically for consistent height on all widths) -->
+          <div class="flex items-center justify-between gap-3 ${m.winner === 2 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
             <div class="flex items-center gap-2 min-w-0">
-              <div class="flex flex-wrap items-center gap-1 text-sm font-semibold text-slate-900 truncate">
-                <button type="button" onclick="openPlayerProfile('${escapeJsStr(m.t2[0])}', 'doubles')" class="hover:text-indigo-600 transition truncate">${escapeHtml(m.t2[0])}</button>
-                <span class="text-slate-300">&amp;</span>
-                <button type="button" onclick="openPlayerProfile('${escapeJsStr(m.t2[1])}', 'doubles')" class="hover:text-indigo-600 transition truncate">${escapeHtml(m.t2[1])}</button>
+              <div class="flex flex-col min-w-0 text-sm font-semibold text-slate-900 leading-snug">
+                <button type="button" onclick="openPlayerProfile('${escapeJsStr(m.t2[0])}', 'doubles')" class="text-left hover:text-indigo-600 transition truncate">${escapeHtml(m.t2[0])}</button>
+                <button type="button" onclick="openPlayerProfile('${escapeJsStr(m.t2[1])}', 'doubles')" class="text-left text-slate-600 hover:text-indigo-600 transition truncate">${escapeHtml(m.t2[1])}</button>
               </div>
-              ${m.winner === 2 ? '<span class="text-xs" title="Winner">🏆</span>' : ''}
+              ${m.winner === 2 ? '<span class="text-xs shrink-0" title="Winner">🏆</span>' : ''}
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
               <div class="flex items-center gap-1 text-sm">${s2Scores}</div>
@@ -879,18 +880,18 @@
       const s2Scores = m.sets.map(([a, b]) => `<span class="w-6 text-center tabular-nums ${b > a ? 'font-bold text-slate-900' : 'text-slate-400'}">${b}</span>`).join("");
 
       return `
-        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2.5">
+        <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2">
           <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
             <span>${escapeHtml(m.date)}${m.matchNum ? ` · Match #${m.matchNum}` : ""}</span>
             <span>Singles</span>
           </div>
 
-          <div class="flex items-center justify-between gap-2 ${m.winner === 1 ? 'bg-slate-50/80 -mx-2 px-2 py-1.5 rounded-xl' : 'py-1'}">
+          <div class="flex items-center justify-between gap-3 ${m.winner === 1 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
             <div class="flex items-center gap-2 min-w-0">
               <button type="button" onclick="openPlayerProfile('${escapeJsStr(m.p1)}', 'singles')" class="text-sm font-semibold text-slate-900 hover:text-indigo-600 transition truncate">
                 ${escapeHtml(m.p1)}
               </button>
-              ${m.winner === 1 ? '<span class="text-xs">🏆</span>' : ''}
+              ${m.winner === 1 ? '<span class="text-xs shrink-0">🏆</span>' : ''}
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
               <div class="flex items-center gap-1 text-sm">${s1Scores}</div>
@@ -898,12 +899,14 @@
             </div>
           </div>
 
-          <div class="flex items-center justify-between gap-2 ${m.winner === 2 ? 'bg-slate-50/80 -mx-2 px-2 py-1.5 rounded-xl' : 'py-1'}">
+          <div class="border-t border-slate-100"></div>
+
+          <div class="flex items-center justify-between gap-3 ${m.winner === 2 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
             <div class="flex items-center gap-2 min-w-0">
               <button type="button" onclick="openPlayerProfile('${escapeJsStr(m.p2)}', 'singles')" class="text-sm font-semibold text-slate-900 hover:text-indigo-600 transition truncate">
                 ${escapeHtml(m.p2)}
               </button>
-              ${m.winner === 2 ? '<span class="text-xs">🏆</span>' : ''}
+              ${m.winner === 2 ? '<span class="text-xs shrink-0">🏆</span>' : ''}
             </div>
             <div class="flex items-center gap-2.5 shrink-0">
               <div class="flex items-center gap-1 text-sm">${s2Scores}</div>
@@ -957,11 +960,11 @@
       tabS.textContent = `Singles (${sMatches.length})`;
 
       if (isDoubles) {
-        tabD.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs";
-        tabS.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900";
+        tabD.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
+        tabS.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
       } else {
-        tabS.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs";
-        tabD.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900";
+        tabS.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
+        tabD.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
       }
 
       const sortedList = isDoubles ? data.sortedDoubles : data.sortedSingles;
@@ -1037,7 +1040,7 @@
         </div>
         <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
           <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Record</div>
-          <div class="text-sm font-bold text-slate-900 mt-1">
+          <div class="text-sm font-bold text-slate-900 mt-1 whitespace-nowrap">
             <span class="text-emerald-600">${pStats.w}W</span> – <span class="text-rose-500">${pStats.l}L</span>${pStats.t ? ` – ${pStats.t}T` : ""}
           </div>
         </div>
@@ -1105,42 +1108,47 @@
     }
 
     // =========================================================================
-    // NAVIGATION & RESPONSIVE SUB-VIEWS
+    // NAVIGATION & RESPONSIVE SUB-VIEWS (Scroll-stable)
     // =========================================================================
     function selectDiscipline(discipline, scrollToSection) {
+      const savedScrollY = window.scrollY;
       appState.discipline = discipline;
       const bD = document.getElementById("btnModeDoubles");
       const bS = document.getElementById("btnModeSingles");
       if (discipline === "doubles") {
-        bD.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-xs";
-        bS.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900";
+        bD.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
+        bS.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
       } else {
-        bS.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-xs";
-        bD.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900";
+        bS.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
+        bD.className = "px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
       }
       renderRankingsAndHistory();
       if (scrollToSection) {
         document.getElementById("rankingsSection").scrollIntoView({ behavior: "smooth" });
+      } else {
+        window.scrollTo({ top: savedScrollY, behavior: "instant" });
       }
     }
 
     function setMobileSubTab(tab) {
+      const savedScrollY = window.scrollY;
       appState.mobileSubTab = tab;
       const bL = document.getElementById("btnMobileTabLeaderboard");
       const bH = document.getElementById("btnMobileTabHistory");
       const pL = document.getElementById("panelLeaderboard");
       const pH = document.getElementById("panelHistory");
       if (tab === "leaderboard") {
-        bL.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs";
-        bH.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900";
+        bL.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
+        bH.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
         pL.className = "lg:block lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden";
-        pH.className = "hidden lg:block lg:col-span-5 space-y-3";
+        pH.className = "hidden lg:flex lg:flex-col lg:col-span-5 gap-4";
       } else {
-        bH.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs";
-        bL.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900";
+        bH.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
+        bL.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
         pL.className = "hidden lg:block lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden";
-        pH.className = "lg:block lg:col-span-5 space-y-3";
+        pH.className = "flex flex-col lg:col-span-5 gap-4";
       }
+      window.scrollTo({ top: savedScrollY, behavior: "instant" });
     }
 
     function clearSearchInput() {
@@ -1159,13 +1167,13 @@
 
       if (unlocked) {
         headerBtn.innerHTML = `<span>🔓</span><span>Admin</span>`;
-        headerBtn.className = "inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200";
+        headerBtn.className = "inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shrink-0";
         quickActions.classList.remove("hidden");
         quickActions.classList.add("sm:flex");
         banner.classList.remove("hidden");
       } else {
         headerBtn.innerHTML = `<span>🔒</span><span>Admin</span>`;
-        headerBtn.className = "inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200/80 transition";
+        headerBtn.className = "inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-slate-100 text-slate-700 hover:bg-slate-200/80 transition whitespace-nowrap shrink-0";
         quickActions.classList.add("hidden");
         quickActions.classList.remove("sm:flex");
         banner.classList.add("hidden");
@@ -1362,7 +1370,7 @@
       document.getElementById("errorScreenEndpoint").textContent = ACTIVE_API_URL || "(not configured)";
 
       const badge = document.getElementById("syncBadge");
-      badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 shrink-0";
+      badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap shrink-0";
       document.getElementById("syncDot").className = "w-1.5 h-1.5 rounded-full bg-rose-500";
       document.getElementById("syncText").textContent = "Connection Error";
     }
@@ -1390,7 +1398,7 @@
       hc.classList.add("flex");
 
       const badge = document.getElementById("syncBadge");
-      badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0";
+      badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shrink-0";
       document.getElementById("syncDot").className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
       document.getElementById("syncText").textContent = "Live";
       renderAll();
@@ -1402,7 +1410,7 @@
       document.getElementById("loadingScreen").classList.remove("hidden");
 
       const badge = document.getElementById("syncBadge");
-      badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 shrink-0";
+      badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap shrink-0";
       document.getElementById("syncDot").className = "w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse";
       document.getElementById("syncText").textContent = "Connecting...";
 
