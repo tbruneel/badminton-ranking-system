@@ -28,15 +28,15 @@
       .podium-gold:hover { border-color: #facc15; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06); }
       .podium-silver:hover { border-color: #cbd5e1; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06); }
       .podium-bronze:hover { border-color: #b87352; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06); }
-      .lb-row:hover { background-color: rgba(248, 250, 252, 0.9); }
-      .lb-row:hover .lb-name { color: #4f46e5; }
-      .lb-row:hover .lb-avatar { background-color: #eef2ff; color: #4f46e5; }
-      .podium-card:hover .podium-name { color: #4f46e5; }
-      .player-link:hover { color: #4f46e5; }
+      .lb-row:hover { background-color: #f8fafc; }
+      .lb-row:hover .lb-name { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #94a3b8; }
+      .lb-row:hover .lb-avatar { background-color: #e2e8f0; color: #0f172a; }
+      .podium-card:hover .podium-name { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #94a3b8; }
+      .player-link:hover { text-decoration: underline; text-underline-offset: 3px; text-decoration-color: #64748b; }
     }
   </style>
 </head>
-<body class="min-h-screen bg-slate-50 text-slate-900 antialiased selection:bg-indigo-100 selection:text-indigo-900">
+<body class="min-h-screen bg-slate-50 text-slate-900 antialiased selection:bg-slate-200 selection:text-slate-900">
 
   <!-- ===================================================================== -->
   <!-- TOP NAVIGATION BAR                                                    -->
@@ -58,7 +58,7 @@
         <div id="adminQuickActions" class="hidden items-center gap-2">
           <button
             onclick="openMatchModal()"
-            class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-indigo-600 text-white hover:bg-indigo-500 active:scale-[0.99] transition shadow-xs whitespace-nowrap shrink-0"
+            class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.99] transition shadow-xs whitespace-nowrap shrink-0"
           >
             <span>＋</span>
             <span>Log Match</span>
@@ -147,7 +147,7 @@
         <span class="text-xs sm:text-sm font-semibold tracking-wide">Admin Mode Active — You can log matches and add players to the Google Sheet.</span>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="openMatchModal()" class="sm:hidden text-xs font-semibold px-3 py-1.5 rounded-lg bg-indigo-500 text-white whitespace-nowrap">＋ Log Match</button>
+        <button onclick="openMatchModal()" class="sm:hidden text-xs font-semibold px-3 py-1.5 rounded-lg bg-white text-slate-900 hover:bg-slate-100 whitespace-nowrap">＋ Log Match</button>
         <button onclick="openPlayerModal()" class="sm:hidden text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/15 text-white whitespace-nowrap">＋ Player</button>
         <button onclick="lockAdminMode()" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition whitespace-nowrap">
           Lock Admin
@@ -167,8 +167,8 @@
             <p id="doublesPodiumMeta" class="text-xs text-slate-500 mt-0.5 truncate">0 players · 0 matches</p>
           </div>
           <button
-            onclick="selectDiscipline('doubles', true)"
-            class="text-xs font-semibold text-indigo-600 hover:text-indigo-700 px-2.5 py-1.5 rounded-lg hover:bg-indigo-50 transition whitespace-nowrap shrink-0"
+            onclick="this.blur(); selectDiscipline('doubles', true)"
+            class="text-xs font-semibold text-slate-700 hover:text-slate-900 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 transition whitespace-nowrap shrink-0"
           >
             View Table →
           </button>
@@ -184,8 +184,8 @@
             <p id="singlesPodiumMeta" class="text-xs text-slate-500 mt-0.5 truncate">0 players · 0 matches</p>
           </div>
           <button
-            onclick="selectDiscipline('singles', true)"
-            class="text-xs font-semibold text-indigo-600 hover:text-indigo-700 px-2.5 py-1.5 rounded-lg hover:bg-indigo-50 transition whitespace-nowrap shrink-0"
+            onclick="this.blur(); selectDiscipline('singles', true)"
+            class="text-xs font-semibold text-slate-700 hover:text-slate-900 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 transition whitespace-nowrap shrink-0"
           >
             View Table →
           </button>
@@ -195,9 +195,9 @@
     </section>
 
     <!-- =================================================================== -->
-    <!-- SECTION 2: LEADERBOARD & MATCH HISTORY (Uniform gap-4, min-h-screen)-->
+    <!-- SECTION 2: LEADERBOARD & MATCH HISTORY (Uniform gap-4, scroll-safe) -->
     <!-- =================================================================== -->
-    <section id="rankingsSection" class="flex flex-col gap-4 scroll-mt-20 min-h-[75vh]">
+    <section id="rankingsSection" class="flex flex-col gap-4 scroll-mt-20 min-h-[calc(100vh-5rem)]">
       <!-- Controls Bar: Discipline Toggle + Mobile View Switcher + Search -->
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200/80 shadow-xs">
         <div class="flex flex-wrap items-center gap-2">
@@ -205,14 +205,14 @@
           <div class="inline-flex p-1 rounded-xl bg-slate-100 border border-slate-200/60">
             <button
               id="btnModeDoubles"
-              onclick="selectDiscipline('doubles', false)"
+              onclick="this.blur(); selectDiscipline('doubles', false)"
               class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap"
             >
               Doubles
             </button>
             <button
               id="btnModeSingles"
-              onclick="selectDiscipline('singles', false)"
+              onclick="this.blur(); selectDiscipline('singles', false)"
               class="px-3.5 py-1.5 rounded-lg text-xs sm:text-sm font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap"
             >
               Singles
@@ -223,14 +223,14 @@
           <div class="inline-flex lg:hidden p-1 rounded-xl bg-slate-100 border border-slate-200/60">
             <button
               id="btnMobileTabLeaderboard"
-              onclick="setMobileSubTab('leaderboard')"
+              onclick="this.blur(); setMobileSubTab('leaderboard')"
               class="px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap"
             >
               Leaderboard
             </button>
             <button
               id="btnMobileTabHistory"
-              onclick="setMobileSubTab('history')"
+              onclick="this.blur(); setMobileSubTab('history')"
               class="px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap"
             >
               Matches
@@ -246,7 +246,7 @@
             type="text"
             oninput="renderRankingsAndHistory()"
             placeholder="Filter player..."
-            class="w-full pl-8 pr-8 py-2 rounded-xl border border-slate-200 bg-slate-50/70 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition"
+            class="w-full pl-8 pr-8 py-2 rounded-xl border border-slate-200 bg-slate-50/70 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition"
           />
           <button
             id="clearSearchBtn"
@@ -295,19 +295,19 @@
   </main>
 
   <!-- ===================================================================== -->
-  <!-- MODAL 1: PLAYER PROFILE & PERSONAL MATCH HISTORY (Singles / Doubles)  -->
+  <!-- MODAL 1: PLAYER PROFILE (Switchable Statistics & Match History Pages) -->
   <!-- ===================================================================== -->
   <div id="playerProfileModal" onclick="if(event.target===this)closePlayerProfile()" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-3 sm:p-6 overscroll-contain">
-    <div class="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-xl overflow-hidden max-h-[90vh] flex flex-col">
+    <div class="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-xl overflow-hidden h-[82vh] max-h-[680px] flex flex-col">
       <!-- Modal Header -->
-      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-3 min-w-0">
-          <div id="profileAvatar" class="w-11 h-11 rounded-xl bg-indigo-50 text-indigo-700 font-bold text-base flex items-center justify-center shrink-0">
+          <div id="profileAvatar" class="w-11 h-11 rounded-xl bg-slate-900 text-white font-bold text-sm flex items-center justify-center shrink-0">
             --
           </div>
           <div class="min-w-0">
             <h3 id="profileName" class="text-base sm:text-lg font-bold text-slate-900 truncate">Player Name</h3>
-            <p class="text-xs text-slate-500">Personal Rating &amp; Match History</p>
+            <p id="profileSummaryPill" class="text-xs text-slate-500 mt-0.5 truncate"></p>
           </div>
         </div>
         <button onclick="closePlayerProfile()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 hover:bg-slate-200 flex items-center justify-center text-sm transition shrink-0">
@@ -315,32 +315,48 @@
         </button>
       </div>
 
-      <!-- Discipline Switcher inside Player Modal -->
-      <div class="px-5 py-3 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2">
+      <!-- Controls Bar: Discipline (Doubles/Singles) + Page Switcher (Statistics/Match History) -->
+      <div class="px-4 sm:px-5 py-3 bg-slate-50/80 border-b border-slate-100 flex flex-wrap items-center justify-between gap-2 shrink-0">
         <div class="inline-flex p-1 rounded-xl bg-slate-200/70">
           <button
             id="profileTabDoubles"
-            onclick="setProfileDiscipline('doubles')"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap"
+            onclick="this.blur(); setProfileDiscipline('doubles')"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap"
           >
             Doubles
           </button>
           <button
             id="profileTabSingles"
-            onclick="setProfileDiscipline('singles')"
-            class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap"
+            onclick="this.blur(); setProfileDiscipline('singles')"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap"
           >
             Singles
           </button>
         </div>
-        <span id="profileSummaryPill" class="text-xs font-semibold text-slate-500 whitespace-nowrap"></span>
+
+        <div class="inline-flex p-1 rounded-xl bg-slate-200/70">
+          <button
+            id="profileViewStatsBtn"
+            onclick="this.blur(); setProfileView('stats')"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap"
+          >
+            Statistics
+          </button>
+          <button
+            id="profileViewHistoryBtn"
+            onclick="this.blur(); setProfileView('history')"
+            class="px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap"
+          >
+            Match History
+          </button>
+        </div>
       </div>
 
-      <!-- Stats Bar -->
-      <div id="profileStatsGrid" class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 p-4 sm:px-5 bg-white border-b border-slate-100"></div>
+      <!-- Page 1: Statistics View -->
+      <div id="profileStatsView" class="p-4 sm:p-5 overflow-y-auto overscroll-contain flex flex-col gap-4 flex-1 bg-slate-50/40"></div>
 
-      <!-- Scrollable Match List for this Player -->
-      <div id="profileMatchesList" class="p-4 sm:p-5 overflow-y-auto overscroll-contain flex flex-col gap-3 flex-1 bg-slate-50/50"></div>
+      <!-- Page 2: Match History View (Full height of modal body) -->
+      <div id="profileMatchesList" class="hidden p-4 sm:p-5 overflow-y-auto overscroll-contain flex flex-col gap-3 flex-1 bg-slate-50/40"></div>
     </div>
   </div>
 
@@ -367,7 +383,7 @@
           type="password"
           placeholder="Enter Admin Password..."
           onkeydown="if(event.key==='Enter')submitAdminUnlock()"
-          class="mt-1.5 w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+          class="mt-1.5 w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
         />
       </div>
 
@@ -451,13 +467,13 @@
       </div>
 
       <!-- Live Elo Preview -->
-      <div id="modalEloPreview" class="p-3.5 rounded-xl bg-indigo-50/70 border border-indigo-100 text-xs space-y-1"></div>
+      <div id="modalEloPreview" class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1"></div>
       <div id="matchModalError" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"></div>
 
       <button
         id="saveMatchBtn"
         onclick="saveMatchFromModal()"
-        class="w-full py-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-sm shadow-xs transition"
+        class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition"
       >
         Save Match &amp; Update Rankings
       </button>
@@ -483,7 +499,7 @@
           type="text"
           placeholder="e.g. Nathan De Smet"
           onkeydown="if(event.key==='Enter')saveNewPlayer()"
-          class="mt-1.5 w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500"
+          class="mt-1.5 w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
         />
       </div>
       <div id="playerModalError" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"></div>
@@ -525,6 +541,7 @@
       modalMode: "doubles",
       profilePlayer: null,         // currently inspected player name
       profileDiscipline: "doubles",
+      profileView: "stats",        // "stats" | "history"
       adminPassword: "",           // held only in memory while unlocked
       serverPlayers: [],
       serverDoublesHistory: [],
@@ -585,14 +602,23 @@
         if (a > b) sets1++;
         else if (b > a) sets2++;
       }
-      const s1 = sets1 > sets2 ? 1.0 : (sets2 > sets1 ? 0.0 : 0.5);
+      if (sets1 === sets2) {
+        return { delta1: 0, winner: 0 };
+      }
+      const s1 = sets1 > sets2 ? 1.0 : 0.0;
       const exp1 = 1.0 / (1.0 + Math.pow(10, (avg2 - avg1) / 400.0));
       const kEff = CONFIG.baseK + CONFIG.marginK * (Math.abs(pts1 - pts2) / Math.max(1, pts1 + pts2));
       const delta1 = Math.round(kEff * (s1 - exp1));
-      return { delta1, winner: sets1 > sets2 ? 1 : (sets2 > sets1 ? 2 : 0) };
+      return { delta1, winner: sets1 > sets2 ? 1 : 2 };
     }
 
     function getComputedData() {
+      const doublesHistory = appState.serverDoublesHistory.map(m =>
+        m.winner === 0 ? { ...m, delta1: 0, delta2: 0 } : m
+      );
+      const singlesHistory = appState.serverSinglesHistory.map(m =>
+        m.winner === 0 ? { ...m, delta1: 0, delta2: 0 } : m
+      );
       const singles = appState.serverPlayers.map((p, idx) => ({
         name: p.name,
         short: p.short || getShortName(p.name),
@@ -619,8 +645,8 @@
         doublesMap: Object.fromEntries(doubles.map(p => [p.name, p])),
         sortedSingles: [...singles].sort((a, b) => b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order),
         sortedDoubles: [...doubles].sort((a, b) => b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order),
-        doublesHistory: appState.serverDoublesHistory,
-        singlesHistory: appState.serverSinglesHistory
+        doublesHistory,
+        singlesHistory
       };
     }
 
@@ -687,6 +713,7 @@
                   <span class="text-emerald-600 font-semibold">${p.w}W</span>
                   <span>·</span>
                   <span class="text-rose-500 font-semibold">${p.l}L</span>
+                  ${p.t > 0 ? `<span>·</span><span class="text-slate-600 font-semibold">${p.t}T</span>` : ""}
                   <span class="text-slate-400">(${winRate})</span>
                 </div>
               </div>
@@ -831,8 +858,11 @@
     }
 
     function formatDeltaPill(delta) {
-      const str = delta >= 0 ? `+${delta}` : `${delta}`;
-      const cls = delta >= 0
+      if (delta === 0) {
+        return `<span class="inline-block min-w-[44px] text-center text-[11px] font-bold px-2 py-0.5 rounded-md border tabular-nums whitespace-nowrap shrink-0 bg-slate-100 text-slate-500 border-slate-200/80">0</span>`;
+      }
+      const str = delta > 0 ? `+${delta}` : `${delta}`;
+      const cls = delta > 0
         ? "bg-emerald-50 text-emerald-700 border-emerald-200/60"
         : "bg-rose-50 text-rose-600 border-rose-200/60";
       return `<span class="inline-block min-w-[44px] text-center text-[11px] font-bold px-2 py-0.5 rounded-md border tabular-nums whitespace-nowrap shrink-0 ${cls}">${str}</span>`;
@@ -844,17 +874,20 @@
 
       return `
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2">
-          <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
-            <span>${escapeHtml(m.date)}${m.matchNum ? ` · Match #${m.matchNum}` : ""}</span>
-            <span>Doubles</span>
+          <div class="flex items-center justify-between gap-2 text-xs text-slate-400 font-medium">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="font-semibold text-slate-500 truncate">Doubles Match #${m.matchNum || "—"}</span>
+              ${m.winner === 0 ? '<span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider shrink-0">Tie</span>' : ''}
+            </div>
+            <span class="tabular-nums whitespace-nowrap shrink-0">${escapeHtml(m.date)}</span>
           </div>
 
-          <!-- Team 1 (Partners stacked vertically for consistent height on all widths) -->
+          <!-- Team 1 (Partners stacked vertically, identical text color) -->
           <div class="flex items-center justify-between gap-3 ${m.winner === 1 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
             <div class="flex items-center gap-2 min-w-0">
               <div class="flex flex-col min-w-0 text-sm font-semibold text-slate-900 leading-snug">
-                <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t1[0])}', 'doubles')" class="player-link text-left transition truncate">${escapeHtml(m.t1[0])}</button>
-                <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t1[1])}', 'doubles')" class="player-link text-left text-slate-600 transition truncate">${escapeHtml(m.t1[1])}</button>
+                <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t1[0])}', 'doubles')" class="player-link text-left text-slate-900 transition truncate">${escapeHtml(m.t1[0])}</button>
+                <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t1[1])}', 'doubles')" class="player-link text-left text-slate-900 transition truncate">${escapeHtml(m.t1[1])}</button>
               </div>
               ${m.winner === 1 ? '<span class="text-xs shrink-0" title="Winner">🏆</span>' : ''}
             </div>
@@ -866,12 +899,12 @@
 
           <div class="border-t border-slate-100"></div>
 
-          <!-- Team 2 (Partners stacked vertically for consistent height on all widths) -->
+          <!-- Team 2 (Partners stacked vertically, identical text color) -->
           <div class="flex items-center justify-between gap-3 ${m.winner === 2 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
             <div class="flex items-center gap-2 min-w-0">
               <div class="flex flex-col min-w-0 text-sm font-semibold text-slate-900 leading-snug">
-                <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t2[0])}', 'doubles')" class="player-link text-left transition truncate">${escapeHtml(m.t2[0])}</button>
-                <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t2[1])}', 'doubles')" class="player-link text-left text-slate-600 transition truncate">${escapeHtml(m.t2[1])}</button>
+                <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t2[0])}', 'doubles')" class="player-link text-left text-slate-900 transition truncate">${escapeHtml(m.t2[0])}</button>
+                <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t2[1])}', 'doubles')" class="player-link text-left text-slate-900 transition truncate">${escapeHtml(m.t2[1])}</button>
               </div>
               ${m.winner === 2 ? '<span class="text-xs shrink-0" title="Winner">🏆</span>' : ''}
             </div>
@@ -890,9 +923,12 @@
 
       return `
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2">
-          <div class="flex items-center justify-between text-xs text-slate-400 font-medium">
-            <span>${escapeHtml(m.date)}${m.matchNum ? ` · Match #${m.matchNum}` : ""}</span>
-            <span>Singles</span>
+          <div class="flex items-center justify-between gap-2 text-xs text-slate-400 font-medium">
+            <div class="flex items-center gap-1.5 min-w-0">
+              <span class="font-semibold text-slate-500 truncate">Singles Match #${m.matchNum || "—"}</span>
+              ${m.winner === 0 ? '<span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 text-[10px] font-bold uppercase tracking-wider shrink-0">Tie</span>' : ''}
+            </div>
+            <span class="tabular-nums whitespace-nowrap shrink-0">${escapeHtml(m.date)}</span>
           </div>
 
           <div class="flex items-center justify-between gap-3 ${m.winner === 1 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
@@ -948,8 +984,12 @@
       if (document.activeElement && typeof document.activeElement.blur === "function") {
         document.activeElement.blur();
       }
+      const isAlreadyOpen = !document.getElementById("playerProfileModal").classList.contains("hidden");
       appState.profilePlayer = playerName;
       appState.profileDiscipline = defaultDiscipline || appState.discipline || "doubles";
+      if (!isAlreadyOpen) {
+        appState.profileView = "stats";
+      }
       const modal = document.getElementById("playerProfileModal");
       modal.classList.remove("hidden");
       modal.classList.add("flex");
@@ -970,18 +1010,25 @@
       renderPlayerProfileContent();
     }
 
+    function setProfileView(view) {
+      appState.profileView = view;
+      renderPlayerProfileContent();
+    }
+
     function renderPlayerProfileContent(cachedData) {
       const playerName = appState.profilePlayer;
       if (!playerName) return;
 
       const data = cachedData || getComputedData();
       const isDoubles = appState.profileDiscipline === "doubles";
+      const isStatsView = appState.profileView === "stats";
 
       document.getElementById("profileAvatar").textContent = getInitials(playerName);
       document.getElementById("profileName").textContent = playerName;
 
       const dMatches = data.doublesHistory.filter(m => m.t1.includes(playerName) || m.t2.includes(playerName));
       const sMatches = data.singlesHistory.filter(m => m.p1 === playerName || m.p2 === playerName);
+      const activeMatches = isDoubles ? dMatches : sMatches;
 
       const tabD = document.getElementById("profileTabDoubles");
       const tabS = document.getElementById("profileTabSingles");
@@ -989,11 +1036,30 @@
       tabS.textContent = `Singles (${sMatches.length})`;
 
       if (isDoubles) {
-        tabD.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
-        tabS.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
+        tabD.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
+        tabS.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
       } else {
-        tabS.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
-        tabD.className = "px-3.5 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
+        tabS.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
+        tabD.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
+      }
+
+      const btnStats = document.getElementById("profileViewStatsBtn");
+      const btnHist = document.getElementById("profileViewHistoryBtn");
+      btnHist.textContent = `Match History (${activeMatches.length})`;
+
+      const statsEl = document.getElementById("profileStatsView");
+      const listEl = document.getElementById("profileMatchesList");
+
+      if (isStatsView) {
+        btnStats.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
+        btnHist.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
+        statsEl.classList.remove("hidden");
+        listEl.classList.add("hidden");
+      } else {
+        btnHist.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition bg-white text-slate-900 shadow-xs whitespace-nowrap";
+        btnStats.className = "px-3 py-1.5 rounded-lg text-xs font-semibold transition text-slate-600 hover:text-slate-900 whitespace-nowrap";
+        listEl.classList.remove("hidden");
+        statsEl.classList.add("hidden");
       }
 
       const sortedList = isDoubles ? data.sortedDoubles : data.sortedSingles;
@@ -1003,9 +1069,12 @@
       const total = pStats.w + pStats.l + pStats.t;
       const winRate = total > 0 ? Math.round((pStats.w / total) * 100) + "%" : "—";
 
-      const rawMatchesChrono = [...(isDoubles ? dMatches : sMatches)].reverse();
+      const rawMatchesChrono = [...activeMatches].reverse();
       let runningElo = CONFIG.startingElo;
       let peakElo = Math.max(CONFIG.startingElo, pStats.elo);
+      let lowElo = Math.min(CONFIG.startingElo, pStats.elo);
+      let setsWon = 0, setsLost = 0, ptsFor = 0, ptsAgainst = 0, bestDelta = 0;
+      const relationMap = {}; // partner stats (Doubles) or head-to-head opponent stats (Singles)
 
       const enrichedMatches = rawMatchesChrono.map(m => {
         if (isDoubles) {
@@ -1013,18 +1082,35 @@
           const isFirstPartner = onT1 ? (m.t1[0] === playerName) : (m.t2[0] === playerName);
           const partner = onT1 ? (isFirstPartner ? m.t1[1] : m.t1[0]) : (isFirstPartner ? m.t2[1] : m.t2[0]);
           const opponents = onT1 ? m.t2 : m.t1;
-          const won = (onT1 && m.winner === 1) || (!onT1 && m.winner === 2);
-          const delta = onT1 ? m.delta1 : m.delta2;
+          const outcome = m.winner === 0 ? "tie" : ((onT1 && m.winner === 1) || (!onT1 && m.winner === 2) ? "win" : "loss");
+          const delta = m.winner === 0 ? 0 : (onT1 ? m.delta1 : m.delta2);
           const sheetPre = m.preElo ? (onT1 ? (isFirstPartner ? m.preElo.t1p1 : m.preElo.t1p2) : (isFirstPartner ? m.preElo.t2p1 : m.preElo.t2p2)) : null;
           const preElo = typeof sheetPre === "number" && !isNaN(sheetPre) ? sheetPre : runningElo;
           const postElo = preElo + delta;
           runningElo = postElo;
           if (postElo > peakElo) peakElo = postElo;
+          if (postElo < lowElo) lowElo = postElo;
+          if (delta > bestDelta) bestDelta = delta;
+
+          m.sets.forEach(([a, b]) => {
+            const myPts = onT1 ? a : b;
+            const oppPts = onT1 ? b : a;
+            ptsFor += myPts;
+            ptsAgainst += oppPts;
+            if (myPts > oppPts) setsWon++;
+            else if (oppPts > myPts) setsLost++;
+          });
+
+          if (!relationMap[partner]) relationMap[partner] = { name: partner, w: 0, l: 0, t: 0 };
+          if (outcome === "win") relationMap[partner].w++;
+          else if (outcome === "loss") relationMap[partner].l++;
+          else relationMap[partner].t++;
+
           const setsFormatted = m.sets.map(([a, b]) => onT1 ? `${a}–${b}` : `${b}–${a}`);
           return {
             matchNum: m.matchNum,
             date: m.date,
-            won,
+            outcome,
             partner,
             opponents,
             setsFormatted,
@@ -1035,18 +1121,35 @@
         } else {
           const isP1 = m.p1 === playerName;
           const opponent = isP1 ? m.p2 : m.p1;
-          const won = (isP1 && m.winner === 1) || (!isP1 && m.winner === 2);
-          const delta = isP1 ? m.delta1 : m.delta2;
+          const outcome = m.winner === 0 ? "tie" : ((isP1 && m.winner === 1) || (!isP1 && m.winner === 2) ? "win" : "loss");
+          const delta = m.winner === 0 ? 0 : (isP1 ? m.delta1 : m.delta2);
           const sheetPre = m.preElo ? (isP1 ? m.preElo.p1 : m.preElo.p2) : null;
           const preElo = typeof sheetPre === "number" && !isNaN(sheetPre) ? sheetPre : runningElo;
           const postElo = preElo + delta;
           runningElo = postElo;
           if (postElo > peakElo) peakElo = postElo;
+          if (postElo < lowElo) lowElo = postElo;
+          if (delta > bestDelta) bestDelta = delta;
+
+          m.sets.forEach(([a, b]) => {
+            const myPts = isP1 ? a : b;
+            const oppPts = isP1 ? b : a;
+            ptsFor += myPts;
+            ptsAgainst += oppPts;
+            if (myPts > oppPts) setsWon++;
+            else if (oppPts > myPts) setsLost++;
+          });
+
+          if (!relationMap[opponent]) relationMap[opponent] = { name: opponent, w: 0, l: 0, t: 0 };
+          if (outcome === "win") relationMap[opponent].w++;
+          else if (outcome === "loss") relationMap[opponent].l++;
+          else relationMap[opponent].t++;
+
           const setsFormatted = m.sets.map(([a, b]) => isP1 ? `${a}–${b}` : `${b}–${a}`);
           return {
             matchNum: m.matchNum,
             date: m.date,
-            won,
+            outcome,
             opponent,
             setsFormatted,
             delta,
@@ -1056,33 +1159,95 @@
         }
       }).reverse();
 
-      document.getElementById("profileSummaryPill").textContent = `${isDoubles ? "Doubles" : "Singles"} Rank ${rankStr}`;
+      document.getElementById("profileSummaryPill").textContent = `${isDoubles ? "Doubles" : "Singles"} Rank ${rankStr} · ${pStats.elo} Elo`;
 
-      document.getElementById("profileStatsGrid").innerHTML = `
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-          <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Current Elo</div>
-          <div class="text-lg font-extrabold text-slate-900 mt-0.5 tabular-nums">${pStats.elo} <span class="text-xs font-semibold text-indigo-600">(${rankStr})</span></div>
-        </div>
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-          <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Peak Elo</div>
-          <div class="text-lg font-extrabold text-slate-900 mt-0.5 tabular-nums">${peakElo}</div>
-        </div>
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-          <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Record</div>
-          <div class="text-sm font-bold text-slate-900 mt-1 whitespace-nowrap">
-            <span class="text-emerald-600">${pStats.w}W</span> – <span class="text-rose-500">${pStats.l}L</span>${pStats.t ? ` – ${pStats.t}T` : ""}
+      const totalSets = setsWon + setsLost;
+      const setWinPct = totalSets > 0 ? Math.round((setsWon / totalSets) * 100) + "%" : "—";
+      const ptDiff = ptsFor - ptsAgainst;
+      const ptDiffStr = ptDiff > 0 ? `+${ptDiff}` : `${ptDiff}`;
+
+      const relationList = Object.values(relationMap).sort((a, b) => (b.w + b.l + b.t) - (a.w + a.l + a.t) || b.w - a.w);
+      const relationRowsHtml = relationList.length === 0
+        ? `<div class="py-4 text-center text-xs text-slate-400">No ${isDoubles ? "Doubles partners" : "Singles opponents"} recorded yet.</div>`
+        : relationList.map(r => {
+            const rTotal = r.w + r.l + r.t;
+            const rPct = rTotal > 0 ? Math.round((r.w / rTotal) * 100) + "%" : "—";
+            return `
+              <div class="flex items-center justify-between py-2.5 border-b last:border-b-0 border-slate-100 text-xs">
+                <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(r.name)}', '${appState.profileDiscipline}')" class="player-link font-semibold text-slate-900 transition truncate">
+                  ${escapeHtml(r.name)}
+                </button>
+                <div class="flex items-center gap-2 shrink-0 tabular-nums">
+                  <span class="text-slate-400">${rTotal} ${rTotal === 1 ? "match" : "matches"}</span>
+                  <span class="font-semibold text-emerald-600">${r.w}W</span>
+                  <span class="font-semibold text-rose-500">${r.l}L</span>
+                  ${r.t > 0 ? `<span class="font-semibold text-slate-600">${r.t}T</span>` : ""}
+                  <span class="text-slate-400 w-9 text-right">(${rPct})</span>
+                </div>
+              </div>
+            `;
+          }).join("");
+
+      statsEl.innerHTML = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Current Elo</div>
+            <div class="text-xl font-extrabold text-slate-900 mt-1 tabular-nums">${pStats.elo} <span class="text-xs font-semibold text-slate-500">(${rankStr})</span></div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Peak Elo</div>
+            <div class="text-xl font-extrabold text-slate-900 mt-1 tabular-nums">${peakElo}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">Low: ${lowElo}</div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Match Record</div>
+            <div class="text-base font-bold text-slate-900 mt-1.5 whitespace-nowrap tabular-nums">
+              <span class="text-emerald-600">${pStats.w}W</span> – <span class="text-rose-500">${pStats.l}L</span>${pStats.t ? ` – <span class="text-slate-600">${pStats.t}T</span>` : ""}
+            </div>
+            <div class="text-[11px] text-slate-400 mt-0.5">${total} ${total === 1 ? "match" : "matches"} played</div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Win Rate</div>
+            <div class="text-xl font-extrabold text-slate-900 mt-1 tabular-nums">${winRate}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5">${bestDelta > 0 ? `Best gain: +${bestDelta} Elo` : "Base: 1000 Elo"}</div>
           </div>
         </div>
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/70">
-          <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Win Rate</div>
-          <div class="text-lg font-extrabold text-slate-900 mt-0.5 tabular-nums">${winRate}</div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Sets Won / Lost</div>
+              <div class="text-base font-bold text-slate-900 mt-1 tabular-nums">${setsWon}W – ${setsLost}L</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs font-semibold text-slate-400">Set Win %</div>
+              <div class="text-sm font-bold text-slate-700 mt-0.5 tabular-nums">${setWinPct}</div>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
+            <div>
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Points Scored / Conceded</div>
+              <div class="text-base font-bold text-slate-900 mt-1 tabular-nums">${ptsFor} – ${ptsAgainst}</div>
+            </div>
+            <div class="text-right">
+              <div class="text-xs font-semibold text-slate-400">Point Diff</div>
+              <div class="text-sm font-bold ${ptDiff > 0 ? 'text-emerald-600' : (ptDiff < 0 ? 'text-rose-500' : 'text-slate-600')} mt-0.5 tabular-nums">${total > 0 ? ptDiffStr : "—"}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+          <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-2">
+            ${isDoubles ? "Doubles Partners Breakdown" : "Singles Head-to-Head Breakdown"}
+          </div>
+          <div>${relationRowsHtml}</div>
         </div>
       `;
 
-      const listEl = document.getElementById("profileMatchesList");
       if (enrichedMatches.length === 0) {
         listEl.innerHTML = `
-          <div class="py-10 text-center text-sm text-slate-400">
+          <div class="py-12 text-center text-sm text-slate-400">
             No ${isDoubles ? "Doubles" : "Singles"} matches played by ${escapeHtml(playerName)} yet.
           </div>
         `;
@@ -1090,45 +1255,53 @@
       }
 
       listEl.innerHTML = enrichedMatches.map(item => {
-        const resBadge = item.won
+        const resBadge = item.outcome === "win"
           ? `<span class="px-2 py-0.5 rounded-md bg-emerald-100 text-emerald-800 text-[11px] font-bold">WIN</span>`
-          : `<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[11px] font-bold">LOSS</span>`;
+          : item.outcome === "loss"
+          ? `<span class="px-2 py-0.5 rounded-md bg-rose-100 text-rose-700 text-[11px] font-bold">LOSS</span>`
+          : `<span class="px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 text-[11px] font-bold">TIE</span>`;
 
         const scorePills = item.setsFormatted.map(s => `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-semibold text-xs tabular-nums">${s}</span>`).join("");
 
         const matchupHtml = isDoubles
           ? `
             <div class="text-sm font-semibold text-slate-900">
-              with <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.partner)}', 'doubles')" class="player-link text-indigo-600 transition">${escapeHtml(item.partner)}</button>
+              with <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.partner)}', 'doubles')" class="player-link text-slate-900 font-semibold transition">${escapeHtml(item.partner)}</button>
             </div>
             <div class="text-xs text-slate-500 mt-0.5">
               vs
-              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponents[0])}', 'doubles')" class="player-link font-medium text-slate-700 transition">${escapeHtml(item.opponents[0])}</button>
+              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponents[0])}', 'doubles')" class="player-link font-medium text-slate-800 transition">${escapeHtml(item.opponents[0])}</button>
               &amp;
-              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponents[1])}', 'doubles')" class="player-link font-medium text-slate-700 transition">${escapeHtml(item.opponents[1])}</button>
+              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponents[1])}', 'doubles')" class="player-link font-medium text-slate-800 transition">${escapeHtml(item.opponents[1])}</button>
             </div>
           `
           : `
             <div class="text-sm font-semibold text-slate-900">
-              vs <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponent)}', 'singles')" class="player-link text-indigo-600 transition">${escapeHtml(item.opponent)}</button>
+              vs <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponent)}', 'singles')" class="player-link text-slate-900 font-semibold transition">${escapeHtml(item.opponent)}</button>
             </div>
           `;
 
         return `
-          <div class="bg-white rounded-xl border border-slate-200/80 p-3.5 shadow-2xs flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            <div class="space-y-1 min-w-0">
-              <div class="flex items-center gap-2 text-xs text-slate-400">
+          <div class="bg-white rounded-xl border border-slate-200/80 p-3.5 shadow-2xs space-y-2">
+            <div class="flex items-center justify-between gap-2 text-xs text-slate-400">
+              <div class="flex items-center gap-2 min-w-0">
                 ${resBadge}
-                <span>${escapeHtml(item.date)}${item.matchNum ? ` · Match #${item.matchNum}` : ""}</span>
+                <span class="font-semibold text-slate-500 truncate">${isDoubles ? "Doubles" : "Singles"} Match #${item.matchNum || "—"}</span>
               </div>
-              ${matchupHtml}
+              <span class="tabular-nums whitespace-nowrap shrink-0">${escapeHtml(item.date)}</span>
             </div>
 
-            <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-              <div class="flex items-center gap-1">${scorePills}</div>
-              <div class="text-right">
-                <div>${formatDeltaPill(item.delta)}</div>
-                <div class="text-[11px] text-slate-400 tabular-nums mt-0.5">${item.preElo} → <strong class="text-slate-700">${item.postElo}</strong></div>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+              <div class="min-w-0">
+                ${matchupHtml}
+              </div>
+
+              <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                <div class="flex items-center gap-1">${scorePills}</div>
+                <div class="text-right">
+                  <div>${formatDeltaPill(item.delta)}</div>
+                  <div class="text-[11px] text-slate-400 tabular-nums mt-0.5">${item.preElo} → <strong class="text-slate-700">${item.postElo}</strong></div>
+                </div>
               </div>
             </div>
           </div>
@@ -1137,8 +1310,30 @@
     }
 
     // =========================================================================
-    // NAVIGATION & RESPONSIVE SUB-VIEWS (Scroll-stable)
+    // NAVIGATION & RESPONSIVE SUB-VIEWS (Zero-Scroll-Jump Guarantee)
     // =========================================================================
+    function preserveViewportScroll(savedScrollY) {
+      const rankingsEl = document.getElementById("rankingsSection");
+      if (rankingsEl) {
+        const minNeeded = Math.ceil(savedScrollY + window.innerHeight - rankingsEl.offsetTop);
+        const baseFloor = Math.max(window.innerHeight - 80, minNeeded);
+        if (baseFloor > 0) {
+          rankingsEl.style.minHeight = `${baseFloor}px`;
+        }
+      }
+      window.scrollTo(0, savedScrollY);
+    }
+
+    window.addEventListener("scroll", () => {
+      const rankingsEl = document.getElementById("rankingsSection");
+      if (!rankingsEl || !rankingsEl.style.minHeight) return;
+      const currentMin = parseFloat(rankingsEl.style.minHeight) || 0;
+      const neededNow = Math.max(window.innerHeight - 80, Math.ceil(window.scrollY + window.innerHeight - rankingsEl.offsetTop));
+      if (neededNow < currentMin) {
+        rankingsEl.style.minHeight = `${neededNow}px`;
+      }
+    }, { passive: true });
+
     function selectDiscipline(discipline, scrollToSection) {
       const savedScrollY = window.scrollY;
       appState.discipline = discipline;
@@ -1155,7 +1350,7 @@
       if (scrollToSection) {
         document.getElementById("rankingsSection").scrollIntoView({ behavior: "smooth" });
       } else {
-        window.scrollTo({ top: savedScrollY, behavior: "instant" });
+        preserveViewportScroll(savedScrollY);
       }
     }
 
@@ -1177,7 +1372,7 @@
         pL.className = "hidden lg:block lg:col-span-7 bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden";
         pH.className = "flex flex-col lg:col-span-5 gap-4";
       }
-      window.scrollTo({ top: savedScrollY, behavior: "instant" });
+      preserveViewportScroll(savedScrollY);
     }
 
     function clearSearchInput() {
@@ -1352,18 +1547,21 @@
         }
         const avg1 = Math.round(((data.doublesMap[p1]?.elo || CONFIG.startingElo) + (data.doublesMap[p2]?.elo || CONFIG.startingElo)) / 2);
         const avg2 = Math.round(((data.doublesMap[p3]?.elo || CONFIG.startingElo) + (data.doublesMap[p4]?.elo || CONFIG.startingElo)) / 2);
-        const { delta1 } = computeEloDelta(avg1, avg2, sets);
-        const s1 = delta1 >= 0 ? `+${delta1}` : `${delta1}`;
-        const s2 = -delta1 >= 0 ? `+${-delta1}` : `${-delta1}`;
+        const { delta1, winner } = computeEloDelta(avg1, avg2, sets);
+        const s1 = delta1 > 0 ? `+${delta1}` : `${delta1}`;
+        const s2 = -delta1 > 0 ? `+${-delta1}` : `${-delta1}`;
         box.innerHTML = `
           <div class="flex justify-between text-slate-600">
             <span>Team Avg: <b>${avg1}</b> vs <b>${avg2}</b></span>
             <span class="font-bold">${sets.map(s => s.join("-")).join(", ")}</span>
           </div>
-          <div class="flex justify-between pt-1 font-semibold">
-            <span>${escapeHtml(getShortName(p1))} &amp; ${escapeHtml(getShortName(p2))}: <span class="${delta1 >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${s1}</span></span>
-            <span>${escapeHtml(getShortName(p3))} &amp; ${escapeHtml(getShortName(p4))}: <span class="${-delta1 >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${s2}</span></span>
-          </div>
+          ${winner === 0
+            ? `<div class="pt-1 font-semibold text-slate-600">Tie Match (1–1 in sets) — Elo ratings unchanged (0)</div>`
+            : `<div class="flex justify-between pt-1 font-semibold">
+                <span>${escapeHtml(getShortName(p1))} &amp; ${escapeHtml(getShortName(p2))}: <span class="${delta1 > 0 ? 'text-emerald-700' : 'text-rose-600'}">${s1}</span></span>
+                <span>${escapeHtml(getShortName(p3))} &amp; ${escapeHtml(getShortName(p4))}: <span class="${-delta1 > 0 ? 'text-emerald-700' : 'text-rose-600'}">${s2}</span></span>
+              </div>`
+          }
         `;
       } else {
         if (p1 === p3) {
@@ -1372,18 +1570,21 @@
         }
         const e1 = data.singlesMap[p1]?.elo || CONFIG.startingElo;
         const e2 = data.singlesMap[p3]?.elo || CONFIG.startingElo;
-        const { delta1 } = computeEloDelta(e1, e2, sets);
-        const s1 = delta1 >= 0 ? `+${delta1}` : `${delta1}`;
-        const s2 = -delta1 >= 0 ? `+${-delta1}` : `${-delta1}`;
+        const { delta1, winner } = computeEloDelta(e1, e2, sets);
+        const s1 = delta1 > 0 ? `+${delta1}` : `${delta1}`;
+        const s2 = -delta1 > 0 ? `+${-delta1}` : `${-delta1}`;
         box.innerHTML = `
           <div class="flex justify-between text-slate-600">
             <span>Elo: <b>${e1}</b> vs <b>${e2}</b></span>
             <span class="font-bold">${sets.map(s => s.join("-")).join(", ")}</span>
           </div>
-          <div class="flex justify-between pt-1 font-semibold">
-            <span>${escapeHtml(getShortName(p1))}: <span class="${delta1 >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${s1}</span></span>
-            <span>${escapeHtml(getShortName(p3))}: <span class="${-delta1 >= 0 ? 'text-emerald-700' : 'text-rose-600'}">${s2}</span></span>
-          </div>
+          ${winner === 0
+            ? `<div class="pt-1 font-semibold text-slate-600">Tie Match (1–1 in sets) — Elo ratings unchanged (0)</div>`
+            : `<div class="flex justify-between pt-1 font-semibold">
+                <span>${escapeHtml(getShortName(p1))}: <span class="${delta1 > 0 ? 'text-emerald-700' : 'text-rose-600'}">${s1}</span></span>
+                <span>${escapeHtml(getShortName(p3))}: <span class="${-delta1 > 0 ? 'text-emerald-700' : 'text-rose-600'}">${s2}</span></span>
+              </div>`
+          }
         `;
       }
     }

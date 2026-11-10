@@ -148,24 +148,24 @@ function doublesCalcFormulas_(r) {
     `=IF(C${r}="","",1000+SUMIF($C$2:C${prev},C${r},$T$2:T${prev})+SUMIF($D$2:D${prev},C${r},$T$2:T${prev})+SUMIF($E$2:E${prev},C${r},$U$2:U${prev})+SUMIF($F$2:F${prev},C${r},$U$2:U${prev}))`,
     `=IF(D${r}="","",1000+SUMIF($C$2:C${prev},D${r},$T$2:T${prev})+SUMIF($D$2:D${prev},D${r},$T$2:T${prev})+SUMIF($E$2:E${prev},D${r},$U$2:U${prev})+SUMIF($F$2:F${prev},D${r},$U$2:U${prev}))`,
     `=IF(E${r}="","",1000+SUMIF($C$2:C${prev},E${r},$T$2:T${prev})+SUMIF($D$2:D${prev},E${r},$T$2:T${prev})+SUMIF($E$2:E${prev},E${r},$U$2:U${prev})+SUMIF($F$2:F${prev},E${r},$U$2:U${prev}))`,
-    `=IF(F${r}="","",1000+SUMIF($C$2:C${prev},F${r},$T$2:T${prev})+SUMIF($D$2:D${prev},F${r},$T$2:T${prev})+SUMIF($E$2:E${prev},F${r},$U$2:U${prev})+SUMIF($F$2:F${prev},F${r},$U$2:U${prev}))`,
-    `=IF(O${r}="","",ROUND((40+40*(ABS(SUM(G${r},I${r},K${r})-SUM(H${r},J${r},L${r}))/MAX(1,SUM(G${r}:L${r}))))*(IF(O${r}="T1",1,IF(O${r}="T2",0,0.5))-1/(1+10^((AVERAGE(R${r}:S${r})-AVERAGE(P${r}:Q${r}))/400)))))`,
-    `=IF(O${r}="","",-T${r})`
-  ];
-}
+      `=IF(F${r}="","",1000+SUMIF($C$2:C${prev},F${r},$T$2:T${prev})+SUMIF($D$2:D${prev},F${r},$T$2:T${prev})+SUMIF($E$2:E${prev},F${r},$U$2:U${prev})+SUMIF($F$2:F${prev},F${r},$U$2:U${prev}))`,
+      `=IF(O${r}="","",IF(O${r}="TIE",0,ROUND((40+40*(ABS(SUM(G${r},I${r},K${r})-SUM(H${r},J${r},L${r}))/MAX(1,SUM(G${r}:L${r}))))*(IF(O${r}="T1",1,0)-1/(1+10^((AVERAGE(R${r}:S${r})-AVERAGE(P${r}:Q${r}))/400))))))`,
+      `=IF(O${r}="","",IF(O${r}="TIE",0,-T${r}))`
+    ];
+  }
 
-function singlesCalcFormulas_(r) {
-  const prev = r - 1;
-  return [
-    `=IF(C${r}="","",(E${r}>F${r})*(E${r}<>"")*1+(G${r}>H${r})*(G${r}<>"")*1+(I${r}>J${r})*(I${r}<>"")*1)`,
-    `=IF(C${r}="","",(F${r}>E${r})*(F${r}<>"")*1+(H${r}>G${r})*(H${r}<>"")*1+(J${r}>I${r})*(J${r}<>"")*1)`,
-    `=IF(OR(C${r}="",E${r}=""),"",IF(K${r}>L${r},"P1",IF(L${r}>K${r},"P2","TIE")))`,
-    `=IF(C${r}="","",1000+SUMIF($C$2:C${prev},C${r},$P$2:P${prev})+SUMIF($D$2:D${prev},C${r},$Q$2:Q${prev}))`,
-    `=IF(D${r}="","",1000+SUMIF($C$2:C${prev},D${r},$P$2:P${prev})+SUMIF($D$2:D${prev},D${r},$Q$2:Q${prev}))`,
-    `=IF(M${r}="","",ROUND((40+40*(ABS(SUM(E${r},G${r},I${r})-SUM(F${r},H${r},J${r}))/MAX(1,SUM(E${r}:J${r}))))*(IF(M${r}="P1",1,IF(M${r}="P2",0,0.5))-1/(1+10^((O${r}-N${r})/400)))))`,
-    `=IF(M${r}="","",-P${r})`
-  ];
-}
+  function singlesCalcFormulas_(r) {
+    const prev = r - 1;
+    return [
+      `=IF(C${r}="","",(E${r}>F${r})*(E${r}<>"")*1+(G${r}>H${r})*(G${r}<>"")*1+(I${r}>J${r})*(I${r}<>"")*1)`,
+      `=IF(C${r}="","",(F${r}>E${r})*(F${r}<>"")*1+(H${r}>G${r})*(H${r}<>"")*1+(J${r}>I${r})*(J${r}<>"")*1)`,
+      `=IF(OR(C${r}="",E${r}=""),"",IF(K${r}>L${r},"P1",IF(L${r}>K${r},"P2","TIE")))`,
+      `=IF(C${r}="","",1000+SUMIF($C$2:C${prev},C${r},$P$2:P${prev})+SUMIF($D$2:D${prev},C${r},$Q$2:Q${prev}))`,
+      `=IF(D${r}="","",1000+SUMIF($C$2:C${prev},D${r},$P$2:P${prev})+SUMIF($D$2:D${prev},D${r},$Q$2:Q${prev}))`,
+      `=IF(M${r}="","",IF(M${r}="TIE",0,ROUND((40+40*(ABS(SUM(E${r},G${r},I${r})-SUM(F${r},H${r},J${r}))/MAX(1,SUM(E${r}:J${r}))))*(IF(M${r}="P1",1,0)-1/(1+10^((O${r}-N${r})/400))))))`,
+      `=IF(M${r}="","",IF(M${r}="TIE",0,-P${r}))`
+    ];
+  }
 
 function setupPlayersSheet_(sheet, slots) {
   const headers = [
@@ -211,6 +211,7 @@ function setupDoublesSheet_(sheet, matchSlots) {
     ]);
   }
   sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
+  sheet.getRange(3, 2, matchSlots, 1).setNumberFormat('yyyy-mm-dd hh:mm');
   styleDatabaseSheet_(sheet, headers.length, rows.length);
 }
 
@@ -223,6 +224,7 @@ function repairDoublesFormulas_(sheet) {
     calcCols.push(doublesCalcFormulas_(r));
   }
   sheet.getRange(3, 1, colA.length, 1).setValues(colA);
+  sheet.getRange(3, 2, colA.length, 1).setNumberFormat('yyyy-mm-dd hh:mm');
   sheet.getRange(3, 13, calcCols.length, 9).setValues(calcCols);
 }
 
@@ -244,6 +246,7 @@ function setupSinglesSheet_(sheet, matchSlots) {
     ]);
   }
   sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
+  sheet.getRange(3, 2, matchSlots, 1).setNumberFormat('yyyy-mm-dd hh:mm');
   styleDatabaseSheet_(sheet, headers.length, rows.length);
 }
 
@@ -256,6 +259,7 @@ function repairSinglesFormulas_(sheet) {
     calcCols.push(singlesCalcFormulas_(r));
   }
   sheet.getRange(3, 1, colA.length, 1).setValues(colA);
+  sheet.getRange(3, 2, colA.length, 1).setNumberFormat('yyyy-mm-dd hh:mm');
   sheet.getRange(3, 11, calcCols.length, 7).setValues(calcCols);
 }
 
@@ -562,8 +566,9 @@ function logDoublesMatch(payload, adminPassword) {
     const s1 = sets[0] || ['', ''];
     const s2 = sets[1] || ['', ''];
     const s3 = sets[2] || ['', ''];
-    const dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    const dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
 
+    sheet.getRange(targetRow, 2).setNumberFormat('yyyy-mm-dd hh:mm');
     sheet.getRange(targetRow, 1, 1, 21).setValues([[
       `=IF(C${targetRow}="","",ROW()-2)`,
       dateStr,
@@ -615,8 +620,9 @@ function logSinglesMatch(payload, adminPassword) {
     const s1 = sets[0] || ['', ''];
     const s2 = sets[1] || ['', ''];
     const s3 = sets[2] || ['', ''];
-    const dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd');
+    const dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
 
+    sheet.getRange(targetRow, 2).setNumberFormat('yyyy-mm-dd hh:mm');
     sheet.getRange(targetRow, 1, 1, 17).setValues([[
       `=IF(C${targetRow}="","",ROW()-2)`,
       dateStr,
