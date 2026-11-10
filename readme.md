@@ -2,7 +2,8 @@
 
 A generic, zero-config badminton Elo ranking system supporting separate **Singles** and **Doubles** leaderboards where each player maintains an individual rating (`1000` starting Elo) and can pair up with any partner.
 
-- **Live Web App (GitHub Pages — Sole UI):** <https://tbruneel.github.io/badminton-ranking-system/>
+- **Live VUB SportMix Page:** <https://tbruneel.github.io/badminton-ranking-system/vub-sportmix-badminton/>
+- **Generic Template UI:** <https://tbruneel.github.io/badminton-ranking-system/>
 - **Google Sheet Database:** <https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit>
 
 ---
@@ -33,8 +34,9 @@ A generic, zero-config badminton Elo ranking system supporting separate **Single
      - **Execute as:** `Me`
      - **Who has access:** `Anyone`
    - Copy the generated `/exec` URL.
-5. **Configure [`index.html`](./index.html):**
-   - Update `CONFIG.apiUrl` in [`index.html`](./index.html) with your `/exec` URL (or open `index.html?api=<YOUR_EXEC_URL>`).
+5. **Configure [`index.html`](./index.html) or Add a Subpath Page:**
+   - **Single deployment:** Update `CONFIG.apiUrl` and `CONFIG.title` in [`index.html`](./index.html) with your `/exec` URL.
+   - **Multiple subpath deployments in the same repo:** Copy [`vub-sportmix-badminton/index.html`](./vub-sportmix-badminton/index.html) into `<your-subpath>/index.html` and set `window.RANKING_CONFIG = { title: "...", apiUrl: "..." }`. Every subpath automatically shares the root [`index.html`](./index.html) UI template and deploys to `https://<user>.github.io/<repo>/<your-subpath>/`.
 
 ---
 

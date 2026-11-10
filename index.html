@@ -509,15 +509,16 @@
      * GENERIC DEPLOYMENT CONFIGURATION
      * To connect this UI to any Google Sheet + Apps Script deployment:
      * 1. Paste your deployed Web App `/exec` URL into `apiUrl` below (or pass `?api=<URL>` in the browser URL).
-     * 2. Customize `title` below as desired.
+     * 2. For multiple subpath deployments (e.g. `/vub-sportmix-badminton/`), set `window.RANKING_CONFIG = { title, apiUrl }`
+     *    in `<subpath>/index.html` and it will override the defaults below automatically.
      */
-    const CONFIG = {
+    const CONFIG = Object.assign({
       title: "Badminton Rankings",
       apiUrl: "https://script.google.com/macros/s/AKfycby5RCpoQTejZtJkr0paWIntBpcqkxDN9KEt5w3dacGemRmmT631MUVCq8y5cZtIpfMA/exec",
       startingElo: 1000,
       baseK: 40,
       marginK: 40
-    };
+    }, window.RANKING_CONFIG || {});
 
     const urlParams = new URLSearchParams(window.location.search);
     const ACTIVE_API_URL = (urlParams.get("api") || CONFIG.apiUrl || "").trim();
