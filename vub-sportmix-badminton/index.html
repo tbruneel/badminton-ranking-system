@@ -13,7 +13,7 @@
       marginK: 40
     };
 
-    fetch("../index.html")
+    fetch("../index.html", { cache: "no-cache" })
       .then(res => {
         if (!res.ok) throw new Error("Failed to load ranking application template.");
         return res.text();
