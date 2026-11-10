@@ -1178,6 +1178,8 @@
 
       const totalSets = setsWon + setsLost;
       const setWinPct = totalSets > 0 ? Math.round((setsWon / totalSets) * 100) + "%" : "—";
+      const totalPts = ptsFor + ptsAgainst;
+      const ptWinPct = totalPts > 0 ? Math.round((ptsFor / totalPts) * 100) + "%" : "—";
       const ptDiff = ptsFor - ptsAgainst;
       const ptDiffStr = ptDiff > 0 ? `+${ptDiff}` : `${ptDiff}`;
 
@@ -1205,51 +1207,54 @@
 
       statsEl.innerHTML = `
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <!-- Row 1: Elo & Match Performance -->
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
             <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Current Elo</div>
-            <div class="text-xl font-extrabold text-slate-900 mt-1 tabular-nums">${pStats.elo}</div>
+            <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${pStats.elo}</div>
             <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">Rank ${rankStr} of ${sortedList.length}</div>
           </div>
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
             <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Peak Elo</div>
-            <div class="text-xl font-extrabold text-slate-900 mt-1 tabular-nums">${peakElo}</div>
+            <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${peakElo}</div>
             <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${escapeHtml(peakDateStr)}</div>
           </div>
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
             <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Match Record</div>
-            <div class="text-base font-bold text-slate-900 mt-1.5 whitespace-nowrap tabular-nums">
+            <div class="text-base leading-7 font-extrabold text-slate-900 mt-1 whitespace-nowrap tabular-nums">
               <span class="text-emerald-600">${pStats.w}W</span> – <span class="text-rose-500">${pStats.l}L</span> – <span class="text-slate-600">${pStats.t}T</span>
             </div>
-            <div class="text-[11px] text-slate-400 mt-0.5">${total} ${total === 1 ? "match" : "matches"} played</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${total} ${total === 1 ? "match" : "matches"} played</div>
           </div>
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Win Rate</div>
-            <div class="text-xl font-extrabold text-slate-900 mt-1 tabular-nums">${winRate}</div>
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Match Win Rate</div>
+            <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${winRate}</div>
             <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${total > 0 ? `${pStats.w} won of ${total} played` : "No matches played"}</div>
           </div>
-        </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div class="p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
-            <div>
-              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Sets Won / Lost</div>
-              <div class="text-base font-bold text-slate-900 mt-1 tabular-nums">${setsWon}W – ${setsLost}L</div>
+          <!-- Row 2: Point & Set Performance (Aligned with Row 1) -->
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Points Scored</div>
+            <div class="text-base leading-7 font-extrabold text-slate-900 mt-1 whitespace-nowrap tabular-nums">
+              <span class="text-emerald-600">${ptsFor}W</span> – <span class="text-rose-500">${ptsAgainst}L</span>
             </div>
-            <div class="text-right">
-              <div class="text-xs font-semibold text-slate-400">Set Win %</div>
-              <div class="text-sm font-bold text-slate-700 mt-0.5 tabular-nums">${setWinPct}</div>
-            </div>
+            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalPts} ${totalPts === 1 ? "point" : "points"} played</div>
           </div>
-
-          <div class="p-4 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between">
-            <div>
-              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Points Scored / Conceded</div>
-              <div class="text-base font-bold text-slate-900 mt-1 tabular-nums">${ptsFor} – ${ptsAgainst}</div>
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Point Diff</div>
+            <div class="text-xl leading-7 font-extrabold ${ptDiff > 0 ? 'text-emerald-600' : (ptDiff < 0 ? 'text-rose-500' : 'text-slate-900')} mt-1 tabular-nums">${totalPts > 0 ? ptDiffStr : "—"}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalPts > 0 ? `${ptWinPct} of points won` : "No points played"}</div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Set Record</div>
+            <div class="text-base leading-7 font-extrabold text-slate-900 mt-1 whitespace-nowrap tabular-nums">
+              <span class="text-emerald-600">${setsWon}W</span> – <span class="text-rose-500">${setsLost}L</span>
             </div>
-            <div class="text-right">
-              <div class="text-xs font-semibold text-slate-400">Point Diff</div>
-              <div class="text-sm font-bold ${ptDiff > 0 ? 'text-emerald-600' : (ptDiff < 0 ? 'text-rose-500' : 'text-slate-600')} mt-0.5 tabular-nums">${total > 0 ? ptDiffStr : "—"}</div>
-            </div>
+            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalSets} ${totalSets === 1 ? "set" : "sets"} played</div>
+          </div>
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
+            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Set Win Rate</div>
+            <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${setWinPct}</div>
+            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalSets > 0 ? `${setsWon} won of ${totalSets} played` : "No sets played"}</div>
           </div>
         </div>
 
