@@ -48,10 +48,6 @@
         <h1 id="appTitle" class="text-base sm:text-lg font-bold tracking-tight text-slate-900 truncate">
           Badminton Rankings
         </h1>
-        <span id="syncBadge" class="inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap shrink-0">
-          <span id="syncDot" class="w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse"></span>
-          <span id="syncText">Connecting...</span>
-        </span>
       </div>
 
       <!-- Right Action Controls -->
@@ -123,15 +119,6 @@
         <div class="pt-1 border-t border-slate-200/70 text-[11px] text-slate-400 break-all">
           Endpoint: <span id="errorScreenEndpoint" class="font-mono text-slate-600"></span>
         </div>
-      </div>
-
-      <div class="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
-        <button
-          onclick="loadAppStateFromBackend()"
-          class="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs sm:text-sm font-semibold shadow-xs transition"
-        >
-          Retry Connection
-        </button>
       </div>
     </div>
   </div>
@@ -522,11 +509,10 @@
      * GENERIC DEPLOYMENT CONFIGURATION
      * To connect this UI to any Google Sheet + Apps Script deployment:
      * 1. Paste your deployed Web App `/exec` URL into `apiUrl` below (or pass `?api=<URL>` in the browser URL).
-     * 2. Customize `title` or let `useSpreadsheetTitle` adopt the Google Sheet's title automatically.
+     * 2. Customize `title` below as desired.
      */
     const CONFIG = {
       title: "Badminton Rankings",
-      useSpreadsheetTitle: true,
       apiUrl: "https://script.google.com/macros/s/AKfycby5RCpoQTejZtJkr0paWIntBpcqkxDN9KEt5w3dacGemRmmT631MUVCq8y5cZtIpfMA/exec",
       startingElo: 1000,
       baseK: 40,
@@ -1623,11 +1609,6 @@
       errScreen.classList.remove("hidden");
       document.getElementById("errorScreenMessage").textContent = message || "Could not reach the Google Sheet Web App endpoint.";
       document.getElementById("errorScreenEndpoint").textContent = ACTIVE_API_URL || "(not configured)";
-
-      const badge = document.getElementById("syncBadge");
-      badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-rose-50 text-rose-700 border border-rose-200 whitespace-nowrap shrink-0";
-      document.getElementById("syncDot").className = "w-1.5 h-1.5 rounded-full bg-rose-500";
-      document.getElementById("syncText").textContent = "Connection Error";
     }
 
     function applyServerState(res) {
@@ -1639,12 +1620,6 @@
       appState.serverDoublesHistory = res.doublesHistory || [];
       appState.serverSinglesHistory = res.singlesHistory || [];
 
-      if (CONFIG.useSpreadsheetTitle && res.spreadsheetTitle) {
-        const cleanTitle = res.spreadsheetTitle.replace(/\s*Ranking System$/i, "");
-        document.getElementById("appTitle").textContent = cleanTitle;
-        document.title = cleanTitle;
-      }
-
       document.getElementById("loadingScreen").classList.add("hidden");
       document.getElementById("errorScreen").classList.add("hidden");
       document.getElementById("appMainContent").classList.remove("hidden");
@@ -1652,10 +1627,6 @@
       hc.classList.remove("hidden");
       hc.classList.add("flex");
 
-      const badge = document.getElementById("syncBadge");
-      badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap shrink-0";
-      document.getElementById("syncDot").className = "w-1.5 h-1.5 rounded-full bg-emerald-500";
-      document.getElementById("syncText").textContent = "Live";
       renderAll();
     }
 
@@ -1663,11 +1634,6 @@
       document.getElementById("errorScreen").classList.add("hidden");
       document.getElementById("appMainContent").classList.add("hidden");
       document.getElementById("loadingScreen").classList.remove("hidden");
-
-      const badge = document.getElementById("syncBadge");
-      badge.className = "inline-flex items-center gap-1.5 text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200 whitespace-nowrap shrink-0";
-      document.getElementById("syncDot").className = "w-1.5 h-1.5 rounded-full bg-slate-400 animate-pulse";
-      document.getElementById("syncText").textContent = "Connecting...";
 
       if (!ACTIVE_API_URL) {
         showErrorPage("Missing API URL. Set CONFIG.apiUrl in index.html or pass ?api=<EXEC_URL>.");

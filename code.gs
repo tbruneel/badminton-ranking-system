@@ -507,7 +507,6 @@ function getAppState() {
   })).reverse();
 
   return {
-    spreadsheetTitle: ss.getName(),
     players,
     doublesHistory,
     singlesHistory
