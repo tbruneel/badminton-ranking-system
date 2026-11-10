@@ -211,7 +211,7 @@ function setupDoublesSheet_(sheet, matchSlots) {
     ]);
   }
   sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
-  sheet.getRange(3, 2, matchSlots, 1).setNumberFormat('yyyy-mm-dd hh:mm');
+  sheet.getRange(3, 2, matchSlots, 1).setNumberFormat('yyyy/mm/dd hh:mm');
   styleDatabaseSheet_(sheet, headers.length, rows.length);
 }
 
@@ -224,7 +224,7 @@ function repairDoublesFormulas_(sheet) {
     calcCols.push(doublesCalcFormulas_(r));
   }
   sheet.getRange(3, 1, colA.length, 1).setValues(colA);
-  sheet.getRange(3, 2, colA.length, 1).setNumberFormat('yyyy-mm-dd hh:mm');
+  sheet.getRange(3, 2, colA.length, 1).setNumberFormat('yyyy/mm/dd hh:mm');
   sheet.getRange(3, 13, calcCols.length, 9).setValues(calcCols);
 }
 
@@ -246,7 +246,7 @@ function setupSinglesSheet_(sheet, matchSlots) {
     ]);
   }
   sheet.getRange(1, 1, rows.length, headers.length).setValues(rows);
-  sheet.getRange(3, 2, matchSlots, 1).setNumberFormat('yyyy-mm-dd hh:mm');
+  sheet.getRange(3, 2, matchSlots, 1).setNumberFormat('yyyy/mm/dd hh:mm');
   styleDatabaseSheet_(sheet, headers.length, rows.length);
 }
 
@@ -259,7 +259,7 @@ function repairSinglesFormulas_(sheet) {
     calcCols.push(singlesCalcFormulas_(r));
   }
   sheet.getRange(3, 1, colA.length, 1).setValues(colA);
-  sheet.getRange(3, 2, colA.length, 1).setNumberFormat('yyyy-mm-dd hh:mm');
+  sheet.getRange(3, 2, colA.length, 1).setNumberFormat('yyyy/mm/dd hh:mm');
   sheet.getRange(3, 11, calcCols.length, 7).setValues(calcCols);
 }
 
@@ -565,9 +565,9 @@ function logDoublesMatch(payload, adminPassword) {
     const s1 = sets[0] || ['', ''];
     const s2 = sets[1] || ['', ''];
     const s3 = sets[2] || ['', ''];
-    const dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
+    const dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm');
 
-    sheet.getRange(targetRow, 2).setNumberFormat('yyyy-mm-dd hh:mm');
+    sheet.getRange(targetRow, 2).setNumberFormat('yyyy/mm/dd hh:mm');
     sheet.getRange(targetRow, 1, 1, 21).setValues([[
       `=IF(C${targetRow}="","",ROW()-2)`,
       dateStr,
@@ -619,9 +619,9 @@ function logSinglesMatch(payload, adminPassword) {
     const s1 = sets[0] || ['', ''];
     const s2 = sets[1] || ['', ''];
     const s3 = sets[2] || ['', ''];
-    const dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy-MM-dd HH:mm');
+    const dateStr = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm');
 
-    sheet.getRange(targetRow, 2).setNumberFormat('yyyy-mm-dd hh:mm');
+    sheet.getRange(targetRow, 2).setNumberFormat('yyyy/mm/dd hh:mm');
     sheet.getRange(targetRow, 1, 1, 17).setValues([[
       `=IF(C${targetRow}="","",ROW()-2)`,
       dateStr,

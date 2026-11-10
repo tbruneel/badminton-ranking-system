@@ -846,10 +846,11 @@
     function formatDateTimeHtml(dateStr) {
       const raw = String(dateStr || "").trim();
       const parts = raw.split(/\s+/);
+      const dateFormatted = (parts[0] || "").replace(/-/g, "/");
       if (parts.length >= 2) {
-        return `<span class="inline-flex items-center gap-2.5"><span>${escapeHtml(parts[0])}</span><span>${escapeHtml(parts.slice(1).join(" "))}</span></span>`;
+        return `<span class="inline-flex items-center gap-2.5"><span>${escapeHtml(dateFormatted)}</span><span>${escapeHtml(parts.slice(1).join(" "))}</span></span>`;
       }
-      return `<span>${escapeHtml(raw)}</span>`;
+      return `<span>${escapeHtml(dateFormatted)}</span>`;
     }
 
     function formatDeltaPill(delta) {
@@ -1156,7 +1157,7 @@
       }).reverse();
 
       if (pStats.elo > peakElo) peakElo = pStats.elo;
-      const peakDateStr = peakDate ? String(peakDate).trim().split(/\s+/)[0] : "Base rating";
+      const peakDateStr = peakDate ? String(peakDate).trim().split(/\s+/)[0].replace(/-/g, "/") : "Base rating";
 
       document.getElementById("profileSummaryPill").textContent = `${isDoubles ? "Doubles" : "Singles"} Rank ${rankStr} · ${pStats.elo} Elo`;
 
