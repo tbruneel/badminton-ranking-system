@@ -801,7 +801,7 @@
     // =========================================================================
     function renderPodiumSlots(top3, discipline) {
       if (!top3 || top3.length === 0) {
-        return `<div class="col-span-3 py-6 text-center text-xs text-slate-400">No players in roster yet. Unlock Admin to add players.</div>`;
+        return `<div class="col-span-3 py-6 text-center text-sm text-slate-400">No players found.</div>`;
       }
       const styles = [
         {
@@ -912,7 +912,7 @@
       if (filteredList.length === 0) {
         lbContainer.innerHTML = `
           <div class="p-8 text-center text-sm text-slate-400">
-            ${q ? "No players match your filter." : "No players registered in the database yet."}
+            No players found.
           </div>
         `;
       } else {
@@ -983,7 +983,7 @@
       if (filteredHistory.length === 0) {
         histEl.innerHTML = `
           <div class="bg-white rounded-2xl border border-slate-200/80 p-8 text-center text-sm text-slate-400">
-            No ${isDoubles ? "Doubles" : "Singles"} matches found.
+            No matches found.
           </div>
         `;
         return;
@@ -1364,7 +1364,7 @@
         t: Math.max(1, ...h2hList.map(r => String(r.t).length))
       };
       const h2hRowsHtml = h2hList.length === 0
-        ? `<div class="py-4 text-center text-xs text-slate-400">No ${isDoubles ? "Doubles" : "Singles"} opponents recorded yet.</div>`
+        ? `<div class="py-4 text-center text-sm text-slate-400">No matches found.</div>`
         : h2hList.map(r => {
             const rTotal = r.w + r.l + r.t;
             return `
@@ -1450,7 +1450,7 @@
       if (enrichedMatches.length === 0) {
         listEl.innerHTML = `
           <div class="py-12 text-center text-sm text-slate-400">
-            No ${isDoubles ? "Doubles" : "Singles"} matches played by ${escapeHtml(playerName)} yet.
+            No matches found.
           </div>
         `;
         return;
@@ -2195,7 +2195,7 @@
             </button>
           `;
         } else {
-          list.innerHTML = `<div class="px-3 py-2 text-xs text-slate-400">No matching players</div>`;
+          list.innerHTML = `<div class="px-3 py-2 text-xs text-slate-400">No players found.</div>`;
         }
         return;
       }
