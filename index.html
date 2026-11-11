@@ -373,7 +373,7 @@
       <button
         id="unlockAdminBtn"
         onclick="submitAdminUnlock()"
-        class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-transparent text-white font-semibold text-sm shadow-xs transition truncate"
+        class="w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-transparent text-white font-semibold text-sm shadow-xs truncate"
       >
         Unlock
       </button>
@@ -1484,7 +1484,7 @@
       if (!btn) return;
       btn.disabled = false;
       btn.textContent = "Unlock";
-      btn.className = "w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-transparent text-white font-semibold text-sm shadow-xs transition truncate";
+      btn.className = "w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-transparent text-white font-semibold text-sm shadow-xs truncate";
     }
 
     function showAdminAuthError(msg) {
@@ -1495,7 +1495,7 @@
       if (!btn) return;
       btn.disabled = false;
       btn.textContent = msg;
-      btn.className = "w-full py-2.5 px-3 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 font-semibold text-sm transition truncate";
+      btn.className = "w-full py-2.5 px-3 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 font-semibold text-sm truncate";
       adminAuthResetTimer = setTimeout(resetAdminAuthBtn, 2200);
     }
 
@@ -1534,7 +1534,7 @@
         adminAuthResetTimer = null;
       }
       btn.textContent = "Verifying...";
-      btn.className = "w-full py-2.5 px-3 rounded-xl bg-slate-900 border border-transparent text-white font-semibold text-sm shadow-xs transition truncate opacity-80";
+      btn.className = "w-full py-2.5 px-3 rounded-xl bg-slate-900 border border-transparent text-white font-semibold text-sm shadow-xs truncate";
       btn.disabled = true;
 
       callBackendPost({ action: "verifyAdmin", adminPassword: pwd })
