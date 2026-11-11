@@ -89,8 +89,8 @@
     <div class="w-12 h-12 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-center mb-4">
       <div class="w-5 h-5 rounded-full border-2 border-slate-300 border-t-slate-900 animate-spin"></div>
     </div>
-    <h2 class="text-base font-bold text-slate-900">Loading Rankings Database...</h2>
-    <p class="text-xs text-slate-500 mt-1">Fetching live player ratings and match history from Google Sheets</p>
+    <h2 class="text-base font-bold text-slate-900">Loading database...</h2>
+    <p class="text-xs text-slate-500 mt-1">Fetching player rankings and match history...</p>
   </div>
 
   <!-- ===================================================================== -->
@@ -381,18 +381,38 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- MODAL 3: LOG MATCH (Admin Only)                                       -->
+  <!-- MODAL 3: LOG / EDIT MATCH (Admin Only)                                -->
   <!-- ===================================================================== -->
-  <div id="matchModal" onmousedown="this._bdDown=(event.target===this);if(this._bdDown)closeAllPlayerCombos()" onclick="if(event.target===this&&this._bdDown)closeMatchModal()" class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-900/50 backdrop-blur-xs p-4 pt-[6vh] sm:pt-[10vh] overflow-y-auto">
+  <div id="matchModal" onmousedown="this._bdDown=(event.target===this);if(this._bdDown)closeAllPlayerCombos()" onclick="if(event.target===this&&this._bdDown)closeMatchModal()" class="fixed inset-0 z-[60] hidden items-start justify-center bg-slate-900/50 backdrop-blur-xs p-4 pt-[5vh] sm:pt-[8vh] overflow-y-auto">
     <div onmousedown="handleMatchModalCardClick(event)" class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4 shadow-xl">
       <div class="flex items-center justify-between">
-        <h3 class="text-base sm:text-lg font-bold text-slate-900">Log Match Result</h3>
+        <h3 id="matchModalTitle" class="text-base sm:text-lg font-bold text-slate-900">Log Match Result</h3>
         <button type="button" onclick="closeMatchModal()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-sm">✕</button>
       </div>
 
       <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
         <button type="button" id="modalModeDoubles" onclick="setModalMode('doubles')" class="py-2 rounded-lg bg-white text-slate-900 shadow-xs">Doubles</button>
         <button type="button" id="modalModeSingles" onclick="setModalMode('singles')" class="py-2 rounded-lg text-slate-600">Singles</button>
+      </div>
+
+      <!-- Date & Time -->
+      <div class="grid grid-cols-2 gap-3">
+        <div class="space-y-1.5">
+          <label for="mDate" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Date</label>
+          <input
+            id="mDate"
+            type="date"
+            class="w-full py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 tabular-nums"
+          />
+        </div>
+        <div class="space-y-1.5">
+          <label for="mTime" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Time</label>
+          <input
+            id="mTime"
+            type="time"
+            class="w-full py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 tabular-nums"
+          />
+        </div>
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -515,6 +535,24 @@
       >
         Save Match &amp; Update Rankings
       </button>
+
+      <div id="editMatchBtnRow" class="hidden grid-cols-2 gap-3">
+        <button
+          type="button"
+          onclick="closeMatchModal()"
+          class="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          id="updateMatchBtn"
+          onclick="saveMatchFromModal()"
+          class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition"
+        >
+          Save
+        </button>
+      </div>
     </div>
   </div>
 
@@ -956,6 +994,9 @@
       const e1b = m.preElo?.t1p2 ?? CONFIG.startingElo;
       const e2a = m.preElo?.t2p1 ?? CONFIG.startingElo;
       const e2b = m.preElo?.t2p2 ?? CONFIG.startingElo;
+      const editBtn = appState.adminPassword && m.matchNum
+        ? `<button type="button" onclick="this.blur(); openEditMatchModal('doubles', ${m.matchNum})" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 font-semibold text-[11px] transition" title="Edit match">Edit</button>`
+        : "";
 
       return `
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2">
@@ -964,7 +1005,10 @@
               <span class="font-semibold text-slate-500 truncate">Doubles Match #${m.matchNum || "—"}</span>
               ${m.winner === 0 ? '<span class="px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 text-[10px] font-bold uppercase tracking-wider shrink-0">TIE</span>' : ''}
             </div>
-            <span class="tabular-nums whitespace-nowrap shrink-0">${formatDateTimeHtml(m.date)}</span>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="tabular-nums whitespace-nowrap">${formatDateTimeHtml(m.date)}</span>
+              ${editBtn}
+            </div>
           </div>
 
           <!-- Team 1 (Partners stacked vertically, identical text color) -->
@@ -984,7 +1028,7 @@
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <div class="flex items-center gap-1 text-sm">${s1Scores}</div>
-              ${m.winner !== 0 ? `<span class="w-4 text-center text-xs shrink-0"${m.winner === 1 ? ' title="Winner"' : ''}>${m.winner === 1 ? '🏆' : ''}</span>` : ''}
+              <span class="w-4 text-center text-xs shrink-0"${m.winner === 1 ? ' title="Winner"' : ''}>${m.winner === 1 ? '🏆' : ''}</span>
             </div>
           </div>
 
@@ -1007,7 +1051,7 @@
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <div class="flex items-center gap-1 text-sm">${s2Scores}</div>
-              ${m.winner !== 0 ? `<span class="w-4 text-center text-xs shrink-0"${m.winner === 2 ? ' title="Winner"' : ''}>${m.winner === 2 ? '🏆' : ''}</span>` : ''}
+              <span class="w-4 text-center text-xs shrink-0"${m.winner === 2 ? ' title="Winner"' : ''}>${m.winner === 2 ? '🏆' : ''}</span>
             </div>
           </div>
         </div>
@@ -1019,6 +1063,9 @@
       const s2Scores = m.sets.map(([a, b]) => `<span class="w-6 text-center tabular-nums ${b > a ? 'font-bold text-slate-900' : 'text-slate-400'}">${b}</span>`).join("");
       const e1 = m.preElo?.p1 ?? CONFIG.startingElo;
       const e2 = m.preElo?.p2 ?? CONFIG.startingElo;
+      const editBtn = appState.adminPassword && m.matchNum
+        ? `<button type="button" onclick="this.blur(); openEditMatchModal('singles', ${m.matchNum})" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 font-semibold text-[11px] transition" title="Edit match">Edit</button>`
+        : "";
 
       return `
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2">
@@ -1027,7 +1074,10 @@
               <span class="font-semibold text-slate-500 truncate">Singles Match #${m.matchNum || "—"}</span>
               ${m.winner === 0 ? '<span class="px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 text-[10px] font-bold uppercase tracking-wider shrink-0">TIE</span>' : ''}
             </div>
-            <span class="tabular-nums whitespace-nowrap shrink-0">${formatDateTimeHtml(m.date)}</span>
+            <div class="flex items-center gap-2 shrink-0">
+              <span class="tabular-nums whitespace-nowrap">${formatDateTimeHtml(m.date)}</span>
+              ${editBtn}
+            </div>
           </div>
 
           <div class="flex items-center justify-between gap-3 ${m.winner === 1 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
@@ -1040,7 +1090,7 @@
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <div class="flex items-center gap-1 text-sm">${s1Scores}</div>
-              ${m.winner !== 0 ? `<span class="w-4 text-center text-xs shrink-0"${m.winner === 1 ? ' title="Winner"' : ''}>${m.winner === 1 ? '🏆' : ''}</span>` : ''}
+              <span class="w-4 text-center text-xs shrink-0"${m.winner === 1 ? ' title="Winner"' : ''}>${m.winner === 1 ? '🏆' : ''}</span>
             </div>
           </div>
 
@@ -1056,7 +1106,7 @@
             </div>
             <div class="flex items-center gap-1.5 shrink-0">
               <div class="flex items-center gap-1 text-sm">${s2Scores}</div>
-              ${m.winner !== 0 ? `<span class="w-4 text-center text-xs shrink-0"${m.winner === 2 ? ' title="Winner"' : ''}>${m.winner === 2 ? '🏆' : ''}</span>` : ''}
+              <span class="w-4 text-center text-xs shrink-0"${m.winner === 2 ? ' title="Winner"' : ''}>${m.winner === 2 ? '🏆' : ''}</span>
             </div>
           </div>
         </div>
@@ -1419,6 +1469,10 @@
             </div>
           `;
 
+        const editBtn = appState.adminPassword && item.matchNum
+          ? `<button type="button" onclick="this.blur(); openEditMatchModal('${isDoubles ? "doubles" : "singles"}', ${item.matchNum})" class="px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 font-semibold text-[11px] transition" title="Edit match">Edit</button>`
+          : "";
+
         return `
           <div class="bg-white rounded-xl border border-slate-200/80 p-3.5 shadow-2xs space-y-2">
             <div class="flex items-center justify-between gap-2 text-xs text-slate-400">
@@ -1426,7 +1480,10 @@
                 ${resBadge}
                 <span class="font-semibold text-slate-500 truncate">${isDoubles ? "Doubles" : "Singles"} Match #${item.matchNum || "—"}</span>
               </div>
-              <span class="tabular-nums whitespace-nowrap shrink-0">${formatDateTimeHtml(item.date)}</span>
+              <div class="flex items-center gap-2 shrink-0">
+                <span class="tabular-nums whitespace-nowrap">${formatDateTimeHtml(item.date)}</span>
+                ${editBtn}
+              </div>
             </div>
 
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1544,6 +1601,7 @@
         quickActions.classList.remove("sm:flex");
         banner.classList.add("hidden");
       }
+      renderAll();
     }
 
     let adminAuthResetTimer = null;
@@ -1844,6 +1902,28 @@
       if (targetInput) targetInput.focus();
     }
 
+    function getCurrentDateTimeInputs() {
+      const now = new Date();
+      const yyyy = now.getFullYear();
+      const mm = String(now.getMonth() + 1).padStart(2, "0");
+      const dd = String(now.getDate()).padStart(2, "0");
+      const hh = String(now.getHours()).padStart(2, "0");
+      const min = String(now.getMinutes()).padStart(2, "0");
+      return { date: `${yyyy}-${mm}-${dd}`, time: `${hh}:${min}` };
+    }
+
+    function parseMatchDateToInputs(dateStr) {
+      const raw = String(dateStr || "").trim();
+      const parts = raw.split(/\s+/);
+      const dPart = (parts[0] || "").replace(/\//g, "-");
+      const tPart = (parts[1] || "00:00").slice(0, 5);
+      const fallback = getCurrentDateTimeInputs();
+      return {
+        date: /^\d{4}-\d{2}-\d{2}$/.test(dPart) ? dPart : fallback.date,
+        time: /^\d{2}:\d{2}$/.test(tPart) ? tPart : fallback.time
+      };
+    }
+
     function updateScoreRowLabels() {
       const p1 = (document.getElementById("mT1P1")?.value || "").trim();
       const p2 = (document.getElementById("mT1P2")?.value || "").trim();
@@ -1860,24 +1940,49 @@
           ? `${getShortName(p1)} & ${getShortName(p2)}`
           : (p1 ? `${getShortName(p1)} & ...` : (p2 ? `... & ${getShortName(p2)}` : "Side 1"));
         lbl1.textContent = text1;
-        lbl1.className = `h-10 flex items-center text-sm font-semibold truncate ${has1 ? "text-slate-800" : "text-slate-400"}`;
+        lbl1.className = `h-9 flex items-center text-sm font-semibold truncate ${has1 ? "text-slate-800" : "text-slate-400"}`;
 
         const has2 = Boolean(p3 || p4);
         const text2 = (p3 && p4)
           ? `${getShortName(p3)} & ${getShortName(p4)}`
           : (p3 ? `${getShortName(p3)} & ...` : (p4 ? `... & ${getShortName(p4)}` : "Side 2"));
         lbl2.textContent = text2;
-        lbl2.className = `h-10 flex items-center text-sm font-semibold truncate ${has2 ? "text-slate-800" : "text-slate-400"}`;
+        lbl2.className = `h-9 flex items-center text-sm font-semibold truncate ${has2 ? "text-slate-800" : "text-slate-400"}`;
       } else {
         lbl1.textContent = p1 ? getShortName(p1) : "Side 1";
-        lbl1.className = `h-10 flex items-center text-sm font-semibold truncate ${p1 ? "text-slate-800" : "text-slate-400"}`;
+        lbl1.className = `h-9 flex items-center text-sm font-semibold truncate ${p1 ? "text-slate-800" : "text-slate-400"}`;
 
         lbl2.textContent = p3 ? getShortName(p3) : "Side 2";
-        lbl2.className = `h-10 flex items-center text-sm font-semibold truncate ${p3 ? "text-slate-800" : "text-slate-400"}`;
+        lbl2.className = `h-9 flex items-center text-sm font-semibold truncate ${p3 ? "text-slate-800" : "text-slate-400"}`;
+      }
+    }
+
+    function syncMatchModalActionButtons() {
+      const isEditing = Boolean(appState.editingMatch);
+      const titleEl = document.getElementById("matchModalTitle");
+      const createBtn = document.getElementById("saveMatchBtn");
+      const editRow = document.getElementById("editMatchBtnRow");
+      if (titleEl) {
+        titleEl.textContent = isEditing ? "Edit Match Result" : "Log Match Result";
+      }
+      if (createBtn) {
+        createBtn.classList.toggle("hidden", isEditing);
+      }
+      if (editRow) {
+        editRow.classList.toggle("hidden", !isEditing);
+        editRow.classList.toggle("grid", isEditing);
       }
     }
 
     function resetMatchModalSession() {
+      appState.editingMatch = null;
+      syncMatchModalActionButtons();
+      const dt = getCurrentDateTimeInputs();
+      const dateEl = document.getElementById("mDate");
+      const timeEl = document.getElementById("mTime");
+      if (dateEl) dateEl.value = dt.date;
+      if (timeEl) timeEl.value = dt.time;
+
       PLAYER_COMBO_IDS.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = "";
@@ -1907,7 +2012,68 @@
       updateModalPreview();
     }
 
+    function openEditMatchModal(discipline, matchNum) {
+      if (!appState.adminPassword) {
+        handleAdminButtonClick();
+        return;
+      }
+      const list = discipline === "doubles" ? appState.serverDoublesHistory : appState.serverSinglesHistory;
+      const match = (list || []).find(item => Number(item.matchNum) === Number(matchNum));
+      if (!match) return;
+
+      document.getElementById("matchModalError").classList.add("hidden");
+      appState.editingMatch = {
+        discipline,
+        matchNum: Number(matchNum),
+        preElo: match.preElo ? { ...match.preElo } : null,
+        origPlayers: discipline === "doubles" ? [...match.t1, ...match.t2] : [match.p1, match.p2]
+      };
+      syncMatchModalActionButtons();
+
+      const dt = parseMatchDateToInputs(match.date);
+      const dateEl = document.getElementById("mDate");
+      const timeEl = document.getElementById("mTime");
+      if (dateEl) dateEl.value = dt.date;
+      if (timeEl) timeEl.value = dt.time;
+
+      if (discipline === "doubles") {
+        document.getElementById("mT1P1").value = match.t1[0] || "";
+        document.getElementById("mT1P2").value = match.t1[1] || "";
+        document.getElementById("mT2P1").value = match.t2[0] || "";
+        document.getElementById("mT2P2").value = match.t2[1] || "";
+      } else {
+        document.getElementById("mT1P1").value = match.p1 || "";
+        document.getElementById("mT1P2").value = "";
+        document.getElementById("mT2P1").value = match.p2 || "";
+        document.getElementById("mT2P2").value = "";
+      }
+      PLAYER_COMBO_IDS.forEach(syncComboBtnIcon);
+
+      ["ms1a", "ms1b", "ms2a", "ms2b", "ms3a", "ms3b"].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "";
+      });
+      const sets = match.sets || [];
+      appState.modalVisibleSets = Math.max(1, Math.min(3, sets.length));
+      sets.slice(0, 3).forEach((pair, idx) => {
+        const elA = document.getElementById(`ms${idx + 1}a`);
+        const elB = document.getElementById(`ms${idx + 1}b`);
+        if (elA) elA.value = pair[0];
+        if (elB) elB.value = pair[1];
+      });
+      syncModalSetColumns();
+      closeAllPlayerCombos();
+      setModalMode(discipline);
+
+      const m = document.getElementById("matchModal");
+      m.classList.remove("hidden");
+      m.classList.add("flex");
+      syncBodyScrollLock();
+      updateModalPreview();
+    }
+
     function closeMatchModal() {
+      appState.editingMatch = null;
       closeAllPlayerCombos();
       const m = document.getElementById("matchModal");
       m.classList.add("hidden");
@@ -1916,20 +2082,24 @@
     }
 
     function setModalMode(mode) {
+      if (appState.editingMatch && appState.editingMatch.discipline !== mode) {
+        return;
+      }
       appState.modalMode = mode;
       closeAllPlayerCombos();
+      const isEditing = Boolean(appState.editingMatch);
       const bD = document.getElementById("modalModeDoubles");
       const bS = document.getElementById("modalModeSingles");
       const w1 = document.getElementById("mWrapT1P2");
       const w2 = document.getElementById("mWrapT2P2");
       if (mode === "doubles") {
         bD.className = "py-2 rounded-lg bg-white text-slate-900 shadow-xs";
-        bS.className = "py-2 rounded-lg text-slate-600";
+        bS.className = `py-2 rounded-lg text-slate-600 ${isEditing ? "opacity-50 cursor-not-allowed" : ""}`;
         w1.classList.remove("hidden");
         w2.classList.remove("hidden");
       } else {
         bS.className = "py-2 rounded-lg bg-white text-slate-900 shadow-xs";
-        bD.className = "py-2 rounded-lg text-slate-600";
+        bD.className = `py-2 rounded-lg text-slate-600 ${isEditing ? "opacity-50 cursor-not-allowed" : ""}`;
         w1.classList.add("hidden");
         w2.classList.add("hidden");
       }
@@ -1944,6 +2114,27 @@
         n >= 3 ? [parseInt(document.getElementById("ms3a").value), parseInt(document.getElementById("ms3b").value)] : [NaN, NaN]
       ];
       return raw.filter(([a, b]) => !isNaN(a) && !isNaN(b));
+    }
+
+    function resolveModalPlayerPreElo(playerName, data) {
+      if (appState.editingMatch && appState.editingMatch.preElo) {
+        const { discipline, preElo, origPlayers } = appState.editingMatch;
+        if (discipline === "doubles" && appState.modalMode === "doubles") {
+          const idx = origPlayers.indexOf(playerName);
+          const keys = ["t1p1", "t1p2", "t2p1", "t2p2"];
+          if (idx >= 0 && typeof preElo[keys[idx]] === "number") {
+            return preElo[keys[idx]];
+          }
+        } else if (discipline === "singles" && appState.modalMode === "singles") {
+          const idx = origPlayers.indexOf(playerName);
+          const keys = ["p1", "p2"];
+          if (idx >= 0 && typeof preElo[keys[idx]] === "number") {
+            return preElo[keys[idx]];
+          }
+        }
+      }
+      const map = appState.modalMode === "doubles" ? data.doublesMap : data.singlesMap;
+      return map[playerName]?.elo || CONFIG.startingElo;
     }
 
     function updateModalPreview(cachedData) {
@@ -1976,8 +2167,8 @@
           box.innerHTML = `<span class="text-slate-500">Enter set scores to preview ELO change.</span>`;
           return;
         }
-        const avg1 = Math.round(((data.doublesMap[p1]?.elo || CONFIG.startingElo) + (data.doublesMap[p2]?.elo || CONFIG.startingElo)) / 2);
-        const avg2 = Math.round(((data.doublesMap[p3]?.elo || CONFIG.startingElo) + (data.doublesMap[p4]?.elo || CONFIG.startingElo)) / 2);
+        const avg1 = Math.round((resolveModalPlayerPreElo(p1, data) + resolveModalPlayerPreElo(p2, data)) / 2);
+        const avg2 = Math.round((resolveModalPlayerPreElo(p3, data) + resolveModalPlayerPreElo(p4, data)) / 2);
         const { delta1, winner } = computeEloDelta(avg1, avg2, sets);
         const s1 = delta1 > 0 ? `+${delta1}` : `${delta1}`;
         const s2 = -delta1 > 0 ? `+${-delta1}` : `${-delta1}`;
@@ -2007,8 +2198,8 @@
           box.innerHTML = `<span class="text-slate-500">Enter set scores to preview ELO change.</span>`;
           return;
         }
-        const e1 = data.singlesMap[p1]?.elo || CONFIG.startingElo;
-        const e2 = data.singlesMap[p3]?.elo || CONFIG.startingElo;
+        const e1 = resolveModalPlayerPreElo(p1, data);
+        const e2 = resolveModalPlayerPreElo(p3, data);
         const { delta1, winner } = computeEloDelta(e1, e2, sets);
         const s1 = delta1 > 0 ? `+${delta1}` : `${delta1}`;
         const s2 = -delta1 > 0 ? `+${-delta1}` : `${-delta1}`;
@@ -2100,6 +2291,15 @@
       const errEl = document.getElementById("matchModalError");
       errEl.classList.add("hidden");
 
+      const dateVal = (document.getElementById("mDate")?.value || "").trim();
+      const timeVal = (document.getElementById("mTime")?.value || "").trim();
+      if (!dateVal || !timeVal) {
+        errEl.textContent = "Please enter both a date and time for the match.";
+        errEl.classList.remove("hidden");
+        return;
+      }
+      const dateStr = `${dateVal.replace(/-/g, "/")} ${timeVal.slice(0, 5)}`;
+
       const p1 = (document.getElementById("mT1P1")?.value || "").trim();
       const p2 = (document.getElementById("mT1P2")?.value || "").trim();
       const p3 = (document.getElementById("mT2P1")?.value || "").trim();
@@ -2137,26 +2337,39 @@
         return;
       }
 
-      const btn = document.getElementById("saveMatchBtn");
+      const isEditing = Boolean(appState.editingMatch);
+      const btn = document.getElementById(isEditing ? "updateMatchBtn" : "saveMatchBtn");
+      const defaultBtnText = isEditing ? "Save" : "Save Match & Update Rankings";
 
-      btn.textContent = "Saving to Google Sheet...";
+      btn.textContent = "Saving...";
       btn.disabled = true;
       const onSuccess = res => {
-        btn.textContent = "Save Match & Update Rankings";
+        btn.textContent = defaultBtnText;
         btn.disabled = false;
+        const savedMode = appState.modalMode;
+        const wasEditing = isEditing;
         applyServerState(res);
         closeMatchModal();
-        selectDiscipline(appState.modalMode, false);
+        if (!wasEditing) {
+          selectDiscipline(savedMode, false);
+        }
       };
       const onFail = err => {
-        btn.textContent = "Save Match & Update Rankings";
+        btn.textContent = defaultBtnText;
         btn.disabled = false;
         errEl.textContent = (err && err.message) || "Failed to save match.";
         errEl.classList.remove("hidden");
       };
 
-      const action = appState.modalMode === "doubles" ? "logDoubles" : "logSingles";
-      const payload = appState.modalMode === "doubles" ? { t1: [p1, p2], t2: [p3, p4], sets } : { p1, p2: p3, sets };
+      const action = isEditing
+        ? (appState.modalMode === "doubles" ? "editDoubles" : "editSingles")
+        : (appState.modalMode === "doubles" ? "logDoubles" : "logSingles");
+      const payload = appState.modalMode === "doubles"
+        ? { t1: [p1, p2], t2: [p3, p4], sets, date: dateStr }
+        : { p1, p2: p3, sets, date: dateStr };
+      if (isEditing) {
+        payload.matchNum = appState.editingMatch.matchNum;
+      }
       callBackendPost({ action, payload, adminPassword: appState.adminPassword })
         .then(res => onSuccess(res.data))
         .catch(onFail);

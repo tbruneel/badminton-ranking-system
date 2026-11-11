@@ -176,9 +176,10 @@ function parseMatchTimestamp_(val) {
   }
   const s = String(val || '').trim();
   if (!s) return Number.MAX_SAFE_INTEGER;
-  const normalized = s.replace(/\//g, '-').replace(' ', 'T');
-  const parsed = Date.parse(normalized);
-  if (!isNaN(parsed)) return parsed;
+  const m = s.match(/^(\d{4})[\/\-](\d{2})[\/\-](\d{2})(?:[\sT]+(\d{2}):(\d{2}))?/);
+  if (m) {
+    return new Date(Number(m[1]), Number(m[2]) - 1, Number(m[3]), Number(m[4] || 0), Number(m[5] || 0)).getTime();
+  }
   const fallback = new Date(s).getTime();
   return isNaN(fallback) ? Number.MAX_SAFE_INTEGER : fallback;
 }
@@ -484,6 +485,12 @@ function doPost(e) {
     if (action === 'logSingles') {
       return jsonResponse_({ ok: true, data: logSinglesMatch(body.payload, body.adminPassword) });
     }
+    if (action === 'editDoubles') {
+      return jsonResponse_({ ok: true, data: editDoublesMatch(body.payload, body.adminPassword) });
+    }
+    if (action === 'editSingles') {
+      return jsonResponse_({ ok: true, data: editSinglesMatch(body.payload, body.adminPassword) });
+    }
     if (action === 'addPlayer') {
       return jsonResponse_({ ok: true, data: addPlayerToSheet(body.name, body.adminPassword) });
     }
@@ -598,6 +605,18 @@ function formatTimestampNow_() {
   return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm');
 }
 
+function resolveMatchTimestamp_(rawDate) {
+  const s = sanitizeText_(rawDate || '');
+  if (!s) return formatTimestampNow_();
+  const m = s.match(/^(\d{4})[\/\-](\d{2})[\/\-](\d{2})(?:\s+(\d{2}):(\d{2}))?$/);
+  if (!m) {
+    throw new Error('Invalid date/time format. Expected YYYY/MM/DD HH:mm.');
+  }
+  const hh = m[4] || '00';
+  const mm = m[5] || '00';
+  return `${m[1]}/${m[2]}/${m[3]} ${hh}:${mm}`;
+}
+
 function logDoublesMatch(payload, adminPassword) {
   verifyAdminPasscode_(adminPassword);
   const lock = LockService.getScriptLock();
@@ -614,6 +633,7 @@ function logDoublesMatch(payload, adminPassword) {
     }
 
     const sets = validateSets_(payload.sets);
+    const dateStr = resolveMatchTimestamp_(payload.date);
     const ss = getSpreadsheet_();
     ensureDatabase_(ss, false);
 
@@ -645,7 +665,7 @@ function logDoublesMatch(payload, adminPassword) {
     sheet.getRange(targetRow, 2).setNumberFormat('yyyy/mm/dd hh:mm');
     sheet.getRange(targetRow, 1, 1, 21).setValues([[
       `=IF(C${targetRow}="","",ROW()-2)`,
-      formatTimestampNow_(),
+      dateStr,
       t1[0], t1[1], t2[0], t2[1],
       s1[0], s1[1], s2[0], s2[1], s3[0], s3[1],
       ...doublesCalcFormulas_(targetRow)
@@ -669,6 +689,7 @@ function logSinglesMatch(payload, adminPassword) {
     }
 
     const sets = validateSets_(payload.sets);
+    const dateStr = resolveMatchTimestamp_(payload.date);
     const ss = getSpreadsheet_();
     ensureDatabase_(ss, false);
 
@@ -698,7 +719,113 @@ function logSinglesMatch(payload, adminPassword) {
     sheet.getRange(targetRow, 2).setNumberFormat('yyyy/mm/dd hh:mm');
     sheet.getRange(targetRow, 1, 1, 17).setValues([[
       `=IF(C${targetRow}="","",ROW()-2)`,
-      formatTimestampNow_(),
+      dateStr,
+      p1, p2,
+      s1[0], s1[1], s2[0], s2[1], s3[0], s3[1],
+      ...singlesCalcFormulas_(targetRow)
+    ]]);
+    SpreadsheetApp.flush();
+    return getAppState();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function editDoublesMatch(payload, adminPassword) {
+  verifyAdminPasscode_(adminPassword);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const matchNum = Number(payload.matchNum);
+    if (!Number.isInteger(matchNum) || matchNum < 1) {
+      throw new Error('Invalid match number.');
+    }
+    const t1 = Array.isArray(payload.t1) ? payload.t1.map(sanitizeText_) : [];
+    const t2 = Array.isArray(payload.t2) ? payload.t2.map(sanitizeText_) : [];
+    if (t1.length !== 2 || t2.length !== 2) {
+      throw new Error('Doubles match requires 2 players per team.');
+    }
+    const allFour = [t1[0], t1[1], t2[0], t2[1]];
+    if (new Set(allFour).size !== 4) {
+      throw new Error('All 4 players in a Doubles match must be distinct.');
+    }
+
+    const sets = validateSets_(payload.sets);
+    const dateStr = resolveMatchTimestamp_(payload.date);
+    const ss = getSpreadsheet_();
+    ensureDatabase_(ss, false);
+
+    const knownPlayers = getKnownPlayerSet_(ss);
+    allFour.forEach(p => {
+      if (!knownPlayers.has(p)) {
+        throw new Error('Unknown player: ' + p);
+      }
+    });
+
+    const sheet = ss.getSheetByName('Doubles_Matches');
+    const targetRow = matchNum + 2;
+    if (targetRow > sheet.getLastRow() || String(sheet.getRange(targetRow, 3).getValue()).trim() === '') {
+      throw new Error('Match #' + matchNum + ' not found in Doubles_Matches.');
+    }
+
+    const s1 = sets[0] || ['', ''];
+    const s2 = sets[1] || ['', ''];
+    const s3 = sets[2] || ['', ''];
+
+    sheet.getRange(targetRow, 2).setNumberFormat('yyyy/mm/dd hh:mm');
+    sheet.getRange(targetRow, 1, 1, 21).setValues([[
+      `=IF(C${targetRow}="","",ROW()-2)`,
+      dateStr,
+      t1[0], t1[1], t2[0], t2[1],
+      s1[0], s1[1], s2[0], s2[1], s3[0], s3[1],
+      ...doublesCalcFormulas_(targetRow)
+    ]]);
+    SpreadsheetApp.flush();
+    return getAppState();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function editSinglesMatch(payload, adminPassword) {
+  verifyAdminPasscode_(adminPassword);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const matchNum = Number(payload.matchNum);
+    if (!Number.isInteger(matchNum) || matchNum < 1) {
+      throw new Error('Invalid match number.');
+    }
+    const p1 = sanitizeText_(payload.p1);
+    const p2 = sanitizeText_(payload.p2);
+    if (!p1 || !p2 || p1 === p2) {
+      throw new Error('Singles match requires 2 distinct players.');
+    }
+
+    const sets = validateSets_(payload.sets);
+    const dateStr = resolveMatchTimestamp_(payload.date);
+    const ss = getSpreadsheet_();
+    ensureDatabase_(ss, false);
+
+    const knownPlayers = getKnownPlayerSet_(ss);
+    if (!knownPlayers.has(p1) || !knownPlayers.has(p2)) {
+      throw new Error('Both players must exist in the roster.');
+    }
+
+    const sheet = ss.getSheetByName('Singles_Matches');
+    const targetRow = matchNum + 2;
+    if (targetRow > sheet.getLastRow() || String(sheet.getRange(targetRow, 3).getValue()).trim() === '') {
+      throw new Error('Match #' + matchNum + ' not found in Singles_Matches.');
+    }
+
+    const s1 = sets[0] || ['', ''];
+    const s2 = sets[1] || ['', ''];
+    const s3 = sets[2] || ['', ''];
+
+    sheet.getRange(targetRow, 2).setNumberFormat('yyyy/mm/dd hh:mm');
+    sheet.getRange(targetRow, 1, 1, 17).setValues([[
+      `=IF(C${targetRow}="","",ROW()-2)`,
+      dateStr,
       p1, p2,
       s1[0], s1[1], s2[0], s2[1], s3[0], s3[1],
       ...singlesCalcFormulas_(targetRow)
