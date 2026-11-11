@@ -4,6 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Badminton Rankings</title>
+  <script>
+    if (window.RANKING_CONFIG && window.RANKING_CONFIG.icon) {
+      const iconUrl = String(window.RANKING_CONFIG.icon);
+      const typeAttr = iconUrl.endsWith(".svg") ? ' type="image/svg+xml"' : "";
+      document.write('<link rel="icon"' + typeAttr + ' href="' + iconUrl + '" />');
+    }
+  </script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -587,9 +594,10 @@
 
     document.getElementById("appTitle").textContent = CONFIG.title;
     document.title = CONFIG.title;
-    if (CONFIG.icon) {
+    if (CONFIG.icon && !document.querySelector('link[rel="icon"]')) {
       const link = document.createElement("link");
       link.rel = "icon";
+      if (String(CONFIG.icon).endsWith(".svg")) link.type = "image/svg+xml";
       link.href = CONFIG.icon;
       document.head.appendChild(link);
     }
