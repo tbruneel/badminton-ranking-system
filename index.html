@@ -259,9 +259,9 @@
           <!-- Table Header -->
           <div class="hidden sm:grid sm:grid-cols-12 px-5 py-2.5 bg-slate-50/80 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
             <div class="col-span-1">Rank</div>
-            <div class="col-span-5">Player</div>
+            <div class="col-span-4">Player</div>
             <div class="col-span-3 text-center">Record</div>
-            <div class="col-span-1 text-right">Win%</div>
+            <div class="col-span-2 text-right whitespace-nowrap">Win Rate</div>
             <div class="col-span-2 text-right">ELO</div>
           </div>
 
@@ -654,9 +654,9 @@
       return `
         <span class="inline-flex items-center gap-1 tabular-nums whitespace-nowrap">
           <span class="text-emerald-600 font-semibold">${wNum}W</span>
-          <span class="text-slate-300">•</span>
+          <span class="text-slate-300">–</span>
           <span class="text-rose-500 font-semibold">${lNum}L</span>
-          <span class="text-slate-300">•</span>
+          <span class="text-slate-300">–</span>
           <span class="text-slate-600 font-semibold">${tNum}T</span>
           ${pctHtml}
         </span>
@@ -665,12 +665,12 @@
 
     function formatWlCardHtml(w, l, t = null) {
       const tiePart = t !== null
-        ? `<span class="text-slate-300 font-semibold">•</span><span class="text-slate-600">${t}T</span>`
+        ? `<span class="text-slate-300 font-semibold">–</span><span class="text-slate-600">${t}T</span>`
         : "";
       return `
         <span class="inline-flex items-center gap-1 tabular-nums whitespace-nowrap">
           <span class="text-emerald-600">${w}W</span>
-          <span class="text-slate-300 font-semibold">•</span>
+          <span class="text-slate-300 font-semibold">–</span>
           <span class="text-rose-500">${l}L</span>
           ${tiePart}
         </span>
@@ -820,7 +820,7 @@
               onclick="this.blur(); openPlayerProfile('${escapeJsStr(p.name)}', '${appState.discipline}')"
               class="lb-row w-full text-left px-4 sm:px-5 py-3.5 transition flex sm:grid sm:grid-cols-12 items-center justify-between gap-3"
             >
-              <div class="flex items-center gap-3 min-w-0 sm:col-span-6">
+              <div class="flex items-center gap-3 min-w-0 sm:col-span-5">
                 ${rankBadge}
                 <div class="lb-avatar w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 transition">
                   ${escapeHtml(p.initials)}
@@ -839,7 +839,7 @@
                 ${formatWltInlineHtml(p.w, p.l, p.t, false, lbDigits)}
               </div>
 
-              <div class="hidden sm:block sm:col-span-1 text-right text-xs font-medium text-slate-500 tabular-nums">
+              <div class="hidden sm:block sm:col-span-2 text-right text-xs font-medium text-slate-500 tabular-nums whitespace-nowrap">
                 ${winRateStr}
               </div>
 
@@ -1226,7 +1226,7 @@
 
       statsEl.innerHTML = `
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-          <!-- Row 1: ELO & Match Performance -->
+          <!-- Row 1: Current ELO (1 col), Peak ELO (1 col), Matches Wide Card (2 cols) -->
           <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
             <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Current ELO</div>
             <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${pStats.elo}</div>
@@ -1237,43 +1237,49 @@
             <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${peakElo}</div>
             <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${escapeHtml(peakDateStr)}</div>
           </div>
-          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Match Record</div>
-            <div class="text-base leading-7 font-extrabold text-slate-900 mt-1 whitespace-nowrap tabular-nums">
-              ${formatWlCardHtml(pStats.w, pStats.l, pStats.t)}
+          <div class="col-span-2 p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between gap-4">
+            <div>
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Match Record</div>
+              <div class="text-base sm:text-lg leading-7 font-extrabold text-slate-900 mt-1 whitespace-nowrap tabular-nums">
+                ${formatWlCardHtml(pStats.w, pStats.l, pStats.t)}
+              </div>
+              <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${total} ${total === 1 ? "match" : "matches"} played</div>
             </div>
-            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${total} ${total === 1 ? "match" : "matches"} played</div>
-          </div>
-          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Match Win%</div>
-            <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${winRate}</div>
-            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${total > 0 ? `${pStats.w}/${total} ${total === 1 ? "match" : "matches"} won` : "No matches played"}</div>
+            <div class="text-right">
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Win Rate</div>
+              <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${winRate}</div>
+              <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums whitespace-nowrap">${total > 0 ? `${pStats.w}/${total} ${total === 1 ? "match" : "matches"} won` : "No matches played"}</div>
+            </div>
           </div>
 
-          <!-- Row 2: Set & Point Performance (Hierarchical & Uniform with Match Performance) -->
-          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Set Record</div>
-            <div class="text-base leading-7 font-extrabold text-slate-900 mt-1 whitespace-nowrap tabular-nums">
-              ${formatWlCardHtml(setsWon, setsLost)}
+          <!-- Row 2: Sets Wide Card (2 cols), Points Wide Card (2 cols) -->
+          <div class="col-span-2 p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between gap-4">
+            <div>
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Set Record</div>
+              <div class="text-base sm:text-lg leading-7 font-extrabold text-slate-900 mt-1 whitespace-nowrap tabular-nums">
+                ${formatWlCardHtml(setsWon, setsLost)}
+              </div>
+              <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalSets} ${totalSets === 1 ? "set" : "sets"} played</div>
             </div>
-            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalSets} ${totalSets === 1 ? "set" : "sets"} played</div>
-          </div>
-          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Set Win%</div>
-            <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${setWinPct}</div>
-            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalSets > 0 ? `${setsWon}/${totalSets} ${totalSets === 1 ? "set" : "sets"} won` : "No sets played"}</div>
-          </div>
-          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Point Record</div>
-            <div class="text-base leading-7 font-extrabold text-slate-900 mt-1 whitespace-nowrap tabular-nums">
-              ${formatWlCardHtml(ptsFor, ptsAgainst)}
+            <div class="text-right">
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Win Rate</div>
+              <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${setWinPct}</div>
+              <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums whitespace-nowrap">${totalSets > 0 ? `${setsWon}/${totalSets} ${totalSets === 1 ? "set" : "sets"} won` : "No sets played"}</div>
             </div>
-            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalPts} ${totalPts === 1 ? "point" : "points"} played</div>
           </div>
-          <div class="p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs">
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Point Win%</div>
-            <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${ptWinPct}</div>
-            <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalPts > 0 ? `${ptsFor}/${totalPts} ${totalPts === 1 ? "point" : "points"} won` : "No points played"}</div>
+          <div class="col-span-2 p-3.5 rounded-xl bg-white border border-slate-200/80 shadow-2xs flex items-center justify-between gap-4">
+            <div>
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Point Record</div>
+              <div class="text-base sm:text-lg leading-7 font-extrabold text-slate-900 mt-1 whitespace-nowrap tabular-nums">
+                ${formatWlCardHtml(ptsFor, ptsAgainst)}
+              </div>
+              <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums">${totalPts} ${totalPts === 1 ? "point" : "points"} played</div>
+            </div>
+            <div class="text-right">
+              <div class="text-[11px] font-semibold uppercase tracking-wider text-slate-400">Win Rate</div>
+              <div class="text-xl leading-7 font-extrabold text-slate-900 mt-1 tabular-nums">${ptWinPct}</div>
+              <div class="text-[11px] text-slate-400 mt-0.5 tabular-nums whitespace-nowrap">${totalPts > 0 ? `${ptsFor}/${totalPts} ${totalPts === 1 ? "point" : "points"} won` : "No points played"}</div>
+            </div>
           </div>
         </div>
 
