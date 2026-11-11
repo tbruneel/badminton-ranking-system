@@ -58,7 +58,7 @@
             class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold px-3 py-2 rounded-xl bg-slate-900 text-white hover:bg-slate-800 active:scale-[0.99] transition shadow-xs whitespace-nowrap shrink-0"
           >
             <span>＋</span>
-            <span>Log Match</span>
+            <span>Add Match</span>
           </button>
           <button
             onclick="openPlayerModal()"
@@ -132,10 +132,10 @@
     <div id="adminUnlockedBanner" class="hidden rounded-2xl bg-slate-900 text-white p-4 sm:px-5 flex flex-wrap items-center justify-between gap-3 shadow-sm">
       <div class="flex items-center gap-2.5">
         <span class="w-2 h-2 rounded-full bg-emerald-400 shrink-0"></span>
-        <span class="text-xs sm:text-sm font-semibold tracking-wide">Admin Mode Active — You can log matches and add players to the Google Sheet.</span>
+        <span class="text-xs sm:text-sm font-semibold tracking-wide">Admin Mode Active — You can add matches and players to the Google Sheet.</span>
       </div>
       <div class="flex items-center gap-2">
-        <button onclick="openMatchModal()" class="sm:hidden text-xs font-semibold px-3 py-1.5 rounded-lg bg-white text-slate-900 hover:bg-slate-100 whitespace-nowrap">＋ Log Match</button>
+        <button onclick="openMatchModal()" class="sm:hidden text-xs font-semibold px-3 py-1.5 rounded-lg bg-white text-slate-900 hover:bg-slate-100 whitespace-nowrap">＋ Add Match</button>
         <button onclick="openPlayerModal()" class="sm:hidden text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/15 text-white whitespace-nowrap">＋ Player</button>
         <button onclick="lockAdminMode()" class="text-xs font-semibold px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 text-slate-200 transition whitespace-nowrap">
           Lock Admin
@@ -381,177 +381,220 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- MODAL 3: LOG / EDIT MATCH (Admin Only)                                -->
+  <!-- MODAL 3: ADD / EDIT MATCH (Admin Only)                                -->
   <!-- ===================================================================== -->
-  <div id="matchModal" onmousedown="this._bdDown=(event.target===this);if(this._bdDown)closeAllPlayerCombos()" onclick="if(event.target===this&&this._bdDown)closeMatchModal()" class="fixed inset-0 z-[60] hidden items-start justify-center bg-slate-900/50 backdrop-blur-xs p-4 pt-[5vh] sm:pt-[8vh] overflow-y-auto">
+  <div id="matchModal" onmousedown="this._bdDown=(event.target===this);if(this._bdDown){closeAllPlayerCombos();closeAllDateTimePickers();}" onclick="if(event.target===this&&this._bdDown)closeMatchModal()" class="fixed inset-0 z-[60] hidden items-start justify-center bg-slate-900/50 backdrop-blur-xs p-4 pt-[5vh] sm:pt-[8vh] overflow-y-auto">
     <div onmousedown="handleMatchModalCardClick(event)" class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4 shadow-xl">
       <div class="flex items-center justify-between">
-        <h3 id="matchModalTitle" class="text-base sm:text-lg font-bold text-slate-900">Log Match Result</h3>
+        <h3 id="matchModalTitle" class="text-base sm:text-lg font-bold text-slate-900">Add Match</h3>
         <button type="button" onclick="closeMatchModal()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-sm">✕</button>
       </div>
 
-      <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
-        <button type="button" id="modalModeDoubles" onclick="setModalMode('doubles')" class="py-2 rounded-lg bg-white text-slate-900 shadow-xs">Doubles</button>
-        <button type="button" id="modalModeSingles" onclick="setModalMode('singles')" class="py-2 rounded-lg text-slate-600">Singles</button>
-      </div>
-
-      <!-- Date & Time -->
-      <div class="grid grid-cols-2 gap-3">
-        <div class="space-y-1.5">
-          <label for="mDate" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Date</label>
-          <input
-            id="mDate"
-            type="date"
-            class="w-full py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 tabular-nums"
-          />
-        </div>
-        <div class="space-y-1.5">
-          <label for="mTime" class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Time</label>
-          <input
-            id="mTime"
-            type="time"
-            class="w-full py-2 px-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium text-slate-900 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 tabular-nums"
-          />
-        </div>
-      </div>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-          <div class="text-xs font-bold text-slate-700 uppercase tracking-wider">Side 1</div>
-          <div class="relative" data-player-combo="mT1P1">
-            <input
-              id="mT1P1"
-              type="text"
-              autocomplete="off"
-              placeholder="Player 1..."
-              onfocus="openPlayerCombo('mT1P1')"
-              oninput="onPlayerComboInput('mT1P1')"
-              onkeydown="onPlayerComboKeydown(event, 'mT1P1')"
-              class="w-full py-2 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-            />
-            <button type="button" tabindex="-1" onclick="toggleOrClearPlayerCombo('mT1P1')" id="comboBtn_mT1P1" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs">▾</button>
-            <div id="comboList_mT1P1" class="hidden absolute left-0 right-0 top-full mt-1 z-30 max-h-44 overflow-y-auto rounded-xl bg-white border border-slate-200 shadow-lg py-1 text-sm"></div>
-          </div>
-          <div id="mWrapT1P2" class="relative" data-player-combo="mT1P2">
-            <input
-              id="mT1P2"
-              type="text"
-              autocomplete="off"
-              placeholder="Player 2..."
-              onfocus="openPlayerCombo('mT1P2')"
-              oninput="onPlayerComboInput('mT1P2')"
-              onkeydown="onPlayerComboKeydown(event, 'mT1P2')"
-              class="w-full py-2 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-            />
-            <button type="button" tabindex="-1" onclick="toggleOrClearPlayerCombo('mT1P2')" id="comboBtn_mT1P2" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs">▾</button>
-            <div id="comboList_mT1P2" class="hidden absolute left-0 right-0 top-full mt-1 z-30 max-h-44 overflow-y-auto rounded-xl bg-white border border-slate-200 shadow-lg py-1 text-sm"></div>
-          </div>
+      <div id="matchModalFormBody" class="space-y-4">
+        <div class="grid grid-cols-2 gap-1.5 bg-slate-100 p-1 rounded-xl text-xs font-semibold">
+          <button type="button" id="modalModeDoubles" onclick="setModalMode('doubles')" class="py-2 rounded-lg bg-white text-slate-900 shadow-xs">Doubles</button>
+          <button type="button" id="modalModeSingles" onclick="setModalMode('singles')" class="py-2 rounded-lg text-slate-600">Singles</button>
         </div>
 
-        <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
-          <div class="text-xs font-bold text-slate-700 uppercase tracking-wider">Side 2</div>
-          <div class="relative" data-player-combo="mT2P1">
-            <input
-              id="mT2P1"
-              type="text"
-              autocomplete="off"
-              placeholder="Player 1..."
-              onfocus="openPlayerCombo('mT2P1')"
-              oninput="onPlayerComboInput('mT2P1')"
-              onkeydown="onPlayerComboKeydown(event, 'mT2P1')"
-              class="w-full py-2 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-            />
-            <button type="button" tabindex="-1" onclick="toggleOrClearPlayerCombo('mT2P1')" id="comboBtn_mT2P1" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs">▾</button>
-            <div id="comboList_mT2P1" class="hidden absolute left-0 right-0 top-full mt-1 z-30 max-h-44 overflow-y-auto rounded-xl bg-white border border-slate-200 shadow-lg py-1 text-sm"></div>
-          </div>
-          <div id="mWrapT2P2" class="relative" data-player-combo="mT2P2">
-            <input
-              id="mT2P2"
-              type="text"
-              autocomplete="off"
-              placeholder="Player 2..."
-              onfocus="openPlayerCombo('mT2P2')"
-              oninput="onPlayerComboInput('mT2P2')"
-              onkeydown="onPlayerComboKeydown(event, 'mT2P2')"
-              class="w-full py-2 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-            />
-            <button type="button" tabindex="-1" onclick="toggleOrClearPlayerCombo('mT2P2')" id="comboBtn_mT2P2" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs">▾</button>
-            <div id="comboList_mT2P2" class="hidden absolute left-0 right-0 top-full mt-1 z-30 max-h-44 overflow-y-auto rounded-xl bg-white border border-slate-200 shadow-lg py-1 text-sm"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Set Scores (SliceWin-style row-per-side layout) -->
-      <div class="space-y-2">
-        <div class="text-xs font-bold text-slate-700 uppercase tracking-wider">Scores</div>
-        <div class="p-3 rounded-xl border border-slate-200/80 bg-slate-50 flex items-center justify-between gap-2.5">
-          <!-- Left: Team / Player Labels -->
-          <div class="flex flex-col justify-between gap-2 min-w-0 flex-1">
-            <div id="scoreLabelSide1" class="h-9 flex items-center text-sm font-semibold text-slate-800 truncate">Side 1</div>
-            <div id="scoreLabelSide2" class="h-9 flex items-center text-sm font-semibold text-slate-800 truncate">Side 2</div>
-          </div>
-
-          <!-- Right: Set Score Columns + "+ Set" button -->
-          <div class="flex items-center gap-1.5 shrink-0">
-            <!-- Set 1 -->
-            <div id="setCol1" class="flex flex-col gap-2">
-              <input id="ms1a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <input id="ms1b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-            </div>
-
-            <!-- Set 2 -->
-            <div id="setCol2" class="hidden flex-col gap-2">
-              <input id="ms2a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <input id="ms2b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-            </div>
-
-            <!-- Set 3 -->
-            <div id="setCol3" class="hidden flex-col gap-2">
-              <input id="ms3a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <input id="ms3b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-            </div>
-
+        <!-- Custom Date & Time Selectors -->
+        <div class="grid grid-cols-2 gap-3">
+          <div class="space-y-1.5 relative" data-dt-picker="date">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Date</label>
+            <input id="mDate" type="hidden" />
             <button
               type="button"
-              id="addSetBtn"
-              onclick="addMatchModalSet()"
-              class="px-2.5 py-1.5 rounded-full bg-slate-200/70 hover:bg-slate-200 text-slate-700 font-semibold text-xs transition whitespace-nowrap"
+              id="mDateBtn"
+              onclick="toggleDatePicker()"
+              class="w-full py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white text-sm font-medium text-slate-900 flex items-center justify-between gap-2 transition focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
             >
-              + Set
+              <span id="mDateDisplay" class="tabular-nums">----/--/--</span>
+              <svg class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="14" height="13" rx="2"/>
+                <path d="M13 2.5v3M7 2.5v3M3 8.5h14"/>
+              </svg>
             </button>
+            <div id="datePickerPopover" class="hidden absolute left-0 top-full mt-1.5 z-40 w-64 rounded-2xl bg-white border border-slate-200 shadow-xl p-3 select-none"></div>
+          </div>
+
+          <div class="space-y-1.5 relative" data-dt-picker="time">
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Time</label>
+            <input id="mTime" type="hidden" />
+            <button
+              type="button"
+              id="mTimeBtn"
+              onclick="toggleTimePicker()"
+              class="w-full py-2 px-3 rounded-xl border border-slate-200 bg-slate-50 hover:bg-white text-sm font-medium text-slate-900 flex items-center justify-between gap-2 transition focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+            >
+              <span id="mTimeDisplay" class="tabular-nums">--:--</span>
+              <svg class="w-4 h-4 text-slate-400 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="10" cy="10" r="7"/>
+                <path d="M10 6v4l2.5 1.5"/>
+              </svg>
+            </button>
+            <div id="timePickerPopover" class="hidden absolute right-0 sm:left-0 top-full mt-1.5 z-40 w-48 rounded-2xl bg-white border border-slate-200 shadow-xl p-2.5 select-none"></div>
           </div>
         </div>
-      </div>
 
-      <!-- Live Elo Preview -->
-      <div id="modalEloPreview" class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1"></div>
-      <div id="matchModalError" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+            <div class="text-xs font-bold text-slate-700 uppercase tracking-wider">Side 1</div>
+            <div class="relative" data-player-combo="mT1P1">
+              <input
+                id="mT1P1"
+                type="text"
+                autocomplete="off"
+                placeholder="Player 1..."
+                onfocus="openPlayerCombo('mT1P1')"
+                oninput="onPlayerComboInput('mT1P1')"
+                onkeydown="onPlayerComboKeydown(event, 'mT1P1')"
+                class="w-full py-2 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+              />
+              <button type="button" tabindex="-1" onclick="toggleOrClearPlayerCombo('mT1P1')" id="comboBtn_mT1P1" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs">▾</button>
+              <div id="comboList_mT1P1" class="hidden absolute left-0 right-0 top-full mt-1 z-30 max-h-44 overflow-y-auto rounded-xl bg-white border border-slate-200 shadow-lg py-1 text-sm"></div>
+            </div>
+            <div id="mWrapT1P2" class="relative" data-player-combo="mT1P2">
+              <input
+                id="mT1P2"
+                type="text"
+                autocomplete="off"
+                placeholder="Player 2..."
+                onfocus="openPlayerCombo('mT1P2')"
+                oninput="onPlayerComboInput('mT1P2')"
+                onkeydown="onPlayerComboKeydown(event, 'mT1P2')"
+                class="w-full py-2 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+              />
+              <button type="button" tabindex="-1" onclick="toggleOrClearPlayerCombo('mT1P2')" id="comboBtn_mT1P2" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs">▾</button>
+              <div id="comboList_mT1P2" class="hidden absolute left-0 right-0 top-full mt-1 z-30 max-h-44 overflow-y-auto rounded-xl bg-white border border-slate-200 shadow-lg py-1 text-sm"></div>
+            </div>
+          </div>
 
-      <button
-        type="button"
-        id="saveMatchBtn"
-        onclick="saveMatchFromModal()"
-        class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition"
-      >
-        Save Match &amp; Update Rankings
-      </button>
+          <div class="p-3 rounded-xl bg-slate-50 border border-slate-200/80 space-y-2">
+            <div class="text-xs font-bold text-slate-700 uppercase tracking-wider">Side 2</div>
+            <div class="relative" data-player-combo="mT2P1">
+              <input
+                id="mT2P1"
+                type="text"
+                autocomplete="off"
+                placeholder="Player 1..."
+                onfocus="openPlayerCombo('mT2P1')"
+                oninput="onPlayerComboInput('mT2P1')"
+                onkeydown="onPlayerComboKeydown(event, 'mT2P1')"
+                class="w-full py-2 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+              />
+              <button type="button" tabindex="-1" onclick="toggleOrClearPlayerCombo('mT2P1')" id="comboBtn_mT2P1" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs">▾</button>
+              <div id="comboList_mT2P1" class="hidden absolute left-0 right-0 top-full mt-1 z-30 max-h-44 overflow-y-auto rounded-xl bg-white border border-slate-200 shadow-lg py-1 text-sm"></div>
+            </div>
+            <div id="mWrapT2P2" class="relative" data-player-combo="mT2P2">
+              <input
+                id="mT2P2"
+                type="text"
+                autocomplete="off"
+                placeholder="Player 2..."
+                onfocus="openPlayerCombo('mT2P2')"
+                oninput="onPlayerComboInput('mT2P2')"
+                onkeydown="onPlayerComboKeydown(event, 'mT2P2')"
+                class="w-full py-2 pl-2.5 pr-7 rounded-lg border border-slate-200 bg-white text-sm font-medium text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+              />
+              <button type="button" tabindex="-1" onclick="toggleOrClearPlayerCombo('mT2P2')" id="comboBtn_mT2P2" class="absolute right-1.5 top-1/2 -translate-y-1/2 w-5 h-5 rounded text-slate-400 hover:text-slate-600 flex items-center justify-center text-xs">▾</button>
+              <div id="comboList_mT2P2" class="hidden absolute left-0 right-0 top-full mt-1 z-30 max-h-44 overflow-y-auto rounded-xl bg-white border border-slate-200 shadow-lg py-1 text-sm"></div>
+            </div>
+          </div>
+        </div>
 
-      <div id="editMatchBtnRow" class="hidden grid-cols-2 gap-3">
+        <!-- Set Scores (3 sets always displayed) -->
+        <div class="space-y-2">
+          <div class="text-xs font-bold text-slate-700 uppercase tracking-wider">Scores</div>
+          <div class="p-3 rounded-xl border border-slate-200/80 bg-slate-50 flex items-center justify-between gap-2.5">
+            <!-- Left: Team / Player Labels -->
+            <div class="flex flex-col justify-between gap-2 min-w-0 flex-1">
+              <div id="scoreLabelSide1" class="h-9 flex items-center text-sm font-semibold text-slate-800 truncate">Side 1</div>
+              <div id="scoreLabelSide2" class="h-9 flex items-center text-sm font-semibold text-slate-800 truncate">Side 2</div>
+            </div>
+
+            <!-- Right: 3 Set Score Columns -->
+            <div class="flex items-center gap-1.5 shrink-0">
+              <!-- Set 1 -->
+              <div id="setCol1" class="flex flex-col gap-2">
+                <input id="ms1a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                <input id="ms1b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              </div>
+
+              <!-- Set 2 -->
+              <div id="setCol2" class="flex flex-col gap-2">
+                <input id="ms2a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                <input id="ms2b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              </div>
+
+              <!-- Set 3 -->
+              <div id="setCol3" class="flex flex-col gap-2">
+                <input id="ms3a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                <input id="ms3b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-9 h-9 px-1 text-center font-bold border border-slate-200 bg-white rounded-lg text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Elo Preview -->
+        <div id="modalEloPreview" class="p-3.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs space-y-1"></div>
+        <div id="matchModalError" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"></div>
+
         <button
           type="button"
-          onclick="closeMatchModal()"
-          class="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition"
-        >
-          Cancel
-        </button>
-        <button
-          type="button"
-          id="updateMatchBtn"
+          id="saveMatchBtn"
           onclick="saveMatchFromModal()"
           class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition"
         >
-          Save
+          Add Match
         </button>
+
+        <div id="editMatchBtnRow" class="hidden grid-cols-3 gap-2.5">
+          <button
+            type="button"
+            id="deleteMatchBtn"
+            onclick="promptDeleteMatchFromModal()"
+            class="w-full py-3 rounded-xl bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200/80 font-semibold text-sm transition"
+          >
+            Delete
+          </button>
+          <button
+            type="button"
+            onclick="closeMatchModal()"
+            class="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="updateMatchBtn"
+            onclick="saveMatchFromModal()"
+            class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition"
+          >
+            Save
+          </button>
+        </div>
+      </div>
+
+      <!-- In-Modal Confirmation View (Unknown Players Auto-Creation / Match Deletion) -->
+      <div id="matchModalConfirmView" class="hidden space-y-4">
+        <div id="matchModalConfirmBody" class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-sm text-slate-700 space-y-2.5"></div>
+        <div id="matchModalConfirmError" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            id="matchModalConfirmCancelBtn"
+            onclick="cancelMatchModalConfirmation()"
+            class="w-full py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="matchModalConfirmActionBtn"
+            class="w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition"
+          >
+            Confirm
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -1698,10 +1741,12 @@
     }
 
     // =========================================================================
-    // ADMIN MODALS: LOG MATCH & ADD PLAYER
+    // ADMIN MODALS: ADD / EDIT MATCH & ADD PLAYER
     // =========================================================================
     const PLAYER_COMBO_IDS = ["mT1P1", "mT1P2", "mT2P1", "mT2P2"];
     const comboActiveIdx = { mT1P1: 0, mT1P2: 0, mT2P1: 0, mT2P2: 0 };
+    let datePickerViewYear = new Date().getFullYear();
+    let datePickerViewMonth = new Date().getMonth(); // 0..11
 
     function syncComboBtnIcon(id) {
       const input = document.getElementById(id);
@@ -1718,10 +1763,224 @@
       });
     }
 
+    function closeAllDateTimePickers(exceptKind) {
+      if (exceptKind !== "date") {
+        document.getElementById("datePickerPopover")?.classList.add("hidden");
+      }
+      if (exceptKind !== "time") {
+        document.getElementById("timePickerPopover")?.classList.add("hidden");
+      }
+    }
+
     function handleMatchModalCardClick(event) {
       const comboWrap = event.target.closest("[data-player-combo]");
-      const activeId = comboWrap ? comboWrap.getAttribute("data-player-combo") : null;
-      closeAllPlayerCombos(activeId);
+      const activeComboId = comboWrap ? comboWrap.getAttribute("data-player-combo") : null;
+      closeAllPlayerCombos(activeComboId);
+
+      const dtWrap = event.target.closest("[data-dt-picker]");
+      const activeDtKind = dtWrap ? dtWrap.getAttribute("data-dt-picker") : null;
+      closeAllDateTimePickers(activeDtKind);
+    }
+
+    function setModalDateTime(dateIso, timeHm) {
+      const dateEl = document.getElementById("mDate");
+      const timeEl = document.getElementById("mTime");
+      const dateDisp = document.getElementById("mDateDisplay");
+      const timeDisp = document.getElementById("mTimeDisplay");
+      if (dateIso) {
+        if (dateEl) dateEl.value = dateIso;
+        if (dateDisp) dateDisp.textContent = dateIso.replace(/-/g, "/");
+        const parts = dateIso.split("-").map(Number);
+        if (parts.length === 3 && !isNaN(parts[0]) && !isNaN(parts[1])) {
+          datePickerViewYear = parts[0];
+          datePickerViewMonth = parts[1] - 1;
+        }
+      }
+      if (timeHm) {
+        if (timeEl) timeEl.value = timeHm;
+        if (timeDisp) timeDisp.textContent = timeHm;
+      }
+    }
+
+    function toggleDatePicker() {
+      closeAllPlayerCombos();
+      closeAllDateTimePickers("date");
+      const pop = document.getElementById("datePickerPopover");
+      if (!pop) return;
+      if (pop.classList.contains("hidden")) {
+        const cur = (document.getElementById("mDate")?.value || "").split("-").map(Number);
+        if (cur.length === 3 && !isNaN(cur[0]) && !isNaN(cur[1])) {
+          datePickerViewYear = cur[0];
+          datePickerViewMonth = cur[1] - 1;
+        }
+        renderDatePickerPopover();
+        pop.classList.remove("hidden");
+      } else {
+        pop.classList.add("hidden");
+      }
+    }
+
+    function changeDatePickerMonth(delta) {
+      const d = new Date(datePickerViewYear, datePickerViewMonth + delta, 1);
+      datePickerViewYear = d.getFullYear();
+      datePickerViewMonth = d.getMonth();
+      renderDatePickerPopover();
+    }
+
+    function selectDateFromPicker(yyyy, mm, dd) {
+      const iso = `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
+      setModalDateTime(iso, null);
+      document.getElementById("datePickerPopover")?.classList.add("hidden");
+    }
+
+    function selectTodayInPicker() {
+      const dt = getCurrentDateTimeInputs();
+      setModalDateTime(dt.date, null);
+      document.getElementById("datePickerPopover")?.classList.add("hidden");
+    }
+
+    function renderDatePickerPopover() {
+      const pop = document.getElementById("datePickerPopover");
+      if (!pop) return;
+      const monthNames = [
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December"
+      ];
+      const selectedIso = document.getElementById("mDate")?.value || "";
+      const todayIso = getCurrentDateTimeInputs().date;
+
+      const firstDay = new Date(datePickerViewYear, datePickerViewMonth, 1);
+      const startDow = (firstDay.getDay() + 6) % 7; // Monday = 0 .. Sunday = 6
+      const daysInMonth = new Date(datePickerViewYear, datePickerViewMonth + 1, 0).getDate();
+      const daysInPrevMonth = new Date(datePickerViewYear, datePickerViewMonth, 0).getDate();
+
+      const cells = [];
+      for (let i = startDow - 1; i >= 0; i--) {
+        const d = new Date(datePickerViewYear, datePickerViewMonth - 1, daysInPrevMonth - i);
+        cells.push({ y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate(), inMonth: false });
+      }
+      for (let day = 1; day <= daysInMonth; day++) {
+        cells.push({ y: datePickerViewYear, m: datePickerViewMonth + 1, d: day, inMonth: true });
+      }
+      while (cells.length % 7 !== 0) {
+        const nextDay = cells.length - (startDow + daysInMonth) + 1;
+        const d = new Date(datePickerViewYear, datePickerViewMonth + 1, nextDay);
+        cells.push({ y: d.getFullYear(), m: d.getMonth() + 1, d: d.getDate(), inMonth: false });
+      }
+
+      const dayButtons = cells.map(c => {
+        const iso = `${c.y}-${String(c.m).padStart(2, "0")}-${String(c.d).padStart(2, "0")}`;
+        const isSelected = iso === selectedIso;
+        const isToday = iso === todayIso;
+        let cls = "h-7 rounded-lg text-xs flex items-center justify-center tabular-nums transition ";
+        if (isSelected) {
+          cls += "bg-slate-900 text-white font-bold shadow-2xs";
+        } else if (isToday) {
+          cls += "bg-slate-100 text-slate-900 font-bold hover:bg-slate-200";
+        } else if (c.inMonth) {
+          cls += "text-slate-700 hover:bg-slate-100 font-medium";
+        } else {
+          cls += "text-slate-300 hover:bg-slate-50";
+        }
+        return `<button type="button" onclick="selectDateFromPicker(${c.y}, ${c.m}, ${c.d})" class="${cls}">${c.d}</button>`;
+      }).join("");
+
+      pop.innerHTML = `
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-slate-900">${monthNames[datePickerViewMonth]} ${datePickerViewYear}</span>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="changeDatePickerMonth(-1)" class="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center text-sm transition" title="Previous month">‹</button>
+            <button type="button" onclick="changeDatePickerMonth(1)" class="w-7 h-7 rounded-lg hover:bg-slate-100 text-slate-500 hover:text-slate-900 flex items-center justify-center text-sm transition" title="Next month">›</button>
+          </div>
+        </div>
+        <div class="grid grid-cols-7 gap-0.5 text-center text-[10px] font-semibold uppercase text-slate-400 mb-1">
+          <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
+        </div>
+        <div class="grid grid-cols-7 gap-0.5">${dayButtons}</div>
+        <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-end">
+          <button type="button" onclick="selectTodayInPicker()" class="text-[11px] font-semibold text-slate-600 hover:text-slate-900 px-2 py-1 rounded-md hover:bg-slate-100 transition">Today</button>
+        </div>
+      `;
+    }
+
+    function toggleTimePicker() {
+      closeAllPlayerCombos();
+      closeAllDateTimePickers("time");
+      const pop = document.getElementById("timePickerPopover");
+      if (!pop) return;
+      if (pop.classList.contains("hidden")) {
+        renderTimePickerPopover();
+        pop.classList.remove("hidden");
+        requestAnimationFrame(() => {
+          pop.querySelector("[data-active-hour]")?.scrollIntoView({ block: "center" });
+          pop.querySelector("[data-active-min]")?.scrollIntoView({ block: "center" });
+        });
+      } else {
+        pop.classList.add("hidden");
+      }
+    }
+
+    function selectTimeHour(hh) {
+      const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
+      const min = cur[1] || "00";
+      setModalDateTime(null, `${String(hh).padStart(2, "0")}:${min}`);
+      renderTimePickerPopover();
+    }
+
+    function selectTimeMin(mm) {
+      const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
+      const hr = cur[0] || "00";
+      setModalDateTime(null, `${hr}:${String(mm).padStart(2, "0")}`);
+      document.getElementById("timePickerPopover")?.classList.add("hidden");
+    }
+
+    function selectNowInPicker() {
+      const dt = getCurrentDateTimeInputs();
+      setModalDateTime(null, dt.time);
+      document.getElementById("timePickerPopover")?.classList.add("hidden");
+    }
+
+    function renderTimePickerPopover() {
+      const pop = document.getElementById("timePickerPopover");
+      if (!pop) return;
+      const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
+      const activeH = parseInt(cur[0], 10) || 0;
+      const activeM = parseInt(cur[1], 10) || 0;
+
+      let hourBtns = "";
+      for (let h = 0; h < 24; h++) {
+        const hStr = String(h).padStart(2, "0");
+        const isSel = h === activeH;
+        const cls = isSel
+          ? "bg-slate-900 text-white font-bold"
+          : "text-slate-700 hover:bg-slate-100 font-medium";
+        hourBtns += `<button type="button" ${isSel ? "data-active-hour" : ""} onclick="selectTimeHour(${h})" class="w-full py-1.5 rounded-lg text-xs tabular-nums transition ${cls}">${hStr}</button>`;
+      }
+
+      let minBtns = "";
+      for (let m = 0; m < 60; m++) {
+        const mStr = String(m).padStart(2, "0");
+        const isSel = m === activeM;
+        const cls = isSel
+          ? "bg-slate-900 text-white font-bold"
+          : "text-slate-700 hover:bg-slate-100 font-medium";
+        minBtns += `<button type="button" ${isSel ? "data-active-min" : ""} onclick="selectTimeMin(${m})" class="w-full py-1.5 rounded-lg text-xs tabular-nums transition ${cls}">${mStr}</button>`;
+      }
+
+      pop.innerHTML = `
+        <div class="grid grid-cols-2 gap-1.5 text-center text-[10px] font-semibold uppercase tracking-wider text-slate-400 pb-1.5 border-b border-slate-100">
+          <span>Hour</span>
+          <span>Min</span>
+        </div>
+        <div class="grid grid-cols-2 gap-1.5 pt-1.5">
+          <div class="max-h-40 overflow-y-auto space-y-0.5 pr-0.5">${hourBtns}</div>
+          <div class="max-h-40 overflow-y-auto space-y-0.5 pr-0.5">${minBtns}</div>
+        </div>
+        <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
+          <button type="button" onclick="selectNowInPicker()" class="text-[11px] font-semibold text-slate-600 hover:text-slate-900 px-2 py-1 rounded-md hover:bg-slate-100 transition">Now</button>
+          <button type="button" onclick="closeAllDateTimePickers()" class="text-[11px] font-semibold text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md transition">Done</button>
+        </div>
+      `;
     }
 
     function getOtherSelectedPlayers(excludeId) {
@@ -1731,7 +1990,7 @@
       const set = new Set();
       activeIds.forEach(id => {
         if (id === excludeId) return;
-        const val = (document.getElementById(id)?.value || "").trim();
+        const val = (document.getElementById(id)?.value || "").trim().toLowerCase();
         if (val) set.add(val);
       });
       return set;
@@ -1768,15 +2027,29 @@
       const data = getComputedData();
       const playerNames = data.playerNames || [];
       const eloMap = appState.modalMode === "doubles" ? data.doublesMap : data.singlesMap;
-      const otherSelected = getOtherSelectedPlayers(id);
+      const otherSelectedLower = getOtherSelectedPlayers(id);
       const rawVal = input.value.trim();
-      const isExactPlayer = playerNames.includes(rawVal);
+      const isExactPlayer = playerNames.some(p => p.toLowerCase() === rawVal.toLowerCase());
       const q = (filterByInput || !isExactPlayer) ? rawVal.toLowerCase() : "";
 
-      const matches = playerNames.filter(p => !otherSelected.has(p) && (!q || p.toLowerCase().includes(q)));
+      const matches = playerNames.filter(p => !otherSelectedLower.has(p.toLowerCase()) && (!q || p.toLowerCase().includes(q)));
 
       if (matches.length === 0) {
-        list.innerHTML = `<div class="px-3 py-2 text-xs text-slate-400">No matching players</div>`;
+        if (rawVal.length >= 2 && !otherSelectedLower.has(rawVal.toLowerCase())) {
+          list.innerHTML = `
+            <button
+              type="button"
+              data-combo-option="${escapeHtml(rawVal)}"
+              onmousedown="event.preventDefault(); selectPlayerComboOption('${id}', '${escapeJsStr(rawVal)}')"
+              class="w-full px-3 py-1.5 text-left flex items-center justify-between gap-2 bg-slate-100"
+            >
+              <span class="truncate font-medium text-slate-800">${escapeHtml(rawVal)} <span class="text-xs font-normal text-slate-500">(new)</span></span>
+              <span class="text-xs text-slate-400 tabular-nums shrink-0">${CONFIG.startingElo}</span>
+            </button>
+          `;
+        } else {
+          list.innerHTML = `<div class="px-3 py-2 text-xs text-slate-400">No matching players</div>`;
+        }
         return;
       }
 
@@ -1802,6 +2075,7 @@
     }
 
     function openPlayerCombo(id) {
+      closeAllDateTimePickers();
       closeAllPlayerCombos(id);
       comboActiveIdx[id] = 0;
       syncComboBtnIcon(id);
@@ -1811,6 +2085,7 @@
     }
 
     function onPlayerComboInput(id) {
+      closeAllDateTimePickers();
       closeAllPlayerCombos(id);
       comboActiveIdx[id] = 0;
       syncComboBtnIcon(id);
@@ -1877,31 +2152,6 @@
       }
     }
 
-    function syncModalSetColumns() {
-      const n = appState.modalVisibleSets || 1;
-      const c2 = document.getElementById("setCol2");
-      const c3 = document.getElementById("setCol3");
-      const addBtn = document.getElementById("addSetBtn");
-      if (c2) {
-        c2.classList.toggle("hidden", n < 2);
-        c2.classList.toggle("flex", n >= 2);
-      }
-      if (c3) {
-        c3.classList.toggle("hidden", n < 3);
-        c3.classList.toggle("flex", n >= 3);
-      }
-      if (addBtn) {
-        addBtn.classList.toggle("hidden", n >= 3);
-      }
-    }
-
-    function addMatchModalSet() {
-      appState.modalVisibleSets = Math.min(3, (appState.modalVisibleSets || 1) + 1);
-      syncModalSetColumns();
-      const targetInput = document.getElementById(`ms${appState.modalVisibleSets}a`);
-      if (targetInput) targetInput.focus();
-    }
-
     function getCurrentDateTimeInputs() {
       const now = new Date();
       const yyyy = now.getFullYear();
@@ -1957,13 +2207,20 @@
       }
     }
 
+    function showMatchModalFormView() {
+      document.getElementById("matchModalConfirmView")?.classList.add("hidden");
+      document.getElementById("matchModalConfirmError")?.classList.add("hidden");
+      document.getElementById("matchModalFormBody")?.classList.remove("hidden");
+      syncMatchModalActionButtons();
+    }
+
     function syncMatchModalActionButtons() {
       const isEditing = Boolean(appState.editingMatch);
       const titleEl = document.getElementById("matchModalTitle");
       const createBtn = document.getElementById("saveMatchBtn");
       const editRow = document.getElementById("editMatchBtnRow");
       if (titleEl) {
-        titleEl.textContent = isEditing ? "Edit Match Result" : "Log Match Result";
+        titleEl.textContent = isEditing ? "Edit Match" : "Add Match";
       }
       if (createBtn) {
         createBtn.classList.toggle("hidden", isEditing);
@@ -1976,12 +2233,9 @@
 
     function resetMatchModalSession() {
       appState.editingMatch = null;
-      syncMatchModalActionButtons();
+      showMatchModalFormView();
       const dt = getCurrentDateTimeInputs();
-      const dateEl = document.getElementById("mDate");
-      const timeEl = document.getElementById("mTime");
-      if (dateEl) dateEl.value = dt.date;
-      if (timeEl) timeEl.value = dt.time;
+      setModalDateTime(dt.date, dt.time);
 
       PLAYER_COMBO_IDS.forEach(id => {
         const el = document.getElementById(id);
@@ -1992,9 +2246,8 @@
         const el = document.getElementById(id);
         if (el) el.value = "";
       });
-      appState.modalVisibleSets = 1;
-      syncModalSetColumns();
       closeAllPlayerCombos();
+      closeAllDateTimePickers();
     }
 
     function openMatchModal() {
@@ -2028,13 +2281,10 @@
         preElo: match.preElo ? { ...match.preElo } : null,
         origPlayers: discipline === "doubles" ? [...match.t1, ...match.t2] : [match.p1, match.p2]
       };
-      syncMatchModalActionButtons();
+      showMatchModalFormView();
 
       const dt = parseMatchDateToInputs(match.date);
-      const dateEl = document.getElementById("mDate");
-      const timeEl = document.getElementById("mTime");
-      if (dateEl) dateEl.value = dt.date;
-      if (timeEl) timeEl.value = dt.time;
+      setModalDateTime(dt.date, dt.time);
 
       if (discipline === "doubles") {
         document.getElementById("mT1P1").value = match.t1[0] || "";
@@ -2054,15 +2304,14 @@
         if (el) el.value = "";
       });
       const sets = match.sets || [];
-      appState.modalVisibleSets = Math.max(1, Math.min(3, sets.length));
       sets.slice(0, 3).forEach((pair, idx) => {
         const elA = document.getElementById(`ms${idx + 1}a`);
         const elB = document.getElementById(`ms${idx + 1}b`);
         if (elA) elA.value = pair[0];
         if (elB) elB.value = pair[1];
       });
-      syncModalSetColumns();
       closeAllPlayerCombos();
+      closeAllDateTimePickers();
       setModalMode(discipline);
 
       const m = document.getElementById("matchModal");
@@ -2075,6 +2324,8 @@
     function closeMatchModal() {
       appState.editingMatch = null;
       closeAllPlayerCombos();
+      closeAllDateTimePickers();
+      showMatchModalFormView();
       const m = document.getElementById("matchModal");
       m.classList.add("hidden");
       m.classList.remove("flex");
@@ -2087,6 +2338,7 @@
       }
       appState.modalMode = mode;
       closeAllPlayerCombos();
+      closeAllDateTimePickers();
       const isEditing = Boolean(appState.editingMatch);
       const bD = document.getElementById("modalModeDoubles");
       const bS = document.getElementById("modalModeSingles");
@@ -2107,26 +2359,33 @@
     }
 
     function readModalSets() {
-      const n = appState.modalVisibleSets || 1;
       const raw = [
-        [parseInt(document.getElementById("ms1a").value), parseInt(document.getElementById("ms1b").value)],
-        n >= 2 ? [parseInt(document.getElementById("ms2a").value), parseInt(document.getElementById("ms2b").value)] : [NaN, NaN],
-        n >= 3 ? [parseInt(document.getElementById("ms3a").value), parseInt(document.getElementById("ms3b").value)] : [NaN, NaN]
+        [parseInt(document.getElementById("ms1a").value, 10), parseInt(document.getElementById("ms1b").value, 10)],
+        [parseInt(document.getElementById("ms2a").value, 10), parseInt(document.getElementById("ms2b").value, 10)],
+        [parseInt(document.getElementById("ms3a").value, 10), parseInt(document.getElementById("ms3b").value, 10)]
       ];
       return raw.filter(([a, b]) => !isNaN(a) && !isNaN(b));
     }
 
+    function resolveCanonicalPlayerName(rawName, data) {
+      const trimmed = String(rawName || "").trim();
+      if (!trimmed) return "";
+      const found = (data.playerNames || []).find(p => p.toLowerCase() === trimmed.toLowerCase());
+      return found || trimmed;
+    }
+
     function resolveModalPlayerPreElo(playerName, data) {
+      const canonical = resolveCanonicalPlayerName(playerName, data);
       if (appState.editingMatch && appState.editingMatch.preElo) {
         const { discipline, preElo, origPlayers } = appState.editingMatch;
         if (discipline === "doubles" && appState.modalMode === "doubles") {
-          const idx = origPlayers.indexOf(playerName);
+          const idx = origPlayers.findIndex(p => p.toLowerCase() === canonical.toLowerCase());
           const keys = ["t1p1", "t1p2", "t2p1", "t2p2"];
           if (idx >= 0 && typeof preElo[keys[idx]] === "number") {
             return preElo[keys[idx]];
           }
         } else if (discipline === "singles" && appState.modalMode === "singles") {
-          const idx = origPlayers.indexOf(playerName);
+          const idx = origPlayers.findIndex(p => p.toLowerCase() === canonical.toLowerCase());
           const keys = ["p1", "p2"];
           if (idx >= 0 && typeof preElo[keys[idx]] === "number") {
             return preElo[keys[idx]];
@@ -2134,7 +2393,7 @@
         }
       }
       const map = appState.modalMode === "doubles" ? data.doublesMap : data.singlesMap;
-      return map[playerName]?.elo || CONFIG.startingElo;
+      return map[canonical]?.elo ?? CONFIG.startingElo;
     }
 
     function updateModalPreview(cachedData) {
@@ -2142,12 +2401,6 @@
       const data = cachedData || getComputedData();
       const sets = readModalSets();
       const box = document.getElementById("modalEloPreview");
-      const knownSet = new Set(data.playerNames || []);
-
-      if (data.playerNames.length < 2) {
-        box.innerHTML = `<span class="text-amber-700 font-semibold">Add at least 2 players (4 for Doubles) before logging a match.</span>`;
-        return;
-      }
 
       const p1 = (document.getElementById("mT1P1")?.value || "").trim();
       const p2 = (document.getElementById("mT1P2")?.value || "").trim();
@@ -2155,11 +2408,11 @@
       const p4 = (document.getElementById("mT2P2")?.value || "").trim();
 
       if (appState.modalMode === "doubles") {
-        if (!p1 || !p2 || !p3 || !p4 || !knownSet.has(p1) || !knownSet.has(p2) || !knownSet.has(p3) || !knownSet.has(p4)) {
+        if (!p1 || !p2 || !p3 || !p4) {
           box.innerHTML = `<span class="text-slate-500">Select players and enter set scores to preview ELO change.</span>`;
           return;
         }
-        if (new Set([p1, p2, p3, p4]).size !== 4) {
+        if (new Set([p1.toLowerCase(), p2.toLowerCase(), p3.toLowerCase(), p4.toLowerCase()]).size !== 4) {
           box.innerHTML = `<span class="text-amber-700 font-semibold">⚠️ Please select 4 distinct players.</span>`;
           return;
         }
@@ -2186,11 +2439,11 @@
           }
         `;
       } else {
-        if (!p1 || !p3 || !knownSet.has(p1) || !knownSet.has(p3)) {
+        if (!p1 || !p3) {
           box.innerHTML = `<span class="text-slate-500">Select players and enter set scores to preview ELO change.</span>`;
           return;
         }
-        if (p1 === p3) {
+        if (p1.toLowerCase() === p3.toLowerCase()) {
           box.innerHTML = `<span class="text-amber-700 font-semibold">⚠️ Please select 2 distinct players.</span>`;
           return;
         }
@@ -2286,7 +2539,119 @@
         });
     }
 
+    function cancelMatchModalConfirmation() {
+      showMatchModalFormView();
+    }
+
+    function promptAutoCreatePlayersConfirmation(missingNames) {
+      closeAllPlayerCombos();
+      closeAllDateTimePickers();
+      const titleEl = document.getElementById("matchModalTitle");
+      const formBody = document.getElementById("matchModalFormBody");
+      const confirmView = document.getElementById("matchModalConfirmView");
+      const confirmBody = document.getElementById("matchModalConfirmBody");
+      const confirmErr = document.getElementById("matchModalConfirmError");
+      const actionBtn = document.getElementById("matchModalConfirmActionBtn");
+      const cancelBtn = document.getElementById("matchModalConfirmCancelBtn");
+
+      if (titleEl) {
+        titleEl.textContent = missingNames.length === 1 ? "Create New Player?" : "Create New Players?";
+      }
+      const pills = missingNames.map(n => `
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 font-semibold text-slate-900 text-xs">
+          <span>${escapeHtml(n)}</span>
+          <span class="text-slate-400 font-normal">(${CONFIG.startingElo} ELO)</span>
+        </span>
+      `).join("");
+
+      confirmBody.innerHTML = `
+        <p class="text-xs sm:text-sm text-slate-600">
+          ${missingNames.length === 1
+            ? "The following player is not in the roster yet:"
+            : "The following players are not in the roster yet:"}
+        </p>
+        <div class="flex flex-wrap gap-1.5">${pills}</div>
+        <p class="text-xs sm:text-sm text-slate-600">
+          Would you like to create ${missingNames.length === 1 ? "this player" : "these players"} automatically and save the match?
+        </p>
+      `;
+      confirmErr.classList.add("hidden");
+      cancelBtn.disabled = false;
+      actionBtn.disabled = false;
+      actionBtn.textContent = "Create & Save";
+      actionBtn.className = "w-full py-3 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition";
+      actionBtn.onclick = () => executeSaveMatch(true);
+
+      formBody.classList.add("hidden");
+      confirmView.classList.remove("hidden");
+    }
+
+    function promptDeleteMatchFromModal() {
+      if (!appState.editingMatch) return;
+      closeAllPlayerCombos();
+      closeAllDateTimePickers();
+      const { discipline, matchNum } = appState.editingMatch;
+      const titleEl = document.getElementById("matchModalTitle");
+      const formBody = document.getElementById("matchModalFormBody");
+      const confirmView = document.getElementById("matchModalConfirmView");
+      const confirmBody = document.getElementById("matchModalConfirmBody");
+      const confirmErr = document.getElementById("matchModalConfirmError");
+      const actionBtn = document.getElementById("matchModalConfirmActionBtn");
+      const cancelBtn = document.getElementById("matchModalConfirmCancelBtn");
+
+      if (titleEl) {
+        titleEl.textContent = `Delete Match #${matchNum}?`;
+      }
+      confirmBody.innerHTML = `
+        <p class="text-xs sm:text-sm text-slate-600">
+          Are you sure you want to permanently remove <b>${discipline === "doubles" ? "Doubles" : "Singles"} Match #${matchNum}</b> and recalculate all ELO ratings?
+        </p>
+      `;
+      confirmErr.classList.add("hidden");
+      cancelBtn.disabled = false;
+      actionBtn.disabled = false;
+      actionBtn.textContent = "Delete Match";
+      actionBtn.className = "w-full py-3 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-semibold text-sm shadow-xs transition";
+      actionBtn.onclick = () => executeDeleteMatch();
+
+      formBody.classList.add("hidden");
+      confirmView.classList.remove("hidden");
+    }
+
+    function executeDeleteMatch() {
+      if (!appState.editingMatch) return;
+      const { discipline, matchNum } = appState.editingMatch;
+      const confirmErr = document.getElementById("matchModalConfirmError");
+      const actionBtn = document.getElementById("matchModalConfirmActionBtn");
+      const cancelBtn = document.getElementById("matchModalConfirmCancelBtn");
+      confirmErr.classList.add("hidden");
+
+      actionBtn.textContent = "Deleting...";
+      actionBtn.disabled = true;
+      cancelBtn.disabled = true;
+
+      const action = discipline === "doubles" ? "deleteDoubles" : "deleteSingles";
+      callBackendPost({ action, payload: { matchNum }, adminPassword: appState.adminPassword })
+        .then(res => {
+          actionBtn.disabled = false;
+          cancelBtn.disabled = false;
+          applyServerState(res.data);
+          closeMatchModal();
+        })
+        .catch(err => {
+          actionBtn.textContent = "Delete Match";
+          actionBtn.disabled = false;
+          cancelBtn.disabled = false;
+          confirmErr.textContent = (err && err.message) || "Failed to delete match.";
+          confirmErr.classList.remove("hidden");
+        });
+    }
+
     function saveMatchFromModal() {
+      executeSaveMatch(false);
+    }
+
+    function executeSaveMatch(autoCreateConfirmed) {
       const sets = readModalSets();
       const errEl = document.getElementById("matchModalError");
       errEl.classList.add("hidden");
@@ -2294,38 +2659,49 @@
       const dateVal = (document.getElementById("mDate")?.value || "").trim();
       const timeVal = (document.getElementById("mTime")?.value || "").trim();
       if (!dateVal || !timeVal) {
-        errEl.textContent = "Please enter both a date and time for the match.";
+        errEl.textContent = "Please select both a date and time for the match.";
         errEl.classList.remove("hidden");
         return;
       }
       const dateStr = `${dateVal.replace(/-/g, "/")} ${timeVal.slice(0, 5)}`;
 
-      const p1 = (document.getElementById("mT1P1")?.value || "").trim();
-      const p2 = (document.getElementById("mT1P2")?.value || "").trim();
-      const p3 = (document.getElementById("mT2P1")?.value || "").trim();
-      const p4 = (document.getElementById("mT2P2")?.value || "").trim();
       const data = getComputedData();
-      const knownSet = new Set(data.playerNames || []);
+      const knownLowerSet = new Set((data.playerNames || []).map(p => p.toLowerCase()));
+
+      const p1 = resolveCanonicalPlayerName(document.getElementById("mT1P1")?.value, data);
+      const p2 = resolveCanonicalPlayerName(document.getElementById("mT1P2")?.value, data);
+      const p3 = resolveCanonicalPlayerName(document.getElementById("mT2P1")?.value, data);
+      const p4 = resolveCanonicalPlayerName(document.getElementById("mT2P2")?.value, data);
+
+      const enteredPlayers = appState.modalMode === "doubles" ? [p1, p2, p3, p4] : [p1, p3];
 
       if (appState.modalMode === "doubles") {
-        if (!p1 || !p2 || !p3 || !p4 || !knownSet.has(p1) || !knownSet.has(p2) || !knownSet.has(p3) || !knownSet.has(p4)) {
-          errEl.textContent = "Please select 4 valid players from the roster.";
+        if (!p1 || !p2 || !p3 || !p4) {
+          errEl.textContent = "Please enter all 4 players.";
           errEl.classList.remove("hidden");
           return;
         }
-        if (new Set([p1, p2, p3, p4]).size !== 4) {
+        if (new Set(enteredPlayers.map(s => s.toLowerCase())).size !== 4) {
           errEl.textContent = "All 4 players in a Doubles match must be distinct.";
           errEl.classList.remove("hidden");
           return;
         }
       } else {
-        if (!p1 || !p3 || !knownSet.has(p1) || !knownSet.has(p3)) {
-          errEl.textContent = "Please select 2 valid players from the roster.";
+        if (!p1 || !p3) {
+          errEl.textContent = "Please enter both players.";
           errEl.classList.remove("hidden");
           return;
         }
-        if (p1 === p3) {
+        if (p1.toLowerCase() === p3.toLowerCase()) {
           errEl.textContent = "Both players in a Singles match must be distinct.";
+          errEl.classList.remove("hidden");
+          return;
+        }
+      }
+
+      for (const name of enteredPlayers) {
+        if (name.length < 2 || name.length > 40) {
+          errEl.textContent = `Player name "${name}" must be between 2 and 40 characters.`;
           errEl.classList.remove("hidden");
           return;
         }
@@ -2337,15 +2713,37 @@
         return;
       }
 
+      for (const [a, b] of sets) {
+        if (a < 0 || a > 30 || b < 0 || b > 30 || a === b) {
+          errEl.textContent = "Each set score must be between 0 and 30 and cannot be a tie.";
+          errEl.classList.remove("hidden");
+          return;
+        }
+      }
+
+      const missingPlayers = enteredPlayers.filter(p => !knownLowerSet.has(p.toLowerCase()));
+      if (missingPlayers.length > 0 && !autoCreateConfirmed) {
+        promptAutoCreatePlayersConfirmation(missingPlayers);
+        return;
+      }
+
       const isEditing = Boolean(appState.editingMatch);
-      const btn = document.getElementById(isEditing ? "updateMatchBtn" : "saveMatchBtn");
-      const defaultBtnText = isEditing ? "Save" : "Save Match & Update Rankings";
+      const inConfirmView = !document.getElementById("matchModalConfirmView").classList.contains("hidden");
+      const btn = inConfirmView
+        ? document.getElementById("matchModalConfirmActionBtn")
+        : document.getElementById(isEditing ? "updateMatchBtn" : "saveMatchBtn");
+      const cancelBtn = document.getElementById("matchModalConfirmCancelBtn");
+      const activeErrEl = inConfirmView ? document.getElementById("matchModalConfirmError") : errEl;
+      const defaultBtnText = inConfirmView ? "Create & Save" : (isEditing ? "Save" : "Add Match");
 
       btn.textContent = "Saving...";
       btn.disabled = true;
+      if (inConfirmView && cancelBtn) cancelBtn.disabled = true;
+
       const onSuccess = res => {
         btn.textContent = defaultBtnText;
         btn.disabled = false;
+        if (cancelBtn) cancelBtn.disabled = false;
         const savedMode = appState.modalMode;
         const wasEditing = isEditing;
         applyServerState(res);
@@ -2357,16 +2755,17 @@
       const onFail = err => {
         btn.textContent = defaultBtnText;
         btn.disabled = false;
-        errEl.textContent = (err && err.message) || "Failed to save match.";
-        errEl.classList.remove("hidden");
+        if (cancelBtn) cancelBtn.disabled = false;
+        activeErrEl.textContent = (err && err.message) || "Failed to save match.";
+        activeErrEl.classList.remove("hidden");
       };
 
       const action = isEditing
         ? (appState.modalMode === "doubles" ? "editDoubles" : "editSingles")
         : (appState.modalMode === "doubles" ? "logDoubles" : "logSingles");
       const payload = appState.modalMode === "doubles"
-        ? { t1: [p1, p2], t2: [p3, p4], sets, date: dateStr }
-        : { p1, p2: p3, sets, date: dateStr };
+        ? { t1: [p1, p2], t2: [p3, p4], sets, date: dateStr, autoCreatePlayers: Boolean(autoCreateConfirmed) }
+        : { p1, p2: p3, sets, date: dateStr, autoCreatePlayers: Boolean(autoCreateConfirmed) };
       if (isEditing) {
         payload.matchNum = appState.editingMatch.matchNum;
       }

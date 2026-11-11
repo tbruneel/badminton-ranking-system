@@ -491,6 +491,12 @@ function doPost(e) {
     if (action === 'editSingles') {
       return jsonResponse_({ ok: true, data: editSinglesMatch(body.payload, body.adminPassword) });
     }
+    if (action === 'deleteDoubles') {
+      return jsonResponse_({ ok: true, data: deleteDoublesMatch(body.payload, body.adminPassword) });
+    }
+    if (action === 'deleteSingles') {
+      return jsonResponse_({ ok: true, data: deleteSinglesMatch(body.payload, body.adminPassword) });
+    }
     if (action === 'addPlayer') {
       return jsonResponse_({ ok: true, data: addPlayerToSheet(body.name, body.adminPassword) });
     }
@@ -601,6 +607,44 @@ function getKnownPlayerSet_(ss) {
   return new Set(names);
 }
 
+function ensurePlayersExist_(ss, playerNames, autoCreate) {
+  const sheet = ss.getSheetByName('Players');
+  const scanMax = Math.max(sheet.getLastRow(), 2);
+  const colA = sheet.getRange(2, 1, scanMax - 1, 1).getValues();
+  const knownLowerMap = new Map();
+  const emptyRows = [];
+  for (let i = 0; i < colA.length; i++) {
+    const existing = String(colA[i][0]).trim();
+    if (existing) {
+      knownLowerMap.set(existing.toLowerCase(), existing);
+    } else {
+      emptyRows.push(2 + i);
+    }
+  }
+  let nextNewRow = scanMax + 1;
+
+  return playerNames.map(rawName => {
+    const cleanName = sanitizeText_(rawName);
+    const existing = knownLowerMap.get(cleanName.toLowerCase());
+    if (existing) {
+      return existing;
+    }
+    if (!autoCreate) {
+      throw new Error('Unknown player: ' + cleanName);
+    }
+    if (cleanName.length < 2 || cleanName.length > 40) {
+      throw new Error('Player name "' + cleanName + '" must be between 2 and 40 characters.');
+    }
+    const targetRow = emptyRows.length > 0 ? emptyRows.shift() : nextNewRow++;
+    sheet.getRange(targetRow, 1, 1, 11).setValues([[
+      cleanName,
+      ...playerRowFormulas_(targetRow)
+    ]]);
+    knownLowerMap.set(cleanName.toLowerCase(), cleanName);
+    return cleanName;
+  });
+}
+
 function formatTimestampNow_() {
   return Utilities.formatDate(new Date(), Session.getScriptTimeZone(), 'yyyy/MM/dd HH:mm');
 }
@@ -622,13 +666,13 @@ function logDoublesMatch(payload, adminPassword) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const t1 = Array.isArray(payload.t1) ? payload.t1.map(sanitizeText_) : [];
-    const t2 = Array.isArray(payload.t2) ? payload.t2.map(sanitizeText_) : [];
-    if (t1.length !== 2 || t2.length !== 2) {
+    const rawT1 = Array.isArray(payload.t1) ? payload.t1.map(sanitizeText_) : [];
+    const rawT2 = Array.isArray(payload.t2) ? payload.t2.map(sanitizeText_) : [];
+    if (rawT1.length !== 2 || rawT2.length !== 2) {
       throw new Error('Doubles match requires 2 players per team.');
     }
-    const allFour = [t1[0], t1[1], t2[0], t2[1]];
-    if (new Set(allFour).size !== 4) {
+    const rawFour = [rawT1[0], rawT1[1], rawT2[0], rawT2[1]];
+    if (new Set(rawFour.map(s => s.toLowerCase())).size !== 4) {
       throw new Error('All 4 players in a Doubles match must be distinct.');
     }
 
@@ -637,12 +681,9 @@ function logDoublesMatch(payload, adminPassword) {
     const ss = getSpreadsheet_();
     ensureDatabase_(ss, false);
 
-    const knownPlayers = getKnownPlayerSet_(ss);
-    allFour.forEach(p => {
-      if (!knownPlayers.has(p)) {
-        throw new Error('Unknown player: ' + p);
-      }
-    });
+    const allFour = ensurePlayersExist_(ss, rawFour, Boolean(payload.autoCreatePlayers));
+    const t1 = [allFour[0], allFour[1]];
+    const t2 = [allFour[2], allFour[3]];
 
     const sheet = ss.getSheetByName('Doubles_Matches');
     const scanMax = Math.max(sheet.getLastRow(), 3);
@@ -682,9 +723,9 @@ function logSinglesMatch(payload, adminPassword) {
   const lock = LockService.getScriptLock();
   lock.waitLock(10000);
   try {
-    const p1 = sanitizeText_(payload.p1);
-    const p2 = sanitizeText_(payload.p2);
-    if (!p1 || !p2 || p1 === p2) {
+    const rawP1 = sanitizeText_(payload.p1);
+    const rawP2 = sanitizeText_(payload.p2);
+    if (!rawP1 || !rawP2 || rawP1.toLowerCase() === rawP2.toLowerCase()) {
       throw new Error('Singles match requires 2 distinct players.');
     }
 
@@ -693,10 +734,7 @@ function logSinglesMatch(payload, adminPassword) {
     const ss = getSpreadsheet_();
     ensureDatabase_(ss, false);
 
-    const knownPlayers = getKnownPlayerSet_(ss);
-    if (!knownPlayers.has(p1) || !knownPlayers.has(p2)) {
-      throw new Error('Both players must exist in the roster.');
-    }
+    const [p1, p2] = ensurePlayersExist_(ss, [rawP1, rawP2], Boolean(payload.autoCreatePlayers));
 
     const sheet = ss.getSheetByName('Singles_Matches');
     const scanMax = Math.max(sheet.getLastRow(), 3);
@@ -740,13 +778,13 @@ function editDoublesMatch(payload, adminPassword) {
     if (!Number.isInteger(matchNum) || matchNum < 1) {
       throw new Error('Invalid match number.');
     }
-    const t1 = Array.isArray(payload.t1) ? payload.t1.map(sanitizeText_) : [];
-    const t2 = Array.isArray(payload.t2) ? payload.t2.map(sanitizeText_) : [];
-    if (t1.length !== 2 || t2.length !== 2) {
+    const rawT1 = Array.isArray(payload.t1) ? payload.t1.map(sanitizeText_) : [];
+    const rawT2 = Array.isArray(payload.t2) ? payload.t2.map(sanitizeText_) : [];
+    if (rawT1.length !== 2 || rawT2.length !== 2) {
       throw new Error('Doubles match requires 2 players per team.');
     }
-    const allFour = [t1[0], t1[1], t2[0], t2[1]];
-    if (new Set(allFour).size !== 4) {
+    const rawFour = [rawT1[0], rawT1[1], rawT2[0], rawT2[1]];
+    if (new Set(rawFour.map(s => s.toLowerCase())).size !== 4) {
       throw new Error('All 4 players in a Doubles match must be distinct.');
     }
 
@@ -755,12 +793,9 @@ function editDoublesMatch(payload, adminPassword) {
     const ss = getSpreadsheet_();
     ensureDatabase_(ss, false);
 
-    const knownPlayers = getKnownPlayerSet_(ss);
-    allFour.forEach(p => {
-      if (!knownPlayers.has(p)) {
-        throw new Error('Unknown player: ' + p);
-      }
-    });
+    const allFour = ensurePlayersExist_(ss, rawFour, Boolean(payload.autoCreatePlayers));
+    const t1 = [allFour[0], allFour[1]];
+    const t2 = [allFour[2], allFour[3]];
 
     const sheet = ss.getSheetByName('Doubles_Matches');
     const targetRow = matchNum + 2;
@@ -796,9 +831,9 @@ function editSinglesMatch(payload, adminPassword) {
     if (!Number.isInteger(matchNum) || matchNum < 1) {
       throw new Error('Invalid match number.');
     }
-    const p1 = sanitizeText_(payload.p1);
-    const p2 = sanitizeText_(payload.p2);
-    if (!p1 || !p2 || p1 === p2) {
+    const rawP1 = sanitizeText_(payload.p1);
+    const rawP2 = sanitizeText_(payload.p2);
+    if (!rawP1 || !rawP2 || rawP1.toLowerCase() === rawP2.toLowerCase()) {
       throw new Error('Singles match requires 2 distinct players.');
     }
 
@@ -807,10 +842,7 @@ function editSinglesMatch(payload, adminPassword) {
     const ss = getSpreadsheet_();
     ensureDatabase_(ss, false);
 
-    const knownPlayers = getKnownPlayerSet_(ss);
-    if (!knownPlayers.has(p1) || !knownPlayers.has(p2)) {
-      throw new Error('Both players must exist in the roster.');
-    }
+    const [p1, p2] = ensurePlayersExist_(ss, [rawP1, rawP2], Boolean(payload.autoCreatePlayers));
 
     const sheet = ss.getSheetByName('Singles_Matches');
     const targetRow = matchNum + 2;
@@ -830,6 +862,56 @@ function editSinglesMatch(payload, adminPassword) {
       s1[0], s1[1], s2[0], s2[1], s3[0], s3[1],
       ...singlesCalcFormulas_(targetRow)
     ]]);
+    SpreadsheetApp.flush();
+    return getAppState();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function deleteDoublesMatch(payload, adminPassword) {
+  verifyAdminPasscode_(adminPassword);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const matchNum = Number(payload && payload.matchNum);
+    if (!Number.isInteger(matchNum) || matchNum < 1) {
+      throw new Error('Invalid match number.');
+    }
+    const ss = getSpreadsheet_();
+    ensureDatabase_(ss, false);
+    const sheet = ss.getSheetByName('Doubles_Matches');
+    const targetRow = matchNum + 2;
+    if (targetRow > sheet.getLastRow() || String(sheet.getRange(targetRow, 3).getValue()).trim() === '') {
+      throw new Error('Match #' + matchNum + ' not found in Doubles_Matches.');
+    }
+    sheet.getRange(targetRow, 2, 1, 11).clearContent();
+    sortMatchesByDate_(sheet, true);
+    SpreadsheetApp.flush();
+    return getAppState();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function deleteSinglesMatch(payload, adminPassword) {
+  verifyAdminPasscode_(adminPassword);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const matchNum = Number(payload && payload.matchNum);
+    if (!Number.isInteger(matchNum) || matchNum < 1) {
+      throw new Error('Invalid match number.');
+    }
+    const ss = getSpreadsheet_();
+    ensureDatabase_(ss, false);
+    const sheet = ss.getSheetByName('Singles_Matches');
+    const targetRow = matchNum + 2;
+    if (targetRow > sheet.getLastRow() || String(sheet.getRange(targetRow, 3).getValue()).trim() === '') {
+      throw new Error('Match #' + matchNum + ' not found in Singles_Matches.');
+    }
+    sheet.getRange(targetRow, 2, 1, 9).clearContent();
+    sortMatchesByDate_(sheet, false);
     SpreadsheetApp.flush();
     return getAppState();
   } finally {
