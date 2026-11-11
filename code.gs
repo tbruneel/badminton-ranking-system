@@ -22,6 +22,9 @@
 
 const INITIAL_PLAYER_SLOTS = 50;   // Rows 2..50 pre-filled on init (auto-expands beyond 50)
 const INITIAL_MATCH_SLOTS = 100;   // Rows 3..102 pre-filled on init (auto-expands beyond 100)
+const STARTING_ELO = 1000;
+const BASE_K = 40;
+const MARGIN_K = 40;
 const MAX_FAILED_ATTEMPTS = 5;
 const LOCKOUT_SECONDS = 900;       // 15 minutes
 
@@ -131,11 +134,11 @@ function playerRowFormulas_(r) {
     `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$M$3:$M,"P1")+COUNTIFS(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$M$3:$M,"P2"))`,
     `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$M$3:$M,"P2")+COUNTIFS(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$M$3:$M,"P1"))`,
     `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$M$3:$M,"TIE")+COUNTIFS(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$M$3:$M,"TIE"))`,
-    `=IF(A${r}="","",1000+SUMIF(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$P$3:$P)+SUMIF(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$Q$3:$Q))`,
+    `=IF(A${r}="", "", ${STARTING_ELO}+SUMIF(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$P$3:$P)+SUMIF(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$Q$3:$Q))`,
     `=IF(A${r}="","",COUNTIFS(Doubles_Matches!$C$3:$C,A${r},Doubles_Matches!$O$3:$O,"T1")+COUNTIFS(Doubles_Matches!$D$3:$D,A${r},Doubles_Matches!$O$3:$O,"T1")+COUNTIFS(Doubles_Matches!$E$3:$E,A${r},Doubles_Matches!$O$3:$O,"T2")+COUNTIFS(Doubles_Matches!$F$3:$F,A${r},Doubles_Matches!$O$3:$O,"T2"))`,
     `=IF(A${r}="","",COUNTIFS(Doubles_Matches!$C$3:$C,A${r},Doubles_Matches!$O$3:$O,"T2")+COUNTIFS(Doubles_Matches!$D$3:$D,A${r},Doubles_Matches!$O$3:$O,"T2")+COUNTIFS(Doubles_Matches!$E$3:$E,A${r},Doubles_Matches!$O$3:$O,"T1")+COUNTIFS(Doubles_Matches!$F$3:$F,A${r},Doubles_Matches!$O$3:$O,"T1"))`,
     `=IF(A${r}="","",COUNTIFS(Doubles_Matches!$C$3:$C,A${r},Doubles_Matches!$O$3:$O,"TIE")+COUNTIFS(Doubles_Matches!$D$3:$D,A${r},Doubles_Matches!$O$3:$O,"TIE")+COUNTIFS(Doubles_Matches!$E$3:$E,A${r},Doubles_Matches!$O$3:$O,"TIE")+COUNTIFS(Doubles_Matches!$F$3:$F,A${r},Doubles_Matches!$O$3:$O,"TIE"))`,
-    `=IF(A${r}="","",1000+SUMIF(Doubles_Matches!$C$3:$C,A${r},Doubles_Matches!$T$3:$T)+SUMIF(Doubles_Matches!$D$3:$D,A${r},Doubles_Matches!$T$3:$T)+SUMIF(Doubles_Matches!$E$3:$E,A${r},Doubles_Matches!$U$3:$U)+SUMIF(Doubles_Matches!$F$3:$F,A${r},Doubles_Matches!$U$3:$U))`
+    `=IF(A${r}="", "", ${STARTING_ELO}+SUMIF(Doubles_Matches!$C$3:$C,A${r},Doubles_Matches!$T$3:$T)+SUMIF(Doubles_Matches!$D$3:$D,A${r},Doubles_Matches!$T$3:$T)+SUMIF(Doubles_Matches!$E$3:$E,A${r},Doubles_Matches!$U$3:$U)+SUMIF(Doubles_Matches!$F$3:$F,A${r},Doubles_Matches!$U$3:$U))`
   ];
 }
 
@@ -145,11 +148,11 @@ function doublesCalcFormulas_(r) {
     `=IF(C${r}="","",(G${r}>H${r})*(G${r}<>"")*1+(I${r}>J${r})*(I${r}<>"")*1+(K${r}>L${r})*(K${r}<>"")*1)`,
     `=IF(C${r}="","",(H${r}>G${r})*(H${r}<>"")*1+(J${r}>I${r})*(J${r}<>"")*1+(L${r}>K${r})*(L${r}<>"")*1)`,
     `=IF(OR(C${r}="",G${r}=""),"",IF(M${r}>N${r},"T1",IF(N${r}>M${r},"T2","TIE")))`,
-    `=IF(C${r}="","",1000+SUMIF($C$2:C${prev},C${r},$T$2:T${prev})+SUMIF($D$2:D${prev},C${r},$T$2:T${prev})+SUMIF($E$2:E${prev},C${r},$U$2:U${prev})+SUMIF($F$2:F${prev},C${r},$U$2:U${prev}))`,
-    `=IF(D${r}="","",1000+SUMIF($C$2:C${prev},D${r},$T$2:T${prev})+SUMIF($D$2:D${prev},D${r},$T$2:T${prev})+SUMIF($E$2:E${prev},D${r},$U$2:U${prev})+SUMIF($F$2:F${prev},D${r},$U$2:U${prev}))`,
-    `=IF(E${r}="","",1000+SUMIF($C$2:C${prev},E${r},$T$2:T${prev})+SUMIF($D$2:D${prev},E${r},$T$2:T${prev})+SUMIF($E$2:E${prev},E${r},$U$2:U${prev})+SUMIF($F$2:F${prev},E${r},$U$2:U${prev}))`,
-    `=IF(F${r}="","",1000+SUMIF($C$2:C${prev},F${r},$T$2:T${prev})+SUMIF($D$2:D${prev},F${r},$T$2:T${prev})+SUMIF($E$2:E${prev},F${r},$U$2:U${prev})+SUMIF($F$2:F${prev},F${r},$U$2:U${prev}))`,
-    `=IF(O${r}="","",IF(O${r}="TIE",0,ROUND((40+40*(ABS(SUM(G${r},I${r},K${r})-SUM(H${r},J${r},L${r}))/MAX(1,SUM(G${r}:L${r}))))*(IF(O${r}="T1",1,0)-1/(1+10^((AVERAGE(R${r}:S${r})-AVERAGE(P${r}:Q${r}))/400))))))`,
+    `=IF(C${r}="","",${STARTING_ELO}+SUMIF($C$2:C${prev},C${r},$T$2:T${prev})+SUMIF($D$2:D${prev},C${r},$T$2:T${prev})+SUMIF($E$2:E${prev},C${r},$U$2:U${prev})+SUMIF($F$2:F${prev},C${r},$U$2:U${prev}))`,
+    `=IF(D${r}="","",${STARTING_ELO}+SUMIF($C$2:C${prev},D${r},$T$2:T${prev})+SUMIF($D$2:D${prev},D${r},$T$2:T${prev})+SUMIF($E$2:E${prev},D${r},$U$2:U${prev})+SUMIF($F$2:F${prev},D${r},$U$2:U${prev}))`,
+    `=IF(E${r}="","",${STARTING_ELO}+SUMIF($C$2:C${prev},E${r},$T$2:T${prev})+SUMIF($D$2:D${prev},E${r},$T$2:T${prev})+SUMIF($E$2:E${prev},E${r},$U$2:U${prev})+SUMIF($F$2:F${prev},E${r},$U$2:U${prev}))`,
+    `=IF(F${r}="","",${STARTING_ELO}+SUMIF($C$2:C${prev},F${r},$T$2:T${prev})+SUMIF($D$2:D${prev},F${r},$T$2:T${prev})+SUMIF($E$2:E${prev},F${r},$U$2:U${prev})+SUMIF($F$2:F${prev},F${r},$U$2:U${prev}))`,
+    `=IF(O${r}="","",IF(O${r}="TIE",0,ROUND((${BASE_K}+${MARGIN_K}*(ABS(SUM(G${r},I${r},K${r})-SUM(H${r},J${r},L${r}))/MAX(1,SUM(G${r}:L${r}))))*(IF(O${r}="T1",1,0)-1/(1+10^((AVERAGE(R${r}:S${r})-AVERAGE(P${r}:Q${r}))/400))))))`,
     `=IF(O${r}="","",IF(O${r}="TIE",0,-T${r}))`
   ];
 }
@@ -160,11 +163,67 @@ function singlesCalcFormulas_(r) {
     `=IF(C${r}="","",(E${r}>F${r})*(E${r}<>"")*1+(G${r}>H${r})*(G${r}<>"")*1+(I${r}>J${r})*(I${r}<>"")*1)`,
     `=IF(C${r}="","",(F${r}>E${r})*(F${r}<>"")*1+(H${r}>G${r})*(H${r}<>"")*1+(J${r}>I${r})*(J${r}<>"")*1)`,
     `=IF(OR(C${r}="",E${r}=""),"",IF(K${r}>L${r},"P1",IF(L${r}>K${r},"P2","TIE")))`,
-    `=IF(C${r}="","",1000+SUMIF($C$2:C${prev},C${r},$P$2:P${prev})+SUMIF($D$2:D${prev},C${r},$Q$2:Q${prev}))`,
-    `=IF(D${r}="","",1000+SUMIF($C$2:C${prev},D${r},$P$2:P${prev})+SUMIF($D$2:D${prev},D${r},$Q$2:Q${prev}))`,
-    `=IF(M${r}="","",IF(M${r}="TIE",0,ROUND((40+40*(ABS(SUM(E${r},G${r},I${r})-SUM(F${r},H${r},J${r}))/MAX(1,SUM(E${r}:J${r}))))*(IF(M${r}="P1",1,0)-1/(1+10^((O${r}-N${r})/400))))))`,
+    `=IF(C${r}="","",${STARTING_ELO}+SUMIF($C$2:C${prev},C${r},$P$2:P${prev})+SUMIF($D$2:D${prev},C${r},$Q$2:Q${prev}))`,
+    `=IF(D${r}="","",${STARTING_ELO}+SUMIF($C$2:C${prev},D${r},$P$2:P${prev})+SUMIF($D$2:D${prev},D${r},$Q$2:Q${prev}))`,
+    `=IF(M${r}="","",IF(M${r}="TIE",0,ROUND((${BASE_K}+${MARGIN_K}*(ABS(SUM(E${r},G${r},I${r})-SUM(F${r},H${r},J${r}))/MAX(1,SUM(E${r}:J${r}))))*(IF(M${r}="P1",1,0)-1/(1+10^((O${r}-N${r})/400))))))`,
     `=IF(M${r}="","",IF(M${r}="TIE",0,-P${r}))`
   ];
+}
+
+function parseMatchTimestamp_(val) {
+  if (val instanceof Date && !isNaN(val.getTime())) {
+    return val.getTime();
+  }
+  const s = String(val || '').trim();
+  if (!s) return Number.MAX_SAFE_INTEGER;
+  const normalized = s.replace(/\//g, '-').replace(' ', 'T');
+  const parsed = Date.parse(normalized);
+  if (!isNaN(parsed)) return parsed;
+  const fallback = new Date(s).getTime();
+  return isNaN(fallback) ? Number.MAX_SAFE_INTEGER : fallback;
+}
+
+/**
+ * Ensures match rows (Row 3 downward) are ordered chronologically by their Date column (Col B),
+ * while the Sheet formulas compute ELO purely from top-to-bottom row order.
+ */
+function sortMatchesByDate_(sheet, isDoubles) {
+  const inputWidth = isDoubles ? 11 : 9; // Doubles: Col B..L (11 cols), Singles: Col B..J (9 cols)
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 3) return false;
+  const numRows = lastRow - 2;
+  const rawValues = sheet.getRange(3, 2, numRows, inputWidth).getValues();
+
+  const active = [];
+  let lastActiveIdx = -1;
+  for (let i = 0; i < rawValues.length; i++) {
+    const row = rawValues[i];
+    if (String(row[1]).trim() !== '') {
+      active.push({ idx: i, ts: parseMatchTimestamp_(row[0]), row: row });
+      lastActiveIdx = i;
+    }
+  }
+  if (active.length <= 1 && (active.length === 0 || lastActiveIdx === 0)) {
+    return false;
+  }
+
+  let needsWrite = active.length !== lastActiveIdx + 1;
+  for (let i = 1; i < active.length; i++) {
+    if (active[i].ts < active[i - 1].ts) {
+      needsWrite = true;
+      break;
+    }
+  }
+  if (!needsWrite) return false;
+
+  active.sort((a, b) => a.ts - b.ts || a.idx - b.idx);
+  const emptyRow = new Array(inputWidth).fill('');
+  const outputRows = [];
+  for (let i = 0; i < numRows; i++) {
+    outputRows.push(i < active.length ? active[i].row : emptyRow);
+  }
+  sheet.getRange(3, 2, numRows, inputWidth).setValues(outputRows);
+  return true;
 }
 
 function setupPlayersSheet_(sheet, slots) {
@@ -200,7 +259,7 @@ function setupDoublesSheet_(sheet, matchSlots) {
     'T1 P1 Pre-Elo', 'T1 P2 Pre-Elo', 'T2 P1 Pre-Elo', 'T2 P2 Pre-Elo',
     'T1 Elo Delta', 'T2 Elo Delta'
   ];
-  const baseline = [0, 'Baseline', '', '', '', '', '', '', '', '', '', '', 0, 0, '', 1000, 1000, 1000, 1000, 0, 0];
+  const baseline = [0, 'Baseline', '', '', '', '', '', '', '', '', '', '', 0, 0, '', STARTING_ELO, STARTING_ELO, STARTING_ELO, STARTING_ELO, 0, 0];
   const rows = [headers, baseline];
   for (let i = 0; i < matchSlots; i++) {
     const r = i + 3;
@@ -216,6 +275,7 @@ function setupDoublesSheet_(sheet, matchSlots) {
 }
 
 function repairDoublesFormulas_(sheet) {
+  sortMatchesByDate_(sheet, true);
   const maxRow = Math.max(sheet.getLastRow(), INITIAL_MATCH_SLOTS + 2);
   const colA = [];
   const calcCols = [];
@@ -235,7 +295,7 @@ function setupSinglesSheet_(sheet, matchSlots) {
     'Sets P1', 'Sets P2', 'Winner',
     'P1 Pre-Elo', 'P2 Pre-Elo', 'P1 Elo Delta', 'P2 Elo Delta'
   ];
-  const baseline = [0, 'Baseline', '', '', '', '', '', '', '', '', 0, 0, '', 1000, 1000, 0, 0];
+  const baseline = [0, 'Baseline', '', '', '', '', '', '', '', '', 0, 0, '', STARTING_ELO, STARTING_ELO, 0, 0];
   const rows = [headers, baseline];
   for (let i = 0; i < matchSlots; i++) {
     const r = i + 3;
@@ -251,6 +311,7 @@ function setupSinglesSheet_(sheet, matchSlots) {
 }
 
 function repairSinglesFormulas_(sheet) {
+  sortMatchesByDate_(sheet, false);
   const maxRow = Math.max(sheet.getLastRow(), INITIAL_MATCH_SLOTS + 2);
   const colA = [];
   const calcCols = [];
@@ -440,6 +501,12 @@ function getAppState() {
   const doublesSheet = ss.getSheetByName('Doubles_Matches');
   const singlesSheet = ss.getSheetByName('Singles_Matches');
 
+  const dSorted = sortMatchesByDate_(doublesSheet, true);
+  const sSorted = sortMatchesByDate_(singlesSheet, false);
+  if (dSorted || sSorted) {
+    SpreadsheetApp.flush();
+  }
+
   const pMaxRow = Math.max(playersSheet.getLastRow(), 2);
   const pRows = pMaxRow >= 2
     ? playersSheet.getRange(2, 1, pMaxRow - 1, 11).getValues().filter(r => String(r[0]).trim() !== '')
@@ -452,11 +519,11 @@ function getAppState() {
     singlesW: Number(r[3] || 0),
     singlesL: Number(r[4] || 0),
     singlesT: Number(r[5] || 0),
-    singlesElo: Number(r[6] || 1000),
+    singlesElo: Number(r[6] || STARTING_ELO),
     doublesW: Number(r[7] || 0),
     doublesL: Number(r[8] || 0),
     doublesT: Number(r[9] || 0),
-    doublesElo: Number(r[10] || 1000),
+    doublesElo: Number(r[10] || STARTING_ELO),
     order: idx
   }));
 
@@ -475,10 +542,10 @@ function getAppState() {
       .map(s => [Number(s[0]), Number(s[1])]),
     winner: r[14] === 'T1' ? 1 : (r[14] === 'T2' ? 2 : 0),
     preElo: {
-      t1p1: Number(r[15] || 1000),
-      t1p2: Number(r[16] || 1000),
-      t2p1: Number(r[17] || 1000),
-      t2p2: Number(r[18] || 1000)
+      t1p1: Number(r[15] || STARTING_ELO),
+      t1p2: Number(r[16] || STARTING_ELO),
+      t2p1: Number(r[17] || STARTING_ELO),
+      t2p2: Number(r[18] || STARTING_ELO)
     },
     delta1: Number(r[19] || 0),
     delta2: Number(r[20] || 0)
@@ -499,14 +566,19 @@ function getAppState() {
       .map(s => [Number(s[0]), Number(s[1])]),
     winner: r[12] === 'P1' ? 1 : (r[12] === 'P2' ? 2 : 0),
     preElo: {
-      p1: Number(r[13] || 1000),
-      p2: Number(r[14] || 1000)
+      p1: Number(r[13] || STARTING_ELO),
+      p2: Number(r[14] || STARTING_ELO)
     },
     delta1: Number(r[15] || 0),
     delta2: Number(r[16] || 0)
   })).reverse();
 
   return {
+    eloConfig: {
+      startingElo: STARTING_ELO,
+      baseK: BASE_K,
+      marginK: MARGIN_K
+    },
     players,
     doublesHistory,
     singlesHistory
