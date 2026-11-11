@@ -1901,6 +1901,7 @@
     let timeDragState = null;
     let timeDragSuppressClickUntil = 0;
     let timeScrollSnapTimer = null;
+    let timePickerSyncing = false;
 
     function syncTimeWheelVisuals(activeH, activeM) {
       const pop = document.getElementById("timePickerPopover");
@@ -1924,6 +1925,7 @@
     }
 
     function onTimeWheelScroll() {
+      if (timePickerSyncing) return;
       const pop = document.getElementById("timePickerPopover");
       if (!pop || pop.classList.contains("hidden")) return;
       const hCol = pop.querySelector("[data-hour-col]");
@@ -2037,13 +2039,23 @@
         const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
         const activeH = parseInt(cur[0], 10) || 0;
         const activeM = parseInt(cur[1], 10) || 0;
+        timePickerSyncing = true;
         renderTimePickerPopover(activeH, activeM);
         pop.classList.remove("hidden");
-        const hCol = pop.querySelector("[data-hour-col]");
-        const mCol = pop.querySelector("[data-min-col]");
-        if (hCol) hCol.scrollTop = activeH * TIME_WHEEL_ITEM_H;
-        if (mCol) mCol.scrollTop = activeM * TIME_WHEEL_ITEM_H;
-        syncTimeWheelVisuals(activeH, activeM);
+        const applyInitialScroll = () => {
+          const hCol = pop.querySelector("[data-hour-col]");
+          const mCol = pop.querySelector("[data-min-col]");
+          if (hCol) hCol.scrollTop = activeH * TIME_WHEEL_ITEM_H;
+          if (mCol) mCol.scrollTop = activeM * TIME_WHEEL_ITEM_H;
+          syncTimeWheelVisuals(activeH, activeM);
+        };
+        applyInitialScroll();
+        requestAnimationFrame(() => {
+          applyInitialScroll();
+          requestAnimationFrame(() => {
+            timePickerSyncing = false;
+          });
+        });
       } else {
         pop.classList.add("hidden");
       }
