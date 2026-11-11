@@ -1,29 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VUB SportMix: Badminton</title>
-  <script>
-    window.RANKING_CONFIG = {
-      title: "VUB SportMix: Badminton",
-      apiUrl: "https://script.google.com/macros/s/AKfycby5RCpoQTejZtJkr0paWIntBpcqkxDN9KEt5w3dacGemRmmT631MUVCq8y5cZtIpfMA/exec"
-    };
-
-    fetch("../index.html", { cache: "no-cache" })
-      .then(res => {
-        if (!res.ok) throw new Error("Failed to load ranking application template.");
-        return res.text();
-      })
-      .then(html => {
-        document.open();
-        document.write(html);
-        document.close();
-      })
-      .catch(err => {
-        document.body.innerHTML = `<div style="font-family:sans-serif;padding:2rem;text-align:center;color:#e11d48;">${err.message}</div>`;
-      });
-  </script>
-</head>
-<body style="margin:0;background:#f8fafc;"></body>
-</html>
+<script>
+  window.RANKING_CONFIG = {
+    title: "VUB SportMix: Badminton",
+    apiUrl: "https://script.google.com/macros/s/AKfycby5RCpoQTejZtJkr0paWIntBpcqkxDN9KEt5w3dacGemRmmT631MUVCq8y5cZtIpfMA/exec"
+  };
+  fetch("../index.html", { cache: "no-cache" })
+    .then(r => r.text())
+    .then(h => { document.open(); document.write(h); document.close(); });
+</script>
