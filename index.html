@@ -261,7 +261,7 @@
             <div>Rank</div>
             <div>Player</div>
             <div class="text-center">Record</div>
-            <div class="text-right whitespace-nowrap">Win Rate</div>
+            <div class="text-center whitespace-nowrap">Win Rate</div>
             <div class="text-right">ELO</div>
           </div>
 
@@ -839,7 +839,7 @@
                 ${formatWltInlineHtml(p.w, p.l, p.t, false, lbDigits)}
               </div>
 
-              <div class="hidden sm:block text-right text-xs font-medium text-slate-500 tabular-nums whitespace-nowrap">
+              <div class="hidden sm:block text-center text-xs font-medium text-slate-500 tabular-nums whitespace-nowrap">
                 ${winRateStr}
               </div>
 
@@ -1338,10 +1338,11 @@
         const matchupHtml = isDoubles
           ? `
             <div class="text-sm font-semibold text-slate-900">
-              with <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.partner)}', 'doubles')" class="player-link text-slate-900 font-semibold">${escapeHtml(item.partner)}</button><span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums ml-1">(${item.partnerElo})</span>
+              <span>${escapeHtml(playerName)}</span><span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums ml-1">(${item.preElo})</span>
+              &amp;
+              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.partner)}', 'doubles')" class="player-link text-slate-900 font-semibold">${escapeHtml(item.partner)}</button><span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums ml-1">(${item.partnerElo})</span>
             </div>
             <div class="text-xs text-slate-500 mt-0.5">
-              vs
               <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponents[0])}', 'doubles')" class="player-link font-medium text-slate-800">${escapeHtml(item.opponents[0])}</button><span class="hidden sm:inline text-slate-400 tabular-nums ml-0.5">(${item.opponentElos[0]})</span>
               &amp;
               <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponents[1])}', 'doubles')" class="player-link font-medium text-slate-800">${escapeHtml(item.opponents[1])}</button><span class="hidden sm:inline text-slate-400 tabular-nums ml-0.5">(${item.opponentElos[1]})</span>
@@ -1349,7 +1350,10 @@
           `
           : `
             <div class="text-sm font-semibold text-slate-900">
-              vs <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponent)}', 'singles')" class="player-link text-slate-900 font-semibold">${escapeHtml(item.opponent)}</button><span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums ml-1">(${item.opponentElo})</span>
+              <span>${escapeHtml(playerName)}</span><span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums ml-1">(${item.preElo})</span>
+            </div>
+            <div class="text-xs text-slate-500 mt-0.5">
+              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponent)}', 'singles')" class="player-link font-medium text-slate-800">${escapeHtml(item.opponent)}</button><span class="hidden sm:inline text-slate-400 tabular-nums ml-0.5">(${item.opponentElo})</span>
             </div>
           `;
 
