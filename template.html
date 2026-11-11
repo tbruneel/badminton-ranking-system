@@ -27,6 +27,7 @@
     .scrollbar-stable { scrollbar-gutter: stable; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     .no-scrollbar::-webkit-scrollbar { display: none; }
+    .password-masked:not(:placeholder-shown) { -webkit-text-security: disc; }
     @media (hover: hover) and (pointer: fine) {
       .podium-gold:hover { border-color: #facc15; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06); }
       .podium-silver:hover { border-color: #cbd5e1; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06); }
@@ -233,6 +234,10 @@
           <input
             id="searchPlayerInput"
             type="text"
+            autocomplete="off"
+            data-1p-ignore
+            data-lpignore="true"
+            data-form-type="other"
             oninput="renderRankingsAndHistory()"
             placeholder="Filter player..."
             class="w-full pl-8 pr-8 py-2 rounded-xl border border-slate-200 bg-slate-50/70 text-xs sm:text-sm text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 transition"
@@ -375,11 +380,18 @@
 
       <input
         id="adminPasswordInput"
-        type="password"
+        type="text"
+        autocomplete="off"
+        autocorrect="off"
+        autocapitalize="off"
+        spellcheck="false"
+        data-1p-ignore
+        data-lpignore="true"
+        data-form-type="other"
         placeholder="Enter password..."
         oninput="resetAdminAuthInput()"
         onkeydown="if(event.key==='Enter')submitAdminUnlock()"
-        class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+        class="password-masked w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
       />
 
       <button
@@ -622,6 +634,10 @@
         <input
           id="modalNewPlayerName"
           type="text"
+          autocomplete="off"
+          data-1p-ignore
+          data-lpignore="true"
+          data-form-type="other"
           placeholder="e.g. Nathan De Smet"
           oninput="resetPlayerModalInput()"
           onkeydown="if(event.key==='Enter')saveNewPlayer()"
@@ -1681,7 +1697,7 @@
       const input = document.getElementById("adminPasswordInput");
       if (input) {
         input.placeholder = "Enter password...";
-        input.className = "w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400";
+        input.className = "password-masked w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400";
       }
       const btn = document.getElementById("unlockAdminBtn");
       if (btn) {
@@ -1703,7 +1719,7 @@
       if (input) {
         input.value = "";
         input.placeholder = msg;
-        input.className = "w-full p-2.5 rounded-xl border border-rose-300 bg-rose-50/50 text-sm font-medium placeholder:text-rose-500 focus:bg-rose-50/50 focus:outline-none focus:ring-2 focus:ring-rose-500/15 focus:border-rose-400";
+        input.className = "password-masked w-full p-2.5 rounded-xl border border-rose-300 bg-rose-50/50 text-sm font-medium placeholder:text-rose-500 focus:bg-rose-50/50 focus:outline-none focus:ring-2 focus:ring-rose-500/15 focus:border-rose-400";
         input.focus();
       }
       adminAuthResetTimer = setTimeout(resetAdminAuthInput, 2200);
@@ -1725,6 +1741,8 @@
 
     function closeAdminAuthModal() {
       resetAdminAuthInput();
+      const input = document.getElementById("adminPasswordInput");
+      if (input) input.value = "";
       const m = document.getElementById("adminAuthModal");
       m.classList.add("hidden");
       m.classList.remove("flex");
@@ -1761,6 +1779,8 @@
 
     function lockAdminMode() {
       appState.adminPassword = "";
+      const input = document.getElementById("adminPasswordInput");
+      if (input) input.value = "";
       setAdminUnlockedUI(false);
     }
 
