@@ -365,7 +365,7 @@
         id="adminPasswordInput"
         type="password"
         placeholder="Password"
-        oninput="resetAdminAuthBtn()"
+        oninput="resetAdminAuthInput()"
         onkeydown="if(event.key==='Enter')submitAdminUnlock()"
         class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
       />
@@ -1475,16 +1475,21 @@
 
     let adminAuthResetTimer = null;
 
-    function resetAdminAuthBtn() {
+    function resetAdminAuthInput() {
       if (adminAuthResetTimer) {
         clearTimeout(adminAuthResetTimer);
         adminAuthResetTimer = null;
       }
+      const input = document.getElementById("adminPasswordInput");
+      if (input) {
+        input.placeholder = "Password";
+        input.className = "w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400";
+      }
       const btn = document.getElementById("unlockAdminBtn");
-      if (!btn) return;
-      btn.disabled = false;
-      btn.textContent = "Unlock";
-      btn.className = "w-full py-2.5 px-3 rounded-xl bg-slate-900 hover:bg-slate-800 border border-transparent text-white font-semibold text-sm shadow-xs truncate";
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Unlock";
+      }
     }
 
     function showAdminAuthError(msg) {
@@ -1492,11 +1497,18 @@
         clearTimeout(adminAuthResetTimer);
       }
       const btn = document.getElementById("unlockAdminBtn");
-      if (!btn) return;
-      btn.disabled = false;
-      btn.textContent = msg;
-      btn.className = "w-full py-2.5 px-3 rounded-xl bg-rose-50 text-rose-600 border border-rose-200 font-semibold text-sm truncate";
-      adminAuthResetTimer = setTimeout(resetAdminAuthBtn, 2200);
+      if (btn) {
+        btn.disabled = false;
+        btn.textContent = "Unlock";
+      }
+      const input = document.getElementById("adminPasswordInput");
+      if (input) {
+        input.value = "";
+        input.placeholder = msg;
+        input.className = "w-full p-2.5 rounded-xl border border-rose-300 bg-rose-50/50 text-sm font-medium placeholder:text-rose-500 focus:bg-rose-50/50 focus:outline-none focus:ring-2 focus:ring-rose-500/15 focus:border-rose-400";
+        input.focus();
+      }
+      adminAuthResetTimer = setTimeout(resetAdminAuthInput, 2200);
     }
 
     function handleAdminButtonClick() {
@@ -1504,7 +1516,7 @@
         lockAdminMode();
         return;
       }
-      resetAdminAuthBtn();
+      resetAdminAuthInput();
       document.getElementById("adminPasswordInput").value = "";
       const m = document.getElementById("adminAuthModal");
       m.classList.remove("hidden");
@@ -1514,7 +1526,7 @@
     }
 
     function closeAdminAuthModal() {
-      resetAdminAuthBtn();
+      resetAdminAuthInput();
       const m = document.getElementById("adminAuthModal");
       m.classList.add("hidden");
       m.classList.remove("flex");
@@ -1533,13 +1545,13 @@
         clearTimeout(adminAuthResetTimer);
         adminAuthResetTimer = null;
       }
+      resetAdminAuthInput();
       btn.textContent = "Verifying...";
-      btn.className = "w-full py-2.5 px-3 rounded-xl bg-slate-900 border border-transparent text-white font-semibold text-sm shadow-xs truncate";
       btn.disabled = true;
 
       callBackendPost({ action: "verifyAdmin", adminPassword: pwd })
         .then(() => {
-          resetAdminAuthBtn();
+          resetAdminAuthInput();
           appState.adminPassword = pwd;
           setAdminUnlockedUI(true);
           closeAdminAuthModal();
