@@ -923,19 +923,16 @@
               <div class="flex flex-col min-w-0 text-sm font-semibold text-slate-900 leading-snug">
                 <div class="flex items-baseline gap-1 min-w-0">
                   <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t1[0])}', 'doubles')" class="player-link text-left text-slate-900 truncate">${escapeHtml(m.t1[0])}</button>
-                  <span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e1a})</span>
+                  <span class="text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e1a})</span>
                 </div>
                 <div class="flex items-baseline gap-1 min-w-0">
                   <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t1[1])}', 'doubles')" class="player-link text-left text-slate-900 truncate">${escapeHtml(m.t1[1])}</button>
-                  <span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e1b})</span>
+                  <span class="text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e1b})</span>
                 </div>
               </div>
               ${m.winner === 1 ? '<span class="text-xs shrink-0" title="Winner">🏆</span>' : ''}
             </div>
-            <div class="flex items-center gap-2.5 shrink-0">
-              <div class="flex items-center gap-1 text-sm">${s1Scores}</div>
-              ${formatDeltaPill(m.delta1)}
-            </div>
+            <div class="flex items-center gap-1 text-sm shrink-0">${s1Scores}</div>
           </div>
 
           <div class="border-t border-slate-100"></div>
@@ -946,19 +943,16 @@
               <div class="flex flex-col min-w-0 text-sm font-semibold text-slate-900 leading-snug">
                 <div class="flex items-baseline gap-1 min-w-0">
                   <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t2[0])}', 'doubles')" class="player-link text-left text-slate-900 truncate">${escapeHtml(m.t2[0])}</button>
-                  <span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e2a})</span>
+                  <span class="text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e2a})</span>
                 </div>
                 <div class="flex items-baseline gap-1 min-w-0">
                   <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.t2[1])}', 'doubles')" class="player-link text-left text-slate-900 truncate">${escapeHtml(m.t2[1])}</button>
-                  <span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e2b})</span>
+                  <span class="text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e2b})</span>
                 </div>
               </div>
               ${m.winner === 2 ? '<span class="text-xs shrink-0" title="Winner">🏆</span>' : ''}
             </div>
-            <div class="flex items-center gap-2.5 shrink-0">
-              <div class="flex items-center gap-1 text-sm">${s2Scores}</div>
-              ${formatDeltaPill(m.delta2)}
-            </div>
+            <div class="flex items-center gap-1 text-sm shrink-0">${s2Scores}</div>
           </div>
         </div>
       `;
@@ -984,14 +978,11 @@
             <div class="flex items-center gap-2 min-w-0">
               <div class="flex items-baseline gap-1 min-w-0">
                 <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.p1)}', 'singles')" class="player-link text-sm font-semibold text-slate-900 truncate">${escapeHtml(m.p1)}</button>
-                <span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e1})</span>
+                <span class="text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e1})</span>
               </div>
               ${m.winner === 1 ? '<span class="text-xs shrink-0" title="Winner">🏆</span>' : ''}
             </div>
-            <div class="flex items-center gap-2.5 shrink-0">
-              <div class="flex items-center gap-1 text-sm">${s1Scores}</div>
-              ${formatDeltaPill(m.delta1)}
-            </div>
+            <div class="flex items-center gap-1 text-sm shrink-0">${s1Scores}</div>
           </div>
 
           <div class="border-t border-slate-100"></div>
@@ -1000,14 +991,11 @@
             <div class="flex items-center gap-2 min-w-0">
               <div class="flex items-baseline gap-1 min-w-0">
                 <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.p2)}', 'singles')" class="player-link text-sm font-semibold text-slate-900 truncate">${escapeHtml(m.p2)}</button>
-                <span class="hidden sm:inline text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e2})</span>
+                <span class="text-xs font-normal text-slate-400 tabular-nums shrink-0">(${e2})</span>
               </div>
               ${m.winner === 2 ? '<span class="text-xs shrink-0" title="Winner">🏆</span>' : ''}
             </div>
-            <div class="flex items-center gap-2.5 shrink-0">
-              <div class="flex items-center gap-1 text-sm">${s2Scores}</div>
-              ${formatDeltaPill(m.delta2)}
-            </div>
+            <div class="flex items-center gap-1 text-sm shrink-0">${s2Scores}</div>
           </div>
         </div>
       `;
@@ -1381,10 +1369,12 @@
 
               <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                 <div class="flex items-center gap-1">${scorePills}</div>
-                <div class="inline-flex items-center gap-1 text-xs tabular-nums whitespace-nowrap">
+                <div class="inline-flex items-center gap-1 text-xs leading-none tabular-nums whitespace-nowrap">
                   <span class="text-slate-500 font-medium">${item.preElo}</span>
                   <span class="font-bold ${deltaCls}">${deltaStr}</span>
-                  <span class="text-slate-400">→</span>
+                  <svg class="w-3 h-3 text-slate-400 shrink-0" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M3 8h10M9 4l4 4-4 4"/>
+                  </svg>
                   <span class="font-bold text-slate-900">${item.postElo}</span>
                 </div>
               </div>
