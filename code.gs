@@ -12,8 +12,8 @@
  * 1. Create a new blank Google Sheet and open Extensions -> Apps Script.
  * 2. Delete any HTML files, paste this file into `Code.gs`, and save (Ctrl+S).
  * 3. Reload the Google Sheet and click the top menu:
- *      "Admin" -> "Initialize Database"
- *      "Admin" -> "Set Admin Password"
+ *      "Admin" -> "Initialize database"
+ *      "Admin" -> "Configure password"
  * 4. In Apps Script, click Deploy -> New deployment -> Web app:
  *      - Execute as: Me
  *      - Who has access: Anyone
@@ -31,8 +31,8 @@ const LOCKOUT_SECONDS = 900;       // 15 minutes
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('Admin')
-    .addItem('Initialize Database', 'initializeDatabaseFromMenu')
-    .addItem('Set Admin Password', 'promptAndSaveAdminPassword')
+    .addItem('Initialize database', 'initializeDatabaseFromMenu')
+    .addItem('Configure password', 'promptAndSaveAdminPassword')
     .addToUi();
 }
 
@@ -55,7 +55,7 @@ function getSpreadsheet_() {
   }
   const savedId = props.getProperty('SPREADSHEET_ID');
   if (!savedId) {
-    throw new Error('No bound Google Sheet found. Bind this script via Extensions -> Apps Script and run "Initialize Database" once.');
+    throw new Error('No bound Google Sheet found. Bind this script via Extensions -> Apps Script and run "Initialize database" once.');
   }
   return SpreadsheetApp.openById(savedId);
 }
@@ -77,14 +77,14 @@ function initializeDatabaseFromMenu() {
 
   if (hasExisting) {
     const confirm = ui.alert(
-      'Reset Database',
+      'Initialize Database',
       'Database sheets already exist. Do you want to reset all sheets to a clean empty database? This will permanently delete all existing players and matches.',
       ui.ButtonSet.OK_CANCEL
     );
     if (confirm !== ui.Button.OK) return;
     ensureDatabase_(ss, true);
     ui.alert(
-      'Database Reset',
+      'Initialize Database',
       'The Players, Doubles_Matches, and Singles_Matches sheets have been reset to a clean state.',
       ui.ButtonSet.OK
     );
@@ -93,7 +93,7 @@ function initializeDatabaseFromMenu() {
 
   ensureDatabase_(ss, true);
   ui.alert(
-    'Database Initialized',
+    'Initialize Database',
     'Created the Players, Doubles_Matches, and Singles_Matches sheets.',
     ui.ButtonSet.OK
   );
@@ -318,7 +318,7 @@ function styleDatabaseSheet_(sheet, numCols, numRows) {
 function promptAndSaveAdminPassword() {
   const ui = SpreadsheetApp.getUi();
   const response = ui.prompt(
-    'Set Admin Password',
+    'Configure Password',
     'Enter a new admin password (minimum 8 characters):',
     ui.ButtonSet.OK_CANCEL
   );
@@ -326,7 +326,7 @@ function promptAndSaveAdminPassword() {
 
   const password = String(response.getResponseText() || '').trim();
   if (password.length < 8) {
-    ui.alert('Invalid Password', 'Password must be at least 8 characters.', ui.ButtonSet.OK);
+    ui.alert('Configure Password', 'Password must be at least 8 characters.', ui.ButtonSet.OK);
     return;
   }
 
@@ -339,7 +339,7 @@ function promptAndSaveAdminPassword() {
   CacheService.getScriptCache().remove('AUTH_FAIL_COUNT');
 
   ui.alert(
-    'Admin Password Saved',
+    'Configure Password',
     'The admin password has been updated.',
     ui.ButtonSet.OK
   );
