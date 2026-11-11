@@ -4,10 +4,6 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Badminton Rankings</title>
-  <link rel="icon" type="image/svg+xml" href="https://www.vub.be/themes/custom/ocelot_vub/assets/vectors/vub-logo-icon.svg" />
-  <link rel="icon" type="image/png" sizes="32x32" href="https://www.vub.be/themes/custom/ocelot_vub/icons/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="https://www.vub.be/themes/custom/ocelot_vub/icons/favicon-16x16.png" />
-  <link rel="shortcut icon" href="https://www.vub.be/themes/custom/ocelot_vub/icons/favicon.ico" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -565,6 +561,7 @@
      */
     const CONFIG = {
       title: "Badminton Rankings",
+      icon: "",
       apiUrl: "",
       startingElo: 1000,
       baseK: 40,
@@ -590,6 +587,12 @@
 
     document.getElementById("appTitle").textContent = CONFIG.title;
     document.title = CONFIG.title;
+    if (CONFIG.icon) {
+      const link = document.createElement("link");
+      link.rel = "icon";
+      link.href = CONFIG.icon;
+      document.head.appendChild(link);
+    }
 
     async function callBackendPost(bodyObj) {
       if (!ACTIVE_API_URL) {
