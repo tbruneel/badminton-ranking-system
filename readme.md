@@ -30,10 +30,10 @@ badminton-ranking-system/
 2. **Attach [`code.gs`](./code.gs):**
    - In your Google Sheet, click **Extensions → Apps Script**.
    - Select all existing code in the editor (`Ctrl+A`), delete it, paste the full contents of [`code.gs`](./code.gs), and save (`Ctrl+S`).
-3. **Initialize the Sheet & Set an Admin Password:**
-   - Reload your Google Sheet. A custom menu **🔒 Badminton Admin** will appear in the top toolbar:
-     - Click **🛠️ Initialize / Repair Database** to automatically create and format the `Players`, `Doubles_Matches`, and `Singles_Matches` tabs (or let the first Web App visit initialize them automatically).
-     - Click **🔑 Set / Change Admin Password...** to set the password used for logging matches and adding players from the web interface.
+3. **Initialize the Sheet & Configure an Admin Password:**
+   - Reload your Google Sheet. A custom menu **Admin** will appear in the top toolbar:
+     - Click **Initialize database** to automatically create and format the `Players`, `Doubles_Matches`, and `Singles_Matches` tabs (or reset an existing database to a clean empty state).
+     - Click **Configure password** to set the password used for adding/editing matches and adding players from the web interface.
 4. **Deploy as a Web App:**
    - Back in the Apps Script editor, click **Deploy → New deployment**:
      - **Select type:** `Web app`
@@ -71,9 +71,8 @@ Each club or group gets its own subfolder (e.g., `<your-club>/index.html`) that 
 
 - **From the Web UI (Recommended):**
   1. Click **🔒 Admin** in the top-right corner and enter your admin password.
-  2. Click **＋ Player** to add a new player to the roster (starts at `1000` ELO in both Doubles and Singles).
-  3. Click **＋ Log Match** to record a **Doubles (2v2)** or **Singles (1v1)** result with live ELO delta preview.
+  2. Click **＋ Add Player** to add a new player to the roster (starts at `1000` ELO in both Doubles and Singles).
+  3. Click **＋ Add Match** to record a **Doubles** or **Singles** result with live ELO delta preview (any unknown player names can be created automatically upon confirmation), or click **Edit** on any match card to modify or delete it.
 - **Directly in the Google Sheet:**
   - You can also edit match dates, scores, or player names directly in the `Players`, `Doubles_Matches`, or `Singles_Matches` tabs.
   - The script automatically sorts match rows chronologically by the **Date** column (`Col B`) and recalculates all ELO ratings in the Sheet.
-  - If formulas are ever accidentally overwritten in the Sheet, click **🔒 Badminton Admin → 🛠️ Initialize / Repair Database** to restore all formulas without losing any player or match data.
