@@ -1897,6 +1897,9 @@
     }
 
     const TIME_WHEEL_ITEM_H = 32;
+    const timeWheelAccum = { hour: 0, min: 0 };
+    let timeDragState = null;
+    let timeDragSuppressClickUntil = 0;
 
     function syncTimeWheelVisuals(activeH, activeM) {
       const pop = document.getElementById("timePickerPopover");
@@ -1931,6 +1934,79 @@
       syncTimeWheelVisuals(h, m);
     }
 
+    function onTimeColWheel(event, kind) {
+      event.preventDefault();
+      event.stopPropagation();
+      const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
+      let h = parseInt(cur[0], 10) || 0;
+      let m = parseInt(cur[1], 10) || 0;
+      const maxVal = kind === "hour" ? 23 : 59;
+
+      let steps = 0;
+      if (event.deltaMode === 1 || Math.abs(event.deltaY) >= 40) {
+        steps = event.deltaY > 0 ? 1 : -1;
+        timeWheelAccum[kind] = 0;
+      } else {
+        timeWheelAccum[kind] += event.deltaY;
+        steps = Math.trunc(timeWheelAccum[kind] / 22);
+        timeWheelAccum[kind] -= steps * 22;
+      }
+      if (steps === 0) return;
+
+      const pop = document.getElementById("timePickerPopover");
+      const col = pop?.querySelector(kind === "hour" ? "[data-hour-col]" : "[data-min-col]");
+      if (kind === "hour") {
+        h = Math.min(maxVal, Math.max(0, h + steps));
+        if (col) col.scrollTop = h * TIME_WHEEL_ITEM_H;
+      } else {
+        m = Math.min(maxVal, Math.max(0, m + steps));
+        if (col) col.scrollTop = m * TIME_WHEEL_ITEM_H;
+      }
+      setModalDateTime(null, `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+      syncTimeWheelVisuals(h, m);
+    }
+
+    function onTimeColMouseDown(event, kind) {
+      if (event.button !== 0) return;
+      const pop = document.getElementById("timePickerPopover");
+      const col = pop?.querySelector(kind === "hour" ? "[data-hour-col]" : "[data-min-col]");
+      if (!col) return;
+      event.preventDefault();
+      timeDragState = {
+        kind,
+        col,
+        startY: event.clientY,
+        startScrollTop: col.scrollTop,
+        moved: false
+      };
+      col.style.scrollSnapType = "none";
+      col.style.cursor = "grabbing";
+    }
+
+    window.addEventListener("mousemove", event => {
+      if (!timeDragState) return;
+      const dy = event.clientY - timeDragState.startY;
+      if (Math.abs(dy) > 3) {
+        timeDragState.moved = true;
+      }
+      timeDragState.col.scrollTop = timeDragState.startScrollTop - dy;
+      onTimeWheelScroll();
+    });
+
+    window.addEventListener("mouseup", () => {
+      if (!timeDragState) return;
+      const { col, moved } = timeDragState;
+      col.style.scrollSnapType = "";
+      col.style.cursor = "";
+      const snappedIdx = Math.round(col.scrollTop / TIME_WHEEL_ITEM_H);
+      col.scrollTo({ top: snappedIdx * TIME_WHEEL_ITEM_H, behavior: "smooth" });
+      onTimeWheelScroll();
+      if (moved) {
+        timeDragSuppressClickUntil = Date.now() + 80;
+      }
+      timeDragState = null;
+    });
+
     function toggleTimePicker() {
       closeAllPlayerCombos();
       closeAllDateTimePickers("time");
@@ -1953,6 +2029,7 @@
     }
 
     function selectTimeHour(hh) {
+      if (Date.now() < timeDragSuppressClickUntil) return;
       const pop = document.getElementById("timePickerPopover");
       const hCol = pop?.querySelector("[data-hour-col]");
       if (hCol) {
@@ -1965,6 +2042,7 @@
     }
 
     function selectTimeMin(mm) {
+      if (Date.now() < timeDragSuppressClickUntil) return;
       const pop = document.getElementById("timePickerPopover");
       const mCol = pop?.querySelector("[data-min-col]");
       if (mCol) {
@@ -2014,11 +2092,11 @@
         <div class="grid grid-cols-2 gap-1.5 pt-1.5">
           <div class="relative h-40">
             <div class="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-8 rounded-lg bg-slate-900 z-0"></div>
-            <div data-hour-col onscroll="onTimeWheelScroll()" class="relative z-10 h-full overflow-y-auto no-scrollbar py-16 snap-y snap-mandatory">${hourBtns}</div>
+            <div data-hour-col onscroll="onTimeWheelScroll()" onwheel="onTimeColWheel(event, 'hour')" onmousedown="onTimeColMouseDown(event, 'hour')" class="relative z-10 h-full overflow-y-auto no-scrollbar py-16 snap-y snap-mandatory cursor-grab">${hourBtns}</div>
           </div>
           <div class="relative h-40">
             <div class="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-8 rounded-lg bg-slate-900 z-0"></div>
-            <div data-min-col onscroll="onTimeWheelScroll()" class="relative z-10 h-full overflow-y-auto no-scrollbar py-16 snap-y snap-mandatory">${minBtns}</div>
+            <div data-min-col onscroll="onTimeWheelScroll()" onwheel="onTimeColWheel(event, 'min')" onmousedown="onTimeColMouseDown(event, 'min')" class="relative z-10 h-full overflow-y-auto no-scrollbar py-16 snap-y snap-mandatory cursor-grab">${minBtns}</div>
           </div>
         </div>
         <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
