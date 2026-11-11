@@ -9,7 +9,7 @@
     apiUrl: "https://script.google.com/macros/s/AKfycby5RCpoQTejZtJkr0paWIntBpcqkxDN9KEt5w3dacGemRmmT631MUVCq8y5cZtIpfMA/exec"
   };
   const icons = [...document.querySelectorAll('link[rel*="icon"]')].map(l => l.outerHTML).join("");
-  fetch("../index.html", { cache: "no-cache" })
+  fetch("../template.html", { cache: "no-cache" })
     .then(r => r.text())
     .then(h => { document.open(); document.write(h.replace("<head>", "<head>" + icons)); document.close(); });
 </script>

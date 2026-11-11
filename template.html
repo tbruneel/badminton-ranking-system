@@ -2198,8 +2198,13 @@
         .catch(onFail);
     }
 
-    // Connect to Google Sheet Backend on load
-    loadAppStateFromBackend();
+    // Connect to Google Sheet Backend on load (only when loaded via a configured subpage)
+    if (!window.RANKING_CONFIG || !ACTIVE_API_URL) {
+      document.title = "404 Not Found";
+      document.body.innerHTML = "";
+    } else {
+      loadAppStateFromBackend();
+    }
   </script>
 </body>
 </html>

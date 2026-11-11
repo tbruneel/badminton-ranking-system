@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>readme.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+
+<style>
+/* Tomorrow Theme */
+/* http://jmblog.github.com/color-themes-for-google-code-highlightjs */
+/* Original theme - https://github.com/chriskempson/tomorrow-theme */
+
+/* Tomorrow Comment */
+.hljs-comment,
+.hljs-quote {
+	color: #8e908c;
+}
+
+/* Tomorrow Red */
+.hljs-variable,
+.hljs-template-variable,
+.hljs-tag,
+.hljs-name,
+.hljs-selector-id,
+.hljs-selector-class,
+.hljs-regexp,
+.hljs-deletion {
+	color: #c82829;
+}
+
+/* Tomorrow Orange */
+.hljs-number,
+.hljs-built_in,
+.hljs-builtin-name,
+.hljs-literal,
+.hljs-type,
+.hljs-params,
+.hljs-meta,
+.hljs-link {
+	color: #f5871f;
+}
+
+/* Tomorrow Yellow */
+.hljs-attribute {
+	color: #eab700;
+}
+
+/* Tomorrow Green */
+.hljs-string,
+.hljs-symbol,
+.hljs-bullet,
+.hljs-addition {
+	color: #718c00;
+}
+
+/* Tomorrow Blue */
+.hljs-title,
+.hljs-section {
+	color: #4271ae;
+}
+
+/* Tomorrow Purple */
+.hljs-keyword,
+.hljs-selector-tag {
+	color: #8959a8;
+}
+
+.hljs {
+	display: block;
+	overflow-x: auto;
+	color: #4d4d4c;
+	padding: 0.5em;
+}
+
+.hljs-emphasis {
+	font-style: italic;
+}
+
+.hljs-strong {
+	font-weight: bold;
+}
+</style>
+
+<style>
+/*---------------------------------------------------------------------------------------------
+ *  GitHub Official Primer Markdown Stylesheet â€” GitHub Light Default (Standalone Export Edition)
+ *  Derived from:
+ *    - sindresorhus/github-markdown-css (@primer/css)
+ *  Adapted for yzane.markdown-pdf bare <body>
+<h1 id="technical-architecture--implementation-guide">Technical Architecture &amp; Implementation Guide</h1>
+<p>This document explains what we implemented in the <strong>Badminton ELO Ranking System</strong>, how the frontend and backend work together, and the architectural decisions behind the system.</p>
+<hr>
+<h2 id="1-architecture-overview--why-github-pages--google-apps-script">1. Architecture Overview &amp; Why GitHub Pages + Google Apps Script</h2>
+<p>Traditional sports ranking apps require a hosted database, a backend server, and ongoing maintenance or cloud costs. We designed a <strong>two-tier zero-cost serverless architecture</strong>:</p>
+<ol>
+<li><strong>Static Frontend on GitHub Pages (<a href="./template.html"><code>template.html</code></a> &amp; per-group <code>index.html</code>):</strong>
+<ul>
+<li><strong>Why GitHub Pages?</strong> Unlike Google Apps Script's built-in <code>HtmlService</code> (which wraps pages inside a sandboxed double-<code>&lt;iframe&gt;</code> with a Google warning banner, blocks custom favicons/titles, and breaks mobile viewport scaling), GitHub Pages serves the application directly over a clean HTTPS URL with full control over the DOM, <code>&lt;head&gt;</code> metadata, favicons, and responsive layout.</li>
+<li><strong>Single Template, Multiple Groups:</strong> The core application lives in <a href="./template.html"><code>template.html</code></a> rather than a root <code>index.html</code>. Navigating to the root repository URL does not expose a generic unconfigured ranking page, and opening <code>template.html</code> directly without a <code>window.RANKING_CONFIG</code> object renders a blank <code>404 Not Found</code> state. Each badminton group gets its own subfolder (e.g., <a href="./vub-sportmix-badminton/index.html"><code>vub-sportmix-badminton/index.html</code></a>) that defines its custom favicons, page title, and Google Apps Script <code>apiUrl</code>, then fetches and injects <code>../template.html</code>.</li>
+</ul>
+</li>
+<li><strong>Serverless JSON API &amp; Spreadsheet Engine (<a href="./code.gs"><code>code.gs</code></a>):</strong>
+<ul>
+<li><strong>Why Google Sheets + Apps Script?</strong> Club organizers can inspect, audit, or manually edit players and matches directly in a familiar spreadsheet, while Google Apps Script exposes the spreadsheet as a JSON REST endpoint (<code>doGet</code> and <code>doPost</code>) at zero cost.</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h2 id="2-google-sheets-database--formula-engine">2. Google Sheets Database &amp; Formula Engine</h2>
+<p>The Google Sheet acts as both the data store and the reactive calculation engine. Running <code>setupSheet()</code> in <a href="./code.gs"><code>code.gs</code></a> provisions three tabs:</p>
+<ul>
+<li><strong><code>Players</code>:</strong> Stores each player's <code>Name</code> (Column A) and dynamically computes their Doubles and Singles <code>ELO</code>, <code>Peak ELO</code>, <code>Matches</code>, <code>Wins</code>, <code>Losses</code>, <code>Ties</code>, and <code>Win Rate</code> (Columns B–O).</li>
+<li><strong><code>Doubles_Matches</code> (23 columns, A–W):</strong>
+<ul>
+<li><strong>Input Columns (A–H):</strong> <code>Match ID</code>, <code>Date</code>, <code>Team 1 Player 1</code>, <code>Team 1 Player 2</code>, <code>Team 2 Player 1</code>, <code>Team 2 Player 2</code>, <code>Set 1 (T1-T2)</code>, <code>Set 2 (T1-T2)</code>, <code>Set 3 (T1-T2)</code>.</li>
+<li><strong>Calculated Columns (I–W):</strong> Automatically parse set scores (supporting both hyphen <code>21-15</code> and colon <code>21:15</code> formats), count sets won and total points scored per team, look up each player's prior ELO from the most recent earlier row above it via <code>INDEX</code>/<code>MATCH</code>, compute the match ELO delta, and output each player's updated post-match ELO.</li>
+</ul>
+</li>
+<li><strong><code>Singles_Matches</code> (19 columns, A–S):</strong>
+<ul>
+<li>Follows the exact same structure as <code>Doubles_Matches</code>, tailored for 1v1 matches (<code>Player 1</code> vs. <code>Player 2</code>).</li>
+</ul>
+</li>
+</ul>
+<h3 id="chronological-row-order--elo-calculation">Chronological Row Order &amp; ELO Calculation</h3>
+<p>Spreadsheet formulas calculate a player's pre-match ELO in row <code>r</code> by searching rows <code>2..r-1</code> for the last row where that player appeared (defaulting to <code>STARTING_ELO = 1000</code> if none is found). Because row order determines the chronological sequence of ELO ratings:</p>
+<ul>
+<li>Whenever a match is logged via the API or edited in the sheet, <code>sortMatchesByDate_(sheet, config)</code> in <a href="./code.gs"><code>code.gs</code></a> sorts all match rows chronologically by Column B (<code>Date</code>) in ascending order and re-sequences the <code>Match ID</code> column (<code>1..N</code>).</li>
+</ul>
+<h3 id="self-healing-formula-repair">Self-Healing Formula Repair</h3>
+<p>If an organizer manually inserts, deletes, or reorders rows in Google Sheets, spreadsheet cell references could shift or break. To prevent this:</p>
+<ul>
+<li>An installable <code>onChange</code> trigger runs <code>onSheetChange(e)</code> whenever rows are edited, inserted, or removed.</li>
+<li><code>repairAllFormulas_()</code> re-applies the canonical row formulas across all populated rows in <code>Players</code>, <code>Doubles_Matches</code>, and <code>Singles_Matches</code> and flushes the spreadsheet so ratings are always consistent.</li>
+</ul>
+<hr>
+<h2 id="3-elo-rating-model--math">3. ELO Rating Model &amp; Math</h2>
+<p>All ELO parameters are configured in a single place at the top of <a href="./code.gs"><code>code.gs</code></a> (<code>STARTING_ELO = 1000</code>, <code>BASE_K = 40</code>, <code>MARGIN_K = 20</code>) and passed down to the frontend in the API payload so the live match preview and the spreadsheet always use identical math:</p>
+<ul>
+<li><strong>Starting Rating:</strong> Every player starts at <strong><code>1000</code> Elo</strong> in both Singles and Doubles.</li>
+<li><strong>Doubles Team Rating (Random Partners Supported):</strong> Each team's effective rating is the average of the two partners' current Doubles Elos prior to the match:<span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>R</mi><mtext>Team 1</mtext></msub><mo>=</mo><mfrac><mrow><msub><mi>R</mi><msub><mi>A</mi><mn>1</mn></msub></msub><mo>+</mo><msub><mi>R</mi><msub><mi>A</mi><mn>2</mn></msub></msub></mrow><mn>2</mn></mfrac><mo separator="true">,</mo><mspace width="2em"/><msub><mi>R</mi><mtext>Team 2</mtext></msub><mo>=</mo><mfrac><mrow><msub><mi>R</mi><msub><mi>B</mi><mn>1</mn></msub></msub><mo>+</mo><msub><mi>R</mi><msub><mi>B</mi><mn>2</mn></msub></msub></mrow><mn>2</mn></mfrac></mrow><annotation encoding="application/x-tex">R_{\text{Team 1}} = \frac{R_{A_1} + R_{A_2}}{2}, \qquad R_{\text{Team 2}} = \frac{R_{B_1} + R_{B_2}}{2}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">Team 1</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.0463em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight">A</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:0em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:2em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">Team 2</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.0463em;vertical-align:-0.686em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3603em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">2</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord"><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0502em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:-0.0502em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3283em;"><span style="top:-2.55em;margin-left:-0.0077em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0502em;">B</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3173em;"><span style="top:-2.357em;margin-left:-0.0502em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.143em;"><span></span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2501em;"><span></span></span></span></span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.686em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></li>
+<li><strong>Expected Win Probability:</strong><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>E</mi><mn>1</mn></msub><mo>=</mo><mfrac><mn>1</mn><mrow><mn>1</mn><mo>+</mo><msup><mn>10</mn><mrow><mo stretchy="false">(</mo><msub><mi>R</mi><mtext>Team 2</mtext></msub><mo>−</mo><msub><mi>R</mi><mtext>Team 1</mtext></msub><mo stretchy="false">)</mo><mi mathvariant="normal">/</mi><mn>400</mn></mrow></msup></mrow></mfrac><mo separator="true">,</mo><mspace width="2em"/><msub><mi>E</mi><mn>2</mn></msub><mo>=</mo><mn>1</mn><mo>−</mo><msub><mi>E</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">E_1 = \frac{1}{1 + 10^{(R_{\text{Team 2}} - R_{\text{Team 1}}) / 400}}, \qquad E_2 = 1 - E_1
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:2.1088em;vertical-align:-0.7873em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.3214em;"><span style="top:-2.296em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord">1</span><span class="mord"><span class="mord">0</span><span class="msupsub"><span class="vlist-t"><span class="vlist-r"><span class="vlist" style="height:0.814em;"><span style="top:-2.989em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mopen mtight">(</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0077em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">Team 2</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span><span class="mbin mtight">−</span><span class="mord mtight"><span class="mord mathnormal mtight" style="margin-right:0.0077em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3448em;"><span style="top:-2.3567em;margin-left:-0.0077em;margin-right:0.0714em;"><span class="pstrut" style="height:2.5em;"></span><span class="sizing reset-size3 size1 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">Team 1</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.1433em;"><span></span></span></span></span></span></span><span class="mclose mtight">)</span><span class="mord mtight">/400</span></span></span></span></span></span></span></span></span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.7873em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span><span class="mpunct">,</span><span class="mspace" style="margin-right:2em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">1</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></li>
+<li><strong>Score-Margin Adjusted K-Factor (<span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>K</mi><mtext>base</mtext></msub><mo>=</mo><mn>40</mn></mrow><annotation encoding="application/x-tex">K_{\text{base}} = 40</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">base</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">40</span></span></span></span>, <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>K</mi><mtext>margin</mtext></msub><mo>=</mo><mn>40</mn></mrow><annotation encoding="application/x-tex">K_{\text{margin}} = 40</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.9694em;vertical-align:-0.2861em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3175em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">margin</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.2861em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.6444em;"></span><span class="mord">40</span></span></span></span>):</strong><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi>K</mi><mtext>eff</mtext></msub><mo>=</mo><mn>40</mn><mo>+</mo><mn>40</mn><mo>×</mo><mfrac><mrow><mi mathvariant="normal">∣</mi><msub><mtext>Pts</mtext><mn>1</mn></msub><mo>−</mo><msub><mtext>Pts</mtext><mn>2</mn></msub><mi mathvariant="normal">∣</mi></mrow><mrow><mi>max</mi><mo>⁡</mo><mo stretchy="false">(</mo><mn>1</mn><mo separator="true">,</mo><msub><mtext>Pts</mtext><mn>1</mn></msub><mo>+</mo><msub><mtext>Pts</mtext><mn>2</mn></msub><mo stretchy="false">)</mo></mrow></mfrac></mrow><annotation encoding="application/x-tex">K_{\text{eff}} = 40 + 40 \times \frac{|\text{Pts}_1 - \text{Pts}_2|}{\max(1, \text{Pts}_1 + \text{Pts}_2)}
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">eff</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">40</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:0.7278em;vertical-align:-0.0833em;"></span><span class="mord">40</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span></span><span class="base"><span class="strut" style="height:2.363em;vertical-align:-0.936em;"></span><span class="mord"><span class="mopen nulldelimiter"></span><span class="mfrac"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:1.427em;"><span style="top:-2.314em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mop">max</span><span class="mopen">(</span><span class="mord">1</span><span class="mpunct">,</span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord text"><span class="mord">Pts</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord text"><span class="mord">Pts</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span><span style="top:-3.23em;"><span class="pstrut" style="height:3em;"></span><span class="frac-line" style="border-bottom-width:0.04em;"></span></span><span style="top:-3.677em;"><span class="pstrut" style="height:3em;"></span><span class="mord"><span class="mord">∣</span><span class="mord"><span class="mord text"><span class="mord">Pts</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord text"><span class="mord">Pts</span></span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mord">∣</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.936em;"><span></span></span></span></span></span><span class="mclose nulldelimiter"></span></span></span></span></span></span></li>
+<li><strong>Rating Update:</strong><span class="katex-display"><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><semantics><mrow><msub><mi mathvariant="normal">Δ</mi><mn>1</mn></msub><mo>=</mo><mtext>ROUND</mtext><mtext> ⁣</mtext><mrow><mo fence="true">(</mo><msub><mi>K</mi><mtext>eff</mtext></msub><mo>×</mo><mo stretchy="false">(</mo><msub><mi>S</mi><mn>1</mn></msub><mo>−</mo><msub><mi>E</mi><mn>1</mn></msub><mo stretchy="false">)</mo><mo fence="true">)</mo></mrow><mo separator="true">,</mo><mspace width="2em"/><msub><mi mathvariant="normal">Δ</mi><mn>2</mn></msub><mo>=</mo><mo>−</mo><msub><mi mathvariant="normal">Δ</mi><mn>1</mn></msub></mrow><annotation encoding="application/x-tex">\Delta_1 = \text{ROUND}\!\left(K_{\text{eff}} \times (S_1 - E_1)\right), \qquad \Delta_2 = -\Delta_1
+</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord">Δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord text"><span class="mord">ROUND</span></span><span class="mspace" style="margin-right:-0.1667em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="minner"><span class="mopen delimcenter" style="top:0em;">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0715em;">K</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3361em;"><span style="top:-2.55em;margin-left:-0.0715em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord text mtight"><span class="mord mtight">eff</span></span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">×</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mopen">(</span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222em;"></span><span class="mord"><span class="mord mathnormal" style="margin-right:0.0576em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:-0.0576em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span><span class="mclose delimcenter" style="top:0em;">)</span></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mpunct">,</span><span class="mspace" style="margin-right:2em;"></span><span class="mspace" style="margin-right:0.1667em;"></span><span class="mord"><span class="mord">Δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">2</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2778em;"></span></span><span class="base"><span class="strut" style="height:0.8333em;vertical-align:-0.15em;"></span><span class="mord">−</span><span class="mord"><span class="mord">Δ</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.3011em;"><span style="top:-2.55em;margin-left:0em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight">1</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span></span></li>
+</ul>
+<hr>
+<h2 id="4-security--concurrency-in-codegs">4. Security &amp; Concurrency in <code>code.gs</code></h2>
+<ul>
+<li><strong>Server-Side Admin Authentication:</strong> The admin password is never stored in the repository or frontend code. It is read exclusively from Google Apps Script's private <code>PropertiesService.getScriptProperties().getProperty('ADMIN_PASSWORD')</code> using a constant-time bitwise comparison (<code>verifyAdminPassword_</code>) to prevent timing side-channels.</li>
+<li><strong>Formula Injection Protection:</strong> All user-supplied strings (such as player names) are sanitized via <code>sanitizeCellInput_</code> (stripping leading <code>=</code>, <code>+</code>, <code>-</code>, <code>@</code>, tab, or newline characters) before being written to the sheet.</li>
+<li><strong>Concurrency Locking:</strong> Write actions (<code>logMatch</code>, <code>addPlayer</code>) acquire a script-wide mutex lock via <code>LockService.getScriptLock()</code> before modifying rows, sorting dates, and repairing formulas, preventing race conditions when two matches are logged simultaneously.</li>
+</ul>
+<hr>
+<h2 id="5-frontend-ux--engineering-details-templatehtml">5. Frontend UX &amp; Engineering Details (<code>template.html</code>)</h2>
+<ul>
+<li><strong>Zero-Step Build Stack:</strong> Built with vanilla ES6 JavaScript, Tailwind CSS (via CDN), and Chart.js so it can be hosted directly on GitHub Pages without a bundler or build pipeline.</li>
+<li><strong>Client-Side Caching &amp; Optimistic Feel:</strong> The last fetched API response is cached in <code>localStorage</code> scoped by the group's <code>apiUrl</code>, allowing instant rendering on page load while fresh data is fetched in the background.</li>
+<li><strong>Match Creation Modal UX:</strong>
+<ul>
+<li><strong>Fixed Top Alignment:</strong> Uses <code>items-start</code> modal positioning so switching between <strong>Doubles (2v2)</strong> and <strong>Singles (1v1)</strong> never shifts the top of the card or the mode toggle buttons.</li>
+<li><strong>Session-Only Form State:</strong> Opening the Log Match modal always starts with clean, empty fields, while switching between Doubles and Singles within an open session preserves any names or scores entered during that session.</li>
+<li><strong>Searchable Player Comboboxes:</strong> Custom filterable dropdown inputs with full keyboard support (<code>Tab</code> cycles through matching players in the dropdown; <code>Enter</code> autocompletes the highlighted player) and automatic duplicate-player prevention across slots.</li>
+<li><strong>SliceWin-Style Score Entry:</strong> Displays one row per side labeled dynamically with the selected players' first names, expanding from 2 sets to 3 sets on demand via a <code>+ Set</code> button, and hiding the <code>–</code> placeholder immediately when a score input is focused.</li>
+</ul>
+</li>
+<li><strong>Modal Polish:</strong>
+<ul>
+<li><strong>Zero Layout Shift:</strong> Opening any overlay compensates for the browser scrollbar width via <code>document.body.style.paddingRight</code> so the background leaderboard never jumps horizontally.</li>
+<li><strong>Drag-Safe Backdrops:</strong> Modal backdrops only close when both <code>mousedown</code> and <code>mouseup</code> occur on the backdrop itself, preventing accidental closes when clicking and dragging across text or inputs inside a card.</li>
+</ul>
+</li>
+</ul>
+<script>
+(function () {
+  function createCopyIcon() {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    svg.setAttribute('width', '16');
+    svg.setAttribute('height', '16');
+    svg.setAttribute('viewBox', '0 0 16 16');
+    svg.setAttribute('fill', 'none');
+    var p1 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p1.setAttribute('d', 'M4 4H2V14H11V12H4V4Z');
+    p1.setAttribute('fill', 'currentColor');
+    var p2 = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p2.setAttribute('fill-rule', 'evenodd');
+    p2.setAttribute('clip-rule', 'evenodd');
+    p2.setAttribute('d', 'M5 2H14V11H5V2ZM6 3H13V10H6V3Z');
+    p2.setAttribute('fill', 'currentColor');
+    svg.appendChild(p1);
+    svg.appendChild(p2);
+    return svg;
+  }
+  function createCheckIcon() {
+    var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    svg.setAttribute('aria-hidden', 'true');
+    svg.setAttribute('focusable', 'false');
+    svg.setAttribute('width', '16');
+    svg.setAttribute('height', '16');
+    svg.setAttribute('viewBox', '0 0 16 16');
+    svg.setAttribute('fill', 'none');
+    var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', 'M6.27 10.87L3.63 8.23L2.56 9.3L6.27 13.01L14.07 5.21L13 4.14L6.27 10.87Z');
+    p.setAttribute('fill', 'currentColor');
+    svg.appendChild(p);
+    return svg;
+  }
+  function initCopyButtons() {
+    var blocks = document.querySelectorAll('pre > code');
+    for (var i = 0; i < blocks.length; i++) {
+      (function (code) {
+        var pre = code.parentElement;
+        if (!pre || pre.querySelector('.code-block-copy-button')) return;
+        var btn = document.createElement('button');
+        btn.className = 'code-block-copy-button';
+        btn.type = 'button';
+        btn.setAttribute('aria-label', 'Copy code block');
+        btn.appendChild(createCopyIcon());
+        var timer = null;
+        function markCopied() {
+          btn.replaceChildren(createCheckIcon());
+          btn.classList.add('copied');
+          if (timer) clearTimeout(timer);
+          timer = setTimeout(function () {
+            btn.replaceChildren(createCopyIcon());
+            btn.classList.remove('copied');
+            timer = null;
+          }, 2000);
+        }
+        function fallbackCopy(text) {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.style.position = 'fixed';
+          ta.style.opacity = '0';
+          document.body.appendChild(ta);
+          ta.select();
+          try {
+            document.execCommand('copy');
+            markCopied();
+          } finally {
+            document.body.removeChild(ta);
+          }
+        }
+        btn.addEventListener('click', function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          var text = code.textContent || '';
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(markCopied).catch(function () {
+              fallbackCopy(text);
+            });
+          } else {
+            fallbackCopy(text);
+          }
+        });
+        pre.appendChild(btn);
+      })(blocks[i]);
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initCopyButtons);
+  } else {
+    initCopyButtons();
+  }
+})();
+</script>
+</body>
+</html>

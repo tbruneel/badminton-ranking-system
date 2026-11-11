@@ -1,69 +1,79 @@
-# Badminton Elo Ranking System (`badminton-ranking-system`)
+# Badminton ELO Ranking System (`badminton-ranking-system`)
 
-A generic, zero-config badminton Elo ranking system supporting separate **Singles** and **Doubles** leaderboards where each player maintains an individual rating (`1000` starting Elo) and can pair up with any partner.
+A zero-config badminton ELO ranking system supporting separate **Doubles** and **Singles** leaderboards where each player maintains an individual rating (`1000` starting ELO) and can pair up with any partner.
 
-- **Live VUB SportMix Page:** <https://tbruneel.github.io/badminton-ranking-system/vub-sportmix-badminton/>
-- **Generic Template UI:** <https://tbruneel.github.io/badminton-ranking-system/>
-- **Google Sheet Database:** <https://docs.google.com/spreadsheets/d/1wh-rut7wmhBYSq_nSNIjGrCqrq581fEa175uVqCl37Q/edit>
-
----
-
-## Key Features
-
-- **Zero-Config Database Provisioning ([`code.gs`](./code.gs))** — Attach `code.gs` to **any new/blank Google Sheet** (`Extensions → Apps Script`). It automatically creates and maintains the 3 minimal database tables (`Players`, `Doubles_Matches`, `Singles_Matches`), writes all chronological Elo formulas, and removes empty default tabs.
-- **Generic, Easily Configurable Frontend ([`index.html`](./index.html))** — Edit the single `CONFIG` object at the top of `index.html` (or pass `?api=<WEB_APP_EXEC_URL>`) to point the UI at any deployed Google Sheet backend. Automatically adopts the connected Google Sheet's title when `useSpreadsheetTitle: true`.
-- **Responsive Modern Interface** — Adapts seamlessly from mobile phones to wide desktop monitors:
-  - **Two Stacked Podium Cards** for **Doubles** and **Singles** Top 3 leaders.
-  - **Side-by-Side Leaderboard & Match History** on desktop (`lg:grid-cols-12`), and a clean segmented view switcher on mobile.
-- **Per-Player Match History (Singles & Doubles)** — Click any player in the podiums, leaderboard, or match cards to open their **Player Profile Modal**, featuring discipline toggles (`Doubles` / `Singles`), Current Elo, Peak Elo, Win Rate, and their complete chronological match log with partner/opponent breakdowns and personal Elo progression (`preElo → postElo`).
+- **Live Deployment (VUB SportMix):** <https://tbruneel.github.io/badminton-ranking-system/vub-sportmix-badminton/>
+- **Technical Architecture & Implementation Guide:** [`technical.md`](./technical.md)
 
 ---
 
-## Deploying to Any New / Blank Google Sheet
+## Repository Structure
+
+```text
+badminton-ranking-system/
+├── code.gs                          # Google Apps Script backend bound to a Google Sheet
+├── template.html                    # Shared frontend application template
+├── vub-sportmix-badminton/
+│   └── index.html                   # VUB SportMix ranking page configuration & entry point
+├── README.md                        # Usage & deployment guide
+└── technical.md                     # Technical architecture, ELO math & design rationale
+```
+
+---
+
+## How to Use This Repo (Deploy Your Own Ranking Page)
+
+### Step 1: Set Up the Google Sheet & Apps Script Backend
 
 1. **Create a Blank Google Sheet:**
-   - Open [sheets.new](https://sheets.new) and give your spreadsheet a name (e.g., `My Club Badminton Rankings`).
+   - Open [sheets.new](https://sheets.new) and name your spreadsheet (e.g., `My Club Badminton Rankings`).
 2. **Attach [`code.gs`](./code.gs):**
-   - Click **Extensions → Apps Script**, paste the contents of [`code.gs`](./code.gs) into `Code.gs` (ensure no HTML files exist in the Apps Script sidebar), and press **Ctrl+S**.
-3. **Initialize Database & Admin Password:**
-   - Reload the Google Sheet and use the top menu **🔒 Badminton Admin**:
-     - Click **🛠️ Initialize / Repair Database** (or let the first Web App API request auto-initialize the 3 tabs).
-     - Click **🔑 Set / Change Admin Password...** to store a salted SHA-256 hash (`ADMIN_SALT` + `ADMIN_PASSWORD_HASH`) in `ScriptProperties`.
-4. **Deploy as a JSON Web App API:**
-   - In Apps Script, click **Deploy → New deployment → Web app**:
+   - In your Google Sheet, click **Extensions → Apps Script**.
+   - Select all existing code in the editor (`Ctrl+A`), delete it, paste the full contents of [`code.gs`](./code.gs), and save (`Ctrl+S`).
+3. **Initialize the Sheet & Set an Admin Password:**
+   - Reload your Google Sheet. A custom menu **🔒 Badminton Admin** will appear in the top toolbar:
+     - Click **🛠️ Initialize / Repair Database** to automatically create and format the `Players`, `Doubles_Matches`, and `Singles_Matches` tabs (or let the first Web App visit initialize them automatically).
+     - Click **🔑 Set / Change Admin Password...** to set the password used for logging matches and adding players from the web interface.
+4. **Deploy as a Web App:**
+   - Back in the Apps Script editor, click **Deploy → New deployment**:
+     - **Select type:** `Web app`
      - **Execute as:** `Me`
      - **Who has access:** `Anyone`
-   - Copy the generated `/exec` URL.
-5. **Configure [`index.html`](./index.html) or Add a Subpath Page:**
-   - **Single deployment:** Update `CONFIG.apiUrl` and `CONFIG.title` in [`index.html`](./index.html) with your `/exec` URL.
-   - **Multiple subpath deployments in the same repo:** Copy [`vub-sportmix-badminton/index.html`](./vub-sportmix-badminton/index.html) into `<your-subpath>/index.html` and set `window.RANKING_CONFIG = { title: "...", apiUrl: "..." }`. Every subpath automatically shares the root [`index.html`](./index.html) UI template and deploys to `https://<user>.github.io/<repo>/<your-subpath>/`.
+   - Click **Deploy**, authorize the script when prompted, and copy the generated `/exec` **Web app URL**.
 
 ---
 
-## Minimal Google Sheet Database Schema
+### Step 2: Create a Ranking Subpage
 
-1. **`Players` (`A1:K50+`)**
-   - **Headers (`Row 1`):** `Player Name`, `Short Name`, `Initials`, `Singles W`, `Singles L`, `Singles T`, `Singles Elo`, `Doubles W`, `Doubles L`, `Doubles T`, `Doubles Elo`
-   - **Rows `2+`:** Master player roster and live `COUNTIFS` / `SUMIF` aggregations over `Singles_Matches` and `Doubles_Matches` starting from base Elo `1000`.
-2. **`Doubles_Matches` (`A1:U102+`)**
-   - **Headers (`Row 1`):** `Match #`, `Date`, `Team 1 Player 1`, `Team 1 Player 2`, `Team 2 Player 1`, `Team 2 Player 2`, `S1 T1`, `S1 T2`, `S2 T1`, `S2 T2`, `S3 T1`, `S3 T2`, `Sets T1`, `Sets T2`, `Winner`, `T1 P1 Pre-Elo`, `T1 P2 Pre-Elo`, `T2 P1 Pre-Elo`, `T2 P2 Pre-Elo`, `T1 Elo Delta`, `T2 Elo Delta`
-   - **Row `2`:** Baseline anchor row (`1000` initial rating).
-   - **Rows `3+`:** Chronological Doubles match log and per-match Elo deltas.
-3. **`Singles_Matches` (`A1:Q102+`)**
-   - **Headers (`Row 1`):** `Match #`, `Date`, `Player 1`, `Player 2`, `S1 P1`, `S1 P2`, `S2 P1`, `S2 P2`, `S3 P1`, `S3 P2`, `Sets P1`, `Sets P2`, `Winner`, `P1 Pre-Elo`, `P2 Pre-Elo`, `P1 Elo Delta`, `P2 Elo Delta`
-   - **Row `2`:** Baseline anchor row (`1000` initial rating).
-   - **Rows `3+`:** Chronological Singles match log and per-match Elo deltas.
+Each club or group gets its own subfolder (e.g., `<your-club>/index.html`) that configures the page title, tab icon, and Apps Script `/exec` URL, and loads the shared [`template.html`](./template.html):
+
+1. Copy [`vub-sportmix-badminton/index.html`](./vub-sportmix-badminton/index.html) into a new folder `<your-club>/index.html`:
+   ```html
+   <!DOCTYPE html>
+   <link rel="icon" type="image/svg+xml" href="https://example.com/favicon.svg" />
+   <script>
+     window.RANKING_CONFIG = {
+       title: "Your Club: Badminton",
+       apiUrl: "https://script.google.com/macros/s/<YOUR_DEPLOYMENT_ID>/exec"
+     };
+     const icons = [...document.querySelectorAll('link[rel*="icon"]')].map(l => l.outerHTML).join("");
+     fetch("../template.html", { cache: "no-cache" })
+       .then(r => r.text())
+       .then(h => { document.open(); document.write(h.replace("<head>", "<head>" + icons)); document.close(); });
+   </script>
+   ```
+2. Commit and push to `main`. Your ranking page will be live at:
+   `https://<username>.github.io/badminton-ranking-system/<your-club>/`
 
 ---
 
-## Elo Rating Formulas
+## Managing Players & Matches
 
-- **Starting Rating:** Every player starts at **`1000` Elo** in both Singles and Doubles.
-- **Doubles Team Rating (Random Partners Supported):** Each team's effective rating is the average of the two partners' current Doubles Elos prior to the match:
-  $$R_{\text{Team 1}} = \frac{R_{A_1} + R_{A_2}}{2}, \qquad R_{\text{Team 2}} = \frac{R_{B_1} + R_{B_2}}{2}$$
-- **Expected Win Probability:**
-  $$E_1 = \frac{1}{1 + 10^{(R_{\text{Team 2}} - R_{\text{Team 1}}) / 400}}, \qquad E_2 = 1 - E_1$$
-- **Score-Margin Adjusted K-Factor ($K_{\text{base}} = 40$, $K_{\text{margin}} = 40$):**
-  $$K_{\text{eff}} = 40 + 40 \times \frac{|\text{Pts}_1 - \text{Pts}_2|}{\max(1, \text{Pts}_1 + \text{Pts}_2)}$$
-- **Rating Update:**
-  $$\Delta_1 = \text{ROUND}\!\left(K_{\text{eff}} \times (S_1 - E_1)\right), \qquad \Delta_2 = -\Delta_1$$
+- **From the Web UI (Recommended):**
+  1. Click **🔒 Admin** in the top-right corner and enter your admin password.
+  2. Click **＋ Player** to add a new player to the roster (starts at `1000` ELO in both Doubles and Singles).
+  3. Click **＋ Log Match** to record a **Doubles (2v2)** or **Singles (1v1)** result with live ELO delta preview.
+- **Directly in the Google Sheet:**
+  - You can also edit match dates, scores, or player names directly in the `Players`, `Doubles_Matches`, or `Singles_Matches` tabs.
+  - The script automatically sorts match rows chronologically by the **Date** column (`Col B`) and recalculates all ELO ratings in the Sheet.
+  - If formulas are ever accidentally overwritten in the Sheet, click **🔒 Badminton Admin → 🛠️ Initialize / Repair Database** to restore all formulas without losing any player or match data.
