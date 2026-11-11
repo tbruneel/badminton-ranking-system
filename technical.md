@@ -58,7 +58,7 @@ Because these formulas depend strictly on **row order** (top to bottom) rather t
 
 ### 2.3 Database Initialization & Reset
 
-Running **Badminton Admin → Initialize Database** creates and formats the `Players`, `Doubles_Matches`, and `Singles_Matches` tabs on a blank Google Sheet, or prompts for confirmation before resetting an existing spreadsheet to a clean empty database.
+Running **Admin → Initialize Database** creates and formats the `Players`, `Doubles_Matches`, and `Singles_Matches` tabs on a blank Google Sheet, or prompts for confirmation before resetting an existing spreadsheet to a clean empty database.
 
 ---
 

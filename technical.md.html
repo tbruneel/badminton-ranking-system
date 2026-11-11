@@ -1655,7 +1655,7 @@ body.vscode-dark code.language-json .hljs-comment {
 <li>Because the formula columns (<code>Col A</code> and <code>Col M–U</code> / <code>Col K–Q</code>) stay anchored to their row indices, the Sheet immediately recalculates the entire ELO history in the updated chronological order whenever a match date is edited or added out of order.</li>
 </ul>
 <h3 id="23-database-initialization--reset">2.3 Database Initialization &amp; Reset</h3>
-<p>Running <strong>Badminton Admin → Initialize Database</strong> creates and formats the <code>Players</code>, <code>Doubles_Matches</code>, and <code>Singles_Matches</code> tabs on a blank Google Sheet, or prompts for confirmation before resetting an existing spreadsheet to a clean empty database.</p>
+<p>Running <strong>Admin → Initialize Database</strong> creates and formats the <code>Players</code>, <code>Doubles_Matches</code>, and <code>Singles_Matches</code> tabs on a blank Google Sheet, or prompts for confirmation before resetting an existing spreadsheet to a clean empty database.</p>
 <hr>
 <h2 id="3-elo-rating-model">3. ELO Rating Model</h2>
 <p>All ELO parameters are defined once at the top of <a href="./code.gs"><code>code.gs</code></a> (<code>STARTING_ELO = 1000</code>, <code>BASE_K = 40</code>, <code>MARGIN_K = 40</code>) and passed to the frontend via <code>eloConfig</code> in <code>getAppState()</code> so the live match preview uses the exact same constants as the Google Sheet.</p>

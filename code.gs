@@ -12,8 +12,8 @@
  * 1. Create a new blank Google Sheet and open Extensions -> Apps Script.
  * 2. Delete any HTML files, paste this file into `Code.gs`, and save (Ctrl+S).
  * 3. Reload the Google Sheet and click the top menu:
- *      "Badminton Admin" -> "Initialize Database"
- *      "Badminton Admin" -> "Set Admin Password"
+ *      "Admin" -> "Initialize Database"
+ *      "Admin" -> "Set Admin Password"
  * 4. In Apps Script, click Deploy -> New deployment -> Web app:
  *      - Execute as: Me
  *      - Who has access: Anyone
@@ -30,7 +30,7 @@ const LOCKOUT_SECONDS = 900;       // 15 minutes
 
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu('Badminton Admin')
+    .createMenu('Admin')
     .addItem('Initialize Database', 'initializeDatabaseFromMenu')
     .addItem('Set Admin Password', 'promptAndSaveAdminPassword')
     .addToUi();
