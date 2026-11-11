@@ -364,7 +364,7 @@
       <input
         id="adminPasswordInput"
         type="password"
-        placeholder="Password"
+        placeholder="Enter password..."
         oninput="resetAdminAuthInput()"
         onkeydown="if(event.key==='Enter')submitAdminUnlock()"
         class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
@@ -1482,7 +1482,7 @@
       }
       const input = document.getElementById("adminPasswordInput");
       if (input) {
-        input.placeholder = "Password";
+        input.placeholder = "Enter password...";
         input.className = "w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400";
       }
       const btn = document.getElementById("unlockAdminBtn");
@@ -1537,7 +1537,7 @@
       const pwd = document.getElementById("adminPasswordInput").value.trim();
       const btn = document.getElementById("unlockAdminBtn");
       if (!pwd) {
-        showAdminAuthError("Please enter a password");
+        showAdminAuthError("Invalid password!");
         return;
       }
 
@@ -1556,8 +1556,8 @@
           setAdminUnlockedUI(true);
           closeAdminAuthModal();
         })
-        .catch(err => {
-          showAdminAuthError((err && err.message) || "Invalid password");
+        .catch(() => {
+          showAdminAuthError("Invalid password!");
         });
     }
 

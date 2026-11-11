@@ -407,7 +407,7 @@ function verifyAdminPasscode_(providedKey) {
   const candidateHash = sha256Hex_(salt + ':' + String(providedKey || ''));
   if (!timingSafeEqual_(candidateHash, storedHash.toLowerCase())) {
     cache.put('AUTH_FAIL_COUNT', String(failCount + 1), LOCKOUT_SECONDS);
-    throw new Error('Invalid password');
+    throw new Error('Invalid password!');
   }
 
   if (failCount > 0) {
