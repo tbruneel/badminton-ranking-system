@@ -25,6 +25,8 @@
     }
     .tabular-nums { font-variant-numeric: tabular-nums; }
     .scrollbar-stable { scrollbar-gutter: stable; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
     @media (hover: hover) and (pointer: fine) {
       .podium-gold:hover { border-color: #facc15; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06); }
       .podium-silver:hover { border-color: #cbd5e1; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.06); }
@@ -1820,13 +1822,13 @@
     function selectDateFromPicker(yyyy, mm, dd) {
       const iso = `${yyyy}-${String(mm).padStart(2, "0")}-${String(dd).padStart(2, "0")}`;
       setModalDateTime(iso, null);
-      document.getElementById("datePickerPopover")?.classList.add("hidden");
+      renderDatePickerPopover();
     }
 
     function selectTodayInPicker() {
       const dt = getCurrentDateTimeInputs();
       setModalDateTime(dt.date, null);
-      document.getElementById("datePickerPopover")?.classList.add("hidden");
+      renderDatePickerPopover();
     }
 
     function renderDatePickerPopover() {
@@ -1887,8 +1889,9 @@
           <span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span><span>Su</span>
         </div>
         <div class="grid grid-cols-7 gap-0.5">${dayButtons}</div>
-        <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-end">
+        <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
           <button type="button" onclick="selectTodayInPicker()" class="text-[11px] font-semibold text-slate-600 hover:text-slate-900 px-2 py-1 rounded-md hover:bg-slate-100 transition">Today</button>
+          <button type="button" onclick="closeAllDateTimePickers()" class="text-[11px] font-semibold text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md transition">Done</button>
         </div>
       `;
     }
@@ -1911,26 +1914,37 @@
     }
 
     function selectTimeHour(hh) {
+      const pop = document.getElementById("timePickerPopover");
+      const savedHScroll = pop?.querySelector("[data-hour-col]")?.scrollTop ?? null;
+      const savedMScroll = pop?.querySelector("[data-min-col]")?.scrollTop ?? null;
       const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
       const min = cur[1] || "00";
       setModalDateTime(null, `${String(hh).padStart(2, "0")}:${min}`);
-      renderTimePickerPopover();
+      renderTimePickerPopover(savedHScroll, savedMScroll);
     }
 
     function selectTimeMin(mm) {
+      const pop = document.getElementById("timePickerPopover");
+      const savedHScroll = pop?.querySelector("[data-hour-col]")?.scrollTop ?? null;
+      const savedMScroll = pop?.querySelector("[data-min-col]")?.scrollTop ?? null;
       const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
       const hr = cur[0] || "00";
       setModalDateTime(null, `${hr}:${String(mm).padStart(2, "0")}`);
-      document.getElementById("timePickerPopover")?.classList.add("hidden");
+      renderTimePickerPopover(savedHScroll, savedMScroll);
     }
 
     function selectNowInPicker() {
       const dt = getCurrentDateTimeInputs();
       setModalDateTime(null, dt.time);
-      document.getElementById("timePickerPopover")?.classList.add("hidden");
+      renderTimePickerPopover();
+      const pop = document.getElementById("timePickerPopover");
+      requestAnimationFrame(() => {
+        pop?.querySelector("[data-active-hour]")?.scrollIntoView({ block: "center" });
+        pop?.querySelector("[data-active-min]")?.scrollIntoView({ block: "center" });
+      });
     }
 
-    function renderTimePickerPopover() {
+    function renderTimePickerPopover(savedHScroll, savedMScroll) {
       const pop = document.getElementById("timePickerPopover");
       if (!pop) return;
       const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
@@ -1963,14 +1977,23 @@
           <span>Min</span>
         </div>
         <div class="grid grid-cols-2 gap-1.5 pt-1.5">
-          <div class="max-h-40 overflow-y-auto space-y-0.5 pr-0.5">${hourBtns}</div>
-          <div class="max-h-40 overflow-y-auto space-y-0.5 pr-0.5">${minBtns}</div>
+          <div data-hour-col class="no-scrollbar max-h-40 overflow-y-auto space-y-0.5">${hourBtns}</div>
+          <div data-min-col class="no-scrollbar max-h-40 overflow-y-auto space-y-0.5">${minBtns}</div>
         </div>
         <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
           <button type="button" onclick="selectNowInPicker()" class="text-[11px] font-semibold text-slate-600 hover:text-slate-900 px-2 py-1 rounded-md hover:bg-slate-100 transition">Now</button>
           <button type="button" onclick="closeAllDateTimePickers()" class="text-[11px] font-semibold text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md transition">Done</button>
         </div>
       `;
+
+      if (typeof savedHScroll === "number") {
+        const hCol = pop.querySelector("[data-hour-col]");
+        if (hCol) hCol.scrollTop = savedHScroll;
+      }
+      if (typeof savedMScroll === "number") {
+        const mCol = pop.querySelector("[data-min-col]");
+        if (mCol) mCol.scrollTop = savedMScroll;
+      }
     }
 
     function getOtherSelectedPlayers(excludeId) {
