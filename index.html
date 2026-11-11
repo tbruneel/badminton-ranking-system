@@ -561,7 +561,6 @@
      */
     const CONFIG = {
       title: "Badminton Rankings",
-      icon: "",
       apiUrl: "",
       startingElo: 1000,
       baseK: 40,
@@ -587,17 +586,6 @@
 
     document.getElementById("appTitle").textContent = CONFIG.title;
     document.title = CONFIG.title;
-    if (CONFIG.icon) {
-      const applyFavicon = () => {
-        document.querySelectorAll('link[rel*="icon"]').forEach(el => el.remove());
-        const link = document.createElement("link");
-        link.rel = "icon";
-        if (String(CONFIG.icon).endsWith(".svg")) link.type = "image/svg+xml";
-        link.href = CONFIG.icon;
-        document.head.appendChild(link);
-      };
-      setTimeout(applyFavicon, 0);
-    }
 
     async function callBackendPost(bodyObj) {
       if (!ACTIVE_API_URL) {

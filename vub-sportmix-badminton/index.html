@@ -1,11 +1,15 @@
 <!DOCTYPE html>
+<link rel="icon" type="image/svg+xml" href="https://www.vub.be/themes/custom/ocelot_vub/assets/vectors/vub-logo-icon.svg" />
+<link rel="icon" type="image/png" sizes="32x32" href="https://www.vub.be/themes/custom/ocelot_vub/icons/favicon-32x32.png" />
+<link rel="icon" type="image/png" sizes="16x16" href="https://www.vub.be/themes/custom/ocelot_vub/icons/favicon-16x16.png" />
+<link rel="shortcut icon" href="https://www.vub.be/themes/custom/ocelot_vub/icons/favicon.ico" />
 <script>
   window.RANKING_CONFIG = {
     title: "VUB SportMix: Badminton",
-    icon: "https://www.vub.be/themes/custom/ocelot_vub/assets/vectors/vub-logo-icon.svg",
     apiUrl: "https://script.google.com/macros/s/AKfycby5RCpoQTejZtJkr0paWIntBpcqkxDN9KEt5w3dacGemRmmT631MUVCq8y5cZtIpfMA/exec"
   };
+  const icons = [...document.querySelectorAll('link[rel*="icon"]')].map(l => l.outerHTML).join("");
   fetch("../index.html", { cache: "no-cache" })
     .then(r => r.text())
-    .then(h => { document.open(); document.write(h); document.close(); });
+    .then(h => { document.open(); document.write(h.replace("<head>", "<head>" + icons)); document.close(); });
 </script>
