@@ -257,12 +257,12 @@
           </div>
 
           <!-- Table Header -->
-          <div class="hidden sm:grid sm:grid-cols-12 px-5 py-2.5 bg-slate-50/80 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-            <div class="col-span-1">Rank</div>
-            <div class="col-span-4">Player</div>
-            <div class="col-span-3 text-center">Record</div>
-            <div class="col-span-2 text-right whitespace-nowrap">Win Rate</div>
-            <div class="col-span-2 text-right">ELO</div>
+          <div class="hidden sm:grid sm:grid-cols-[2.25rem_minmax(0,1fr)_5.25rem_4.25rem_3.5rem] sm:gap-3 px-5 py-2.5 bg-slate-50/80 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+            <div>Rank</div>
+            <div>Player</div>
+            <div class="text-center">Record</div>
+            <div class="text-right whitespace-nowrap">Win Rate</div>
+            <div class="text-right">ELO</div>
           </div>
 
           <div id="leaderboardRows" class="divide-y divide-slate-100"></div>
@@ -647,16 +647,16 @@
       const wNum = digits ? `<span class="inline-block text-right" style="min-width:${digits.w}ch">${w}</span>` : `${w}`;
       const lNum = digits ? `<span class="inline-block text-right" style="min-width:${digits.l}ch">${l}</span>` : `${l}`;
       const tNum = digits ? `<span class="inline-block text-right" style="min-width:${digits.t}ch">${t}</span>` : `${t}`;
-      const pctWidthCls = alignPct ? "inline-block w-11 text-right" : "ml-0.5";
+      const pctWidthCls = alignPct ? "inline-block w-11 text-right" : "ml-1";
       const pctHtml = showWinRate
         ? `<span class="text-slate-400 font-normal ${pctWidthCls}">(${formatWinRateStr(w, total)})</span>`
         : "";
       return `
-        <span class="inline-flex items-center gap-1 tabular-nums whitespace-nowrap">
+        <span class="inline-flex items-center gap-0.5 tabular-nums whitespace-nowrap">
           <span class="text-emerald-600 font-semibold">${wNum}W</span>
-          <span class="text-slate-300">–</span>
+          <span class="text-slate-300">-</span>
           <span class="text-rose-500 font-semibold">${lNum}L</span>
-          <span class="text-slate-300">–</span>
+          <span class="text-slate-300">-</span>
           <span class="text-slate-600 font-semibold">${tNum}T</span>
           ${pctHtml}
         </span>
@@ -665,12 +665,12 @@
 
     function formatWlCardHtml(w, l, t = null) {
       const tiePart = t !== null
-        ? `<span class="text-slate-300 font-semibold">–</span><span class="text-slate-600">${t}T</span>`
+        ? `<span class="text-slate-300 font-semibold">-</span><span class="text-slate-600">${t}T</span>`
         : "";
       return `
-        <span class="inline-flex items-center gap-1 tabular-nums whitespace-nowrap">
+        <span class="inline-flex items-center gap-0.5 tabular-nums whitespace-nowrap">
           <span class="text-emerald-600">${w}W</span>
-          <span class="text-slate-300 font-semibold">–</span>
+          <span class="text-slate-300 font-semibold">-</span>
           <span class="text-rose-500">${l}L</span>
           ${tiePart}
         </span>
@@ -818,9 +818,9 @@
             <button
               type="button"
               onclick="this.blur(); openPlayerProfile('${escapeJsStr(p.name)}', '${appState.discipline}')"
-              class="lb-row w-full text-left px-4 sm:px-5 py-3.5 transition flex sm:grid sm:grid-cols-12 items-center justify-between gap-3"
+              class="lb-row w-full text-left px-4 sm:px-5 py-3.5 transition flex sm:grid sm:grid-cols-[2.25rem_minmax(0,1fr)_5.25rem_4.25rem_3.5rem] sm:gap-3 items-center justify-between gap-3"
             >
-              <div class="flex items-center gap-3 min-w-0 sm:col-span-5">
+              <div class="flex items-center gap-3 min-w-0 sm:col-span-2">
                 ${rankBadge}
                 <div class="lb-avatar w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 transition">
                   ${escapeHtml(p.initials)}
@@ -835,15 +835,15 @@
                 </div>
               </div>
 
-              <div class="hidden sm:flex sm:col-span-3 items-center justify-center text-xs">
+              <div class="hidden sm:flex items-center justify-center text-xs">
                 ${formatWltInlineHtml(p.w, p.l, p.t, false, lbDigits)}
               </div>
 
-              <div class="hidden sm:block sm:col-span-2 text-right text-xs font-medium text-slate-500 tabular-nums whitespace-nowrap">
+              <div class="hidden sm:block text-right text-xs font-medium text-slate-500 tabular-nums whitespace-nowrap">
                 ${winRateStr}
               </div>
 
-              <div class="sm:col-span-2 text-right shrink-0">
+              <div class="text-right shrink-0">
                 <span class="text-base font-bold text-slate-900 tabular-nums">${p.elo}</span>
               </div>
             </button>
