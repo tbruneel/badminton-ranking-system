@@ -1896,18 +1896,57 @@
       `;
     }
 
+    const TIME_WHEEL_ITEM_H = 32;
+
+    function syncTimeWheelVisuals(activeH, activeM) {
+      const pop = document.getElementById("timePickerPopover");
+      if (!pop) return;
+      pop.querySelectorAll("[data-hour-item]").forEach(btn => {
+        const h = parseInt(btn.getAttribute("data-hour-item"), 10);
+        const dist = Math.abs(h - activeH);
+        const cls = dist === 0
+          ? "text-white font-bold"
+          : (dist === 1 ? "text-slate-700 font-medium" : "text-slate-400 font-medium");
+        btn.className = `w-full h-8 shrink-0 flex items-center justify-center text-xs tabular-nums snap-center select-none transition-colors ${cls}`;
+      });
+      pop.querySelectorAll("[data-min-item]").forEach(btn => {
+        const m = parseInt(btn.getAttribute("data-min-item"), 10);
+        const dist = Math.abs(m - activeM);
+        const cls = dist === 0
+          ? "text-white font-bold"
+          : (dist === 1 ? "text-slate-700 font-medium" : "text-slate-400 font-medium");
+        btn.className = `w-full h-8 shrink-0 flex items-center justify-center text-xs tabular-nums snap-center select-none transition-colors ${cls}`;
+      });
+    }
+
+    function onTimeWheelScroll() {
+      const pop = document.getElementById("timePickerPopover");
+      if (!pop || pop.classList.contains("hidden")) return;
+      const hCol = pop.querySelector("[data-hour-col]");
+      const mCol = pop.querySelector("[data-min-col]");
+      if (!hCol || !mCol) return;
+      const h = Math.min(23, Math.max(0, Math.round(hCol.scrollTop / TIME_WHEEL_ITEM_H)));
+      const m = Math.min(59, Math.max(0, Math.round(mCol.scrollTop / TIME_WHEEL_ITEM_H)));
+      setModalDateTime(null, `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`);
+      syncTimeWheelVisuals(h, m);
+    }
+
     function toggleTimePicker() {
       closeAllPlayerCombos();
       closeAllDateTimePickers("time");
       const pop = document.getElementById("timePickerPopover");
       if (!pop) return;
       if (pop.classList.contains("hidden")) {
-        renderTimePickerPopover();
+        const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
+        const activeH = parseInt(cur[0], 10) || 0;
+        const activeM = parseInt(cur[1], 10) || 0;
+        renderTimePickerPopover(activeH, activeM);
         pop.classList.remove("hidden");
-        requestAnimationFrame(() => {
-          pop.querySelector("[data-active-hour]")?.scrollIntoView({ block: "center" });
-          pop.querySelector("[data-active-min]")?.scrollIntoView({ block: "center" });
-        });
+        const hCol = pop.querySelector("[data-hour-col]");
+        const mCol = pop.querySelector("[data-min-col]");
+        if (hCol) hCol.scrollTop = activeH * TIME_WHEEL_ITEM_H;
+        if (mCol) mCol.scrollTop = activeM * TIME_WHEEL_ITEM_H;
+        syncTimeWheelVisuals(activeH, activeM);
       } else {
         pop.classList.add("hidden");
       }
@@ -1915,60 +1954,56 @@
 
     function selectTimeHour(hh) {
       const pop = document.getElementById("timePickerPopover");
-      const savedHScroll = pop?.querySelector("[data-hour-col]")?.scrollTop ?? null;
-      const savedMScroll = pop?.querySelector("[data-min-col]")?.scrollTop ?? null;
+      const hCol = pop?.querySelector("[data-hour-col]");
+      if (hCol) {
+        hCol.scrollTo({ top: hh * TIME_WHEEL_ITEM_H, behavior: "smooth" });
+      }
       const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
-      const min = cur[1] || "00";
-      setModalDateTime(null, `${String(hh).padStart(2, "0")}:${min}`);
-      renderTimePickerPopover(savedHScroll, savedMScroll);
+      const min = parseInt(cur[1], 10) || 0;
+      setModalDateTime(null, `${String(hh).padStart(2, "0")}:${String(min).padStart(2, "0")}`);
+      syncTimeWheelVisuals(hh, min);
     }
 
     function selectTimeMin(mm) {
       const pop = document.getElementById("timePickerPopover");
-      const savedHScroll = pop?.querySelector("[data-hour-col]")?.scrollTop ?? null;
-      const savedMScroll = pop?.querySelector("[data-min-col]")?.scrollTop ?? null;
+      const mCol = pop?.querySelector("[data-min-col]");
+      if (mCol) {
+        mCol.scrollTo({ top: mm * TIME_WHEEL_ITEM_H, behavior: "smooth" });
+      }
       const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
-      const hr = cur[0] || "00";
-      setModalDateTime(null, `${hr}:${String(mm).padStart(2, "0")}`);
-      renderTimePickerPopover(savedHScroll, savedMScroll);
+      const hr = parseInt(cur[0], 10) || 0;
+      setModalDateTime(null, `${String(hr).padStart(2, "0")}:${String(mm).padStart(2, "0")}`);
+      syncTimeWheelVisuals(hr, mm);
     }
 
     function selectNowInPicker() {
       const dt = getCurrentDateTimeInputs();
       setModalDateTime(null, dt.time);
-      renderTimePickerPopover();
+      const [hStr, mStr] = dt.time.split(":");
+      const hh = parseInt(hStr, 10) || 0;
+      const mm = parseInt(mStr, 10) || 0;
       const pop = document.getElementById("timePickerPopover");
-      requestAnimationFrame(() => {
-        pop?.querySelector("[data-active-hour]")?.scrollIntoView({ block: "center" });
-        pop?.querySelector("[data-active-min]")?.scrollIntoView({ block: "center" });
-      });
+      const hCol = pop?.querySelector("[data-hour-col]");
+      const mCol = pop?.querySelector("[data-min-col]");
+      if (hCol) hCol.scrollTo({ top: hh * TIME_WHEEL_ITEM_H, behavior: "smooth" });
+      if (mCol) mCol.scrollTo({ top: mm * TIME_WHEEL_ITEM_H, behavior: "smooth" });
+      syncTimeWheelVisuals(hh, mm);
     }
 
-    function renderTimePickerPopover(savedHScroll, savedMScroll) {
+    function renderTimePickerPopover(activeH = 0, activeM = 0) {
       const pop = document.getElementById("timePickerPopover");
       if (!pop) return;
-      const cur = (document.getElementById("mTime")?.value || "00:00").split(":");
-      const activeH = parseInt(cur[0], 10) || 0;
-      const activeM = parseInt(cur[1], 10) || 0;
 
       let hourBtns = "";
       for (let h = 0; h < 24; h++) {
         const hStr = String(h).padStart(2, "0");
-        const isSel = h === activeH;
-        const cls = isSel
-          ? "bg-slate-900 text-white font-bold"
-          : "text-slate-700 hover:bg-slate-100 font-medium";
-        hourBtns += `<button type="button" ${isSel ? "data-active-hour" : ""} onclick="selectTimeHour(${h})" class="w-full py-1.5 rounded-lg text-xs tabular-nums transition ${cls}">${hStr}</button>`;
+        hourBtns += `<button type="button" data-hour-item="${h}" onclick="selectTimeHour(${h})" class="w-full h-8 shrink-0 flex items-center justify-center text-xs tabular-nums snap-center select-none transition-colors">${hStr}</button>`;
       }
 
       let minBtns = "";
       for (let m = 0; m < 60; m++) {
         const mStr = String(m).padStart(2, "0");
-        const isSel = m === activeM;
-        const cls = isSel
-          ? "bg-slate-900 text-white font-bold"
-          : "text-slate-700 hover:bg-slate-100 font-medium";
-        minBtns += `<button type="button" ${isSel ? "data-active-min" : ""} onclick="selectTimeMin(${m})" class="w-full py-1.5 rounded-lg text-xs tabular-nums transition ${cls}">${mStr}</button>`;
+        minBtns += `<button type="button" data-min-item="${m}" onclick="selectTimeMin(${m})" class="w-full h-8 shrink-0 flex items-center justify-center text-xs tabular-nums snap-center select-none transition-colors">${mStr}</button>`;
       }
 
       pop.innerHTML = `
@@ -1977,23 +2012,21 @@
           <span>Min</span>
         </div>
         <div class="grid grid-cols-2 gap-1.5 pt-1.5">
-          <div data-hour-col class="no-scrollbar max-h-40 overflow-y-auto space-y-0.5">${hourBtns}</div>
-          <div data-min-col class="no-scrollbar max-h-40 overflow-y-auto space-y-0.5">${minBtns}</div>
+          <div class="relative h-40">
+            <div class="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-8 rounded-lg bg-slate-900 z-0"></div>
+            <div data-hour-col onscroll="onTimeWheelScroll()" class="relative z-10 h-full overflow-y-auto no-scrollbar py-16 snap-y snap-mandatory">${hourBtns}</div>
+          </div>
+          <div class="relative h-40">
+            <div class="pointer-events-none absolute inset-x-0 top-1/2 -translate-y-1/2 h-8 rounded-lg bg-slate-900 z-0"></div>
+            <div data-min-col onscroll="onTimeWheelScroll()" class="relative z-10 h-full overflow-y-auto no-scrollbar py-16 snap-y snap-mandatory">${minBtns}</div>
+          </div>
         </div>
         <div class="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between">
           <button type="button" onclick="selectNowInPicker()" class="text-[11px] font-semibold text-slate-600 hover:text-slate-900 px-2 py-1 rounded-md hover:bg-slate-100 transition">Now</button>
           <button type="button" onclick="closeAllDateTimePickers()" class="text-[11px] font-semibold text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-md transition">Done</button>
         </div>
       `;
-
-      if (typeof savedHScroll === "number") {
-        const hCol = pop.querySelector("[data-hour-col]");
-        if (hCol) hCol.scrollTop = savedHScroll;
-      }
-      if (typeof savedMScroll === "number") {
-        const mCol = pop.querySelector("[data-min-col]");
-        if (mCol) mCol.scrollTop = savedMScroll;
-      }
+      syncTimeWheelVisuals(activeH, activeM);
     }
 
     function getOtherSelectedPlayers(excludeId) {
