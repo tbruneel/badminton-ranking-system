@@ -1335,6 +1335,13 @@
 
         const scorePills = item.setsFormatted.map(s => `<span class="px-2 py-0.5 rounded-md bg-slate-100 text-slate-800 font-semibold text-xs tabular-nums">${s}</span>`).join("");
 
+        const deltaStr = item.delta > 0 ? `+${item.delta}` : (item.delta < 0 ? `${item.delta}` : `+0`);
+        const deltaCls = item.delta > 0
+          ? "text-emerald-600"
+          : item.delta < 0
+          ? "text-rose-500"
+          : "text-slate-500";
+
         const matchupHtml = isDoubles
           ? `
             <div class="text-xs text-slate-500">
@@ -1343,9 +1350,9 @@
               <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.partner)}', 'doubles')" class="player-link font-semibold text-slate-900">${escapeHtml(item.partner)}</button><span class="text-slate-400 tabular-nums ml-0.5">(${item.partnerElo})</span>
             </div>
             <div class="text-xs text-slate-500 mt-1">
-              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponents[0])}', 'doubles')" class="player-link font-medium text-slate-800">${escapeHtml(item.opponents[0])}</button><span class="text-slate-400 tabular-nums ml-0.5">(${item.opponentElos[0]})</span>
+              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponents[0])}', 'doubles')" class="player-link font-semibold text-slate-900">${escapeHtml(item.opponents[0])}</button><span class="text-slate-400 tabular-nums ml-0.5">(${item.opponentElos[0]})</span>
               &amp;
-              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponents[1])}', 'doubles')" class="player-link font-medium text-slate-800">${escapeHtml(item.opponents[1])}</button><span class="text-slate-400 tabular-nums ml-0.5">(${item.opponentElos[1]})</span>
+              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponents[1])}', 'doubles')" class="player-link font-semibold text-slate-900">${escapeHtml(item.opponents[1])}</button><span class="text-slate-400 tabular-nums ml-0.5">(${item.opponentElos[1]})</span>
             </div>
           `
           : `
@@ -1353,7 +1360,7 @@
               <span class="font-semibold text-slate-900">${escapeHtml(playerName)}</span><span class="text-slate-400 tabular-nums ml-0.5">(${item.preElo})</span>
             </div>
             <div class="text-xs text-slate-500 mt-1">
-              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponent)}', 'singles')" class="player-link font-medium text-slate-800">${escapeHtml(item.opponent)}</button><span class="text-slate-400 tabular-nums ml-0.5">(${item.opponentElo})</span>
+              <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(item.opponent)}', 'singles')" class="player-link font-semibold text-slate-900">${escapeHtml(item.opponent)}</button><span class="text-slate-400 tabular-nums ml-0.5">(${item.opponentElo})</span>
             </div>
           `;
 
@@ -1374,9 +1381,11 @@
 
               <div class="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
                 <div class="flex items-center gap-1">${scorePills}</div>
-                <div class="text-right">
-                  <div>${formatDeltaPill(item.delta)}</div>
-                  <div class="text-[11px] text-slate-400 tabular-nums mt-0.5">${item.preElo} → <strong class="text-slate-700">${item.postElo}</strong></div>
+                <div class="inline-flex items-center gap-1 text-xs tabular-nums whitespace-nowrap">
+                  <span class="text-slate-500 font-medium">${item.preElo}</span>
+                  <span class="font-bold ${deltaCls}">${deltaStr}</span>
+                  <span class="text-slate-400">→</span>
+                  <span class="font-bold text-slate-900">${item.postElo}</span>
                 </div>
               </div>
             </div>
