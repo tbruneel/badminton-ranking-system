@@ -160,7 +160,7 @@
             onclick="this.blur(); selectDiscipline('doubles', true)"
             class="text-xs font-semibold text-slate-700 hover:text-slate-900 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 transition whitespace-nowrap shrink-0"
           >
-            View Table →
+            View Table
           </button>
         </div>
         <div id="podiumDoubles" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
@@ -177,7 +177,7 @@
             onclick="this.blur(); selectDiscipline('singles', true)"
             class="text-xs font-semibold text-slate-700 hover:text-slate-900 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200/80 transition whitespace-nowrap shrink-0"
           >
-            View Table →
+            View Table
           </button>
         </div>
         <div id="podiumSingles" class="grid grid-cols-1 sm:grid-cols-3 gap-3"></div>
@@ -1086,7 +1086,7 @@
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2">
           <div class="flex items-center justify-between gap-2 text-xs text-slate-400 font-medium">
             <div class="flex items-center gap-1.5 min-w-0">
-              <span class="font-semibold text-slate-500 truncate">Doubles Match #${m.matchNum || "—"}</span>
+              <span class="font-semibold text-slate-500 truncate">Match #${m.matchNum || "—"}</span>
               ${m.winner === 0 ? '<span class="px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 text-[10px] font-bold uppercase tracking-wider shrink-0">TIE</span>' : ''}
             </div>
             <div class="flex items-center gap-2 shrink-0">
@@ -1096,7 +1096,7 @@
           </div>
 
           <!-- Team 1 (Partners stacked vertically, identical text color) -->
-          <div class="flex items-center justify-between gap-3 ${m.winner === 1 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
+          <div class="flex items-center justify-between gap-3 ${m.winner === 1 ? 'bg-slate-50/90 -mx-2 px-2 py-2 rounded-xl' : 'py-1.5'}">
             <div class="flex items-center gap-2 min-w-0">
               <div class="flex flex-col min-w-0 text-sm font-semibold text-slate-900 leading-snug">
                 <div class="flex items-baseline gap-1 min-w-0">
@@ -1119,7 +1119,7 @@
           <div class="border-t border-slate-100"></div>
 
           <!-- Team 2 (Partners stacked vertically, identical text color) -->
-          <div class="flex items-center justify-between gap-3 ${m.winner === 2 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
+          <div class="flex items-center justify-between gap-3 ${m.winner === 2 ? 'bg-slate-50/90 -mx-2 px-2 py-2 rounded-xl' : 'py-1.5'}">
             <div class="flex items-center gap-2 min-w-0">
               <div class="flex flex-col min-w-0 text-sm font-semibold text-slate-900 leading-snug">
                 <div class="flex items-baseline gap-1 min-w-0">
@@ -1155,7 +1155,7 @@
         <div class="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs space-y-2">
           <div class="flex items-center justify-between gap-2 text-xs text-slate-400 font-medium">
             <div class="flex items-center gap-1.5 min-w-0">
-              <span class="font-semibold text-slate-500 truncate">Singles Match #${m.matchNum || "—"}</span>
+              <span class="font-semibold text-slate-500 truncate">Match #${m.matchNum || "—"}</span>
               ${m.winner === 0 ? '<span class="px-2 py-0.5 rounded-md bg-slate-200 text-slate-700 text-[10px] font-bold uppercase tracking-wider shrink-0">TIE</span>' : ''}
             </div>
             <div class="flex items-center gap-2 shrink-0">
@@ -1164,7 +1164,7 @@
             </div>
           </div>
 
-          <div class="flex items-center justify-between gap-3 ${m.winner === 1 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
+          <div class="flex items-center justify-between gap-3 ${m.winner === 1 ? 'bg-slate-50/90 -mx-2 px-2 py-2 rounded-xl' : 'py-1.5'}">
             <div class="flex items-center gap-2 min-w-0">
               <div class="flex items-baseline gap-1 min-w-0">
                 <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.p1)}', 'singles')" class="player-link text-sm font-semibold text-slate-900 truncate">${escapeHtml(m.p1)}</button>
@@ -1180,7 +1180,7 @@
 
           <div class="border-t border-slate-100"></div>
 
-          <div class="flex items-center justify-between gap-3 ${m.winner === 2 ? 'bg-slate-50/90 -mx-2 px-2.5 py-2 rounded-xl' : 'py-1.5'}">
+          <div class="flex items-center justify-between gap-3 ${m.winner === 2 ? 'bg-slate-50/90 -mx-2 px-2 py-2 rounded-xl' : 'py-1.5'}">
             <div class="flex items-center gap-2 min-w-0">
               <div class="flex items-baseline gap-1 min-w-0">
                 <button type="button" onclick="this.blur(); openPlayerProfile('${escapeJsStr(m.p2)}', 'singles')" class="player-link text-sm font-semibold text-slate-900 truncate">${escapeHtml(m.p2)}</button>
@@ -1561,7 +1561,7 @@
             <div class="flex items-center justify-between gap-2 text-xs text-slate-400">
               <div class="flex items-center gap-2 min-w-0">
                 ${resBadge}
-                <span class="font-semibold text-slate-500 truncate">${isDoubles ? "Doubles" : "Singles"} Match #${item.matchNum || "—"}</span>
+                <span class="font-semibold text-slate-500 truncate">Match #${item.matchNum || "—"}</span>
               </div>
               <div class="flex items-center gap-2 shrink-0">
                 <span class="tabular-nums whitespace-nowrap">${formatDateTimeHtml(item.date)}</span>
@@ -2813,7 +2813,7 @@
       }
       confirmBody.innerHTML = `
         <p class="text-xs sm:text-sm text-slate-600">
-          Are you sure you want to permanently remove <b>${discipline === "doubles" ? "Doubles" : "Singles"} Match #${matchNum}</b> and recalculate all ELO ratings?
+          Are you sure you want to permanently remove <b>Match #${matchNum}</b> and recalculate all ELO ratings?
         </p>
       `;
       confirmErr.classList.add("hidden");
