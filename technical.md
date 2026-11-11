@@ -29,10 +29,10 @@ All ELO ratings, win/loss/tie records, and per-match ELO deltas are computed **n
 
 ### 2.1 Three-Sheet Schema
 
-1. **`Players` (`A1:K50+`)**
-   - **Columns `A–C`:** `Player Name`, `Short Name` (auto-extracted first name with disambiguating last initial when two players share a first name), and `Initials` (2-letter avatar code).
-   - **Columns `D–G` (Singles):** `Singles W`, `Singles L`, `Singles T` (`COUNTIFS` over `Singles_Matches`), and `Singles ELO` (`1000 + SUMIF` of all personal deltas in `Singles_Matches`).
-   - **Columns `H–K` (Doubles):** `Doubles W`, `Doubles L`, `Doubles T` (`COUNTIFS` across both team slots in `Doubles_Matches`), and `Doubles ELO` (`1000 + SUMIF` across all 4 player columns in `Doubles_Matches`).
+1. **`Players` (`A1:I50+`)**
+   - **Column `A`:** `Player Name` (short names and avatar initials are derived on the frontend from the player name).
+   - **Columns `B–E` (Singles):** `Singles W`, `Singles L`, `Singles T` (`COUNTIFS` over `Singles_Matches`), and `Singles ELO` (`1000 + SUMIF` of all personal deltas in `Singles_Matches`).
+   - **Columns `F–I` (Doubles):** `Doubles W`, `Doubles L`, `Doubles T` (`COUNTIFS` across both team slots in `Doubles_Matches`), and `Doubles ELO` (`1000 + SUMIF` across all 4 player columns in `Doubles_Matches`).
 
 2. **`Doubles_Matches` (`A1:U102+`)**
    - **Row `2` (Hidden Baseline Anchor):** Holds the starting ELO constant (`1000`) in `P2:S2`. This ensures the cumulative `SUMIF($C$2:C(r-1), ...)` formulas on Row 3 always have a valid range without `#REF!` errors when inserting or sorting rows.

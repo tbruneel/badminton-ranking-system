@@ -143,8 +143,6 @@ function ensureDatabase_(ss, resetExisting) {
 
 function playerRowFormulas_(r) {
   return [
-    `=IF(A${r}="","",INDEX(SPLIT(TRIM(A${r})," "),1))`,
-    `=IF(A${r}="","",UPPER(LEFT(TRIM(A${r}),1)&IF(ISNUMBER(FIND(" ",TRIM(A${r}))),LEFT(TRIM(MID(TRIM(A${r}),FIND(" ",TRIM(A${r}))+1,99)),1),"")))`,
     `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$M$3:$M,"P1")+COUNTIFS(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$M$3:$M,"P2"))`,
     `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$M$3:$M,"P2")+COUNTIFS(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$M$3:$M,"P1"))`,
     `=IF(A${r}="","",COUNTIFS(Singles_Matches!$C$3:$C,A${r},Singles_Matches!$M$3:$M,"TIE")+COUNTIFS(Singles_Matches!$D$3:$D,A${r},Singles_Matches!$M$3:$M,"TIE"))`,
@@ -243,7 +241,7 @@ function sortMatchesByDate_(sheet, isDoubles) {
 
 function setupPlayersSheet_(sheet, slots) {
   const headers = [
-    'Player Name', 'Short Name', 'Initials',
+    'Player Name',
     'Singles W', 'Singles L', 'Singles T', 'Singles Elo',
     'Doubles W', 'Doubles L', 'Doubles T', 'Doubles Elo'
   ];
@@ -472,6 +470,9 @@ function doPost(e) {
     if (action === 'addPlayer') {
       return jsonResponse_({ ok: true, data: addPlayerToSheet(body.name, body.adminPassword) });
     }
+    if (action === 'renamePlayer') {
+      return jsonResponse_({ ok: true, data: renamePlayerInSheet(body.payload, body.adminPassword) });
+    }
     throw new Error('Unknown API action.');
   } catch (err) {
     return jsonResponse_({ ok: false, error: err.message || String(err) });
@@ -494,21 +495,19 @@ function getAppState() {
 
   const pMaxRow = Math.max(playersSheet.getLastRow(), 2);
   const pRows = pMaxRow >= 2
-    ? playersSheet.getRange(2, 1, pMaxRow - 1, 11).getValues().filter(r => String(r[0]).trim() !== '')
+    ? playersSheet.getRange(2, 1, pMaxRow - 1, 9).getValues().filter(r => String(r[0]).trim() !== '')
     : [];
 
   const players = pRows.map((r, idx) => ({
     name: String(r[0]).trim(),
-    short: String(r[1]).trim() || String(r[0]).trim().split(/\s+/)[0],
-    initials: String(r[2]).trim(),
-    singlesW: Number(r[3] || 0),
-    singlesL: Number(r[4] || 0),
-    singlesT: Number(r[5] || 0),
-    singlesElo: Number(r[6] || STARTING_ELO),
-    doublesW: Number(r[7] || 0),
-    doublesL: Number(r[8] || 0),
-    doublesT: Number(r[9] || 0),
-    doublesElo: Number(r[10] || STARTING_ELO),
+    singlesW: Number(r[1] || 0),
+    singlesL: Number(r[2] || 0),
+    singlesT: Number(r[3] || 0),
+    singlesElo: Number(r[4] || STARTING_ELO),
+    doublesW: Number(r[5] || 0),
+    doublesL: Number(r[6] || 0),
+    doublesT: Number(r[7] || 0),
+    doublesElo: Number(r[8] || STARTING_ELO),
     order: idx
   }));
 
@@ -599,7 +598,7 @@ function ensurePlayersExist_(ss, playerNames, autoCreate) {
       throw new Error('Player name "' + cleanName + '" must be between 2 and 40 characters.');
     }
     const targetRow = emptyRows.length > 0 ? emptyRows.shift() : nextNewRow++;
-    sheet.getRange(targetRow, 1, 1, 11).setValues([[
+    sheet.getRange(targetRow, 1, 1, 9).setValues([[
       cleanName,
       ...playerRowFormulas_(targetRow)
     ]]);
@@ -911,10 +910,132 @@ function addPlayerToSheet(playerName, adminPassword) {
       targetRow = scanMax + 1;
     }
 
-    sheet.getRange(targetRow, 1, 1, 11).setValues([[
+    sheet.getRange(targetRow, 1, 1, 9).setValues([[
       cleanName,
       ...playerRowFormulas_(targetRow)
     ]]);
+    SpreadsheetApp.flush();
+    return getAppState();
+  } finally {
+    lock.releaseLock();
+  }
+}
+
+function renamePlayerInSheet(payload, adminPassword) {
+  verifyAdminPasscode_(adminPassword);
+  const lock = LockService.getScriptLock();
+  lock.waitLock(10000);
+  try {
+    const cleanOld = sanitizeText_(payload && payload.oldName);
+    const cleanNew = sanitizeText_(payload && payload.newName);
+    const allowMerge = Boolean(payload && payload.allowMerge);
+
+    if (!cleanOld) {
+      throw new Error('Original player name is required.');
+    }
+    if (cleanNew.length < 2 || cleanNew.length > 40) {
+      throw new Error('Player name must be between 2 and 40 characters.');
+    }
+
+    const ss = getSpreadsheet_();
+    ensureDatabase_(ss, false);
+
+    const playersSheet = ss.getSheetByName('Players');
+    const doublesSheet = ss.getSheetByName('Doubles_Matches');
+    const singlesSheet = ss.getSheetByName('Singles_Matches');
+
+    const scanMax = Math.max(playersSheet.getLastRow(), 2);
+    const colA = playersSheet.getRange(2, 1, scanMax - 1, 1).getValues();
+
+    let oldRowIdx = -1;
+    let targetRowIdx = -1;
+    const oldLower = cleanOld.toLowerCase();
+    const newLower = cleanNew.toLowerCase();
+
+    for (let i = 0; i < colA.length; i++) {
+      const existing = String(colA[i][0]).trim();
+      if (!existing) continue;
+      const exLower = existing.toLowerCase();
+      if (exLower === oldLower && oldRowIdx === -1) {
+        oldRowIdx = i;
+      } else if (exLower === newLower && targetRowIdx === -1) {
+        targetRowIdx = i;
+      }
+    }
+
+    if (oldRowIdx === -1) {
+      throw new Error('Player "' + cleanOld + '" not found in roster.');
+    }
+
+    const isMerging = targetRowIdx !== -1 && targetRowIdx !== oldRowIdx;
+    if (isMerging && !allowMerge) {
+      throw new Error('Player already exists in roster.');
+    }
+
+    const finalName = isMerging ? String(colA[targetRowIdx][0]).trim() : cleanNew;
+    const finalLower = finalName.toLowerCase();
+
+    const dMaxRow = doublesSheet.getLastRow();
+    const dValues = dMaxRow >= 3 ? doublesSheet.getRange(3, 3, dMaxRow - 2, 4).getValues() : [];
+    let dChanged = false;
+
+    for (let r = 0; r < dValues.length; r++) {
+      const rowNames = dValues[r].map(v => String(v).trim());
+      if (!rowNames[0]) continue;
+      const lowers = rowNames.map(n => n.toLowerCase());
+      if (isMerging && lowers.includes(oldLower) && lowers.includes(finalLower)) {
+        throw new Error('Cannot combine players: both appear together in Doubles Match #' + (r + 1) + '.');
+      }
+      for (let c = 0; c < 4; c++) {
+        if (lowers[c] === oldLower && dValues[r][c] !== finalName) {
+          dValues[r][c] = finalName;
+          dChanged = true;
+        }
+      }
+    }
+
+    const sMaxRow = singlesSheet.getLastRow();
+    const sValues = sMaxRow >= 3 ? singlesSheet.getRange(3, 3, sMaxRow - 2, 2).getValues() : [];
+    let sChanged = false;
+
+    for (let r = 0; r < sValues.length; r++) {
+      const rowNames = sValues[r].map(v => String(v).trim());
+      if (!rowNames[0]) continue;
+      const lowers = rowNames.map(n => n.toLowerCase());
+      if (isMerging && lowers.includes(oldLower) && lowers.includes(finalLower)) {
+        throw new Error('Cannot combine players: both appear together in Singles Match #' + (r + 1) + '.');
+      }
+      for (let c = 0; c < 2; c++) {
+        if (lowers[c] === oldLower && sValues[r][c] !== finalName) {
+          sValues[r][c] = finalName;
+          sChanged = true;
+        }
+      }
+    }
+
+    if (dChanged) {
+      doublesSheet.getRange(3, 3, dValues.length, 4).setValues(dValues);
+    }
+    if (sChanged) {
+      singlesSheet.getRange(3, 3, sValues.length, 2).setValues(sValues);
+    }
+
+    if (isMerging) {
+      const remaining = [];
+      for (let i = 0; i < colA.length; i++) {
+        if (i === oldRowIdx) continue;
+        const val = String(colA[i][0]).trim();
+        if (val) remaining.push(val);
+      }
+      const newColA = [];
+      for (let i = 0; i < colA.length; i++) {
+        newColA.push([i < remaining.length ? remaining[i] : '']);
+      }
+      playersSheet.getRange(2, 1, colA.length, 1).setValues(newColA);
+    } else {
+      playersSheet.getRange(2 + oldRowIdx, 1).setValue(finalName);
+    }
+
     SpreadsheetApp.flush();
     return getAppState();
   } finally {

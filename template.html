@@ -295,7 +295,18 @@
             --
           </div>
           <div class="min-w-0">
-            <h3 id="profileName" class="text-base sm:text-lg font-bold text-slate-900 truncate">Player Name</h3>
+            <div class="flex items-center gap-2">
+              <h3 id="profileName" class="text-base sm:text-lg font-bold text-slate-900 truncate">Player Name</h3>
+              <button
+                type="button"
+                id="editProfilePlayerBtn"
+                onclick="this.blur(); openEditPlayerModal()"
+                class="hidden px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 font-semibold text-[11px] transition shrink-0"
+                title="Edit player"
+              >
+                Edit
+              </button>
+            </div>
             <p id="profileSummaryPill" class="text-xs text-slate-500 mt-0.5 truncate"></p>
           </div>
         </div>
@@ -594,33 +605,60 @@
   </div>
 
   <!-- ===================================================================== -->
-  <!-- MODAL 4: ADD NEW PLAYER (Admin Only)                                  -->
+  <!-- MODAL 4: ADD / EDIT PLAYER (Admin Only)                               -->
   <!-- ===================================================================== -->
   <div id="playerModal" onmousedown="this._bdDown=(event.target===this)" onclick="if(event.target===this&&this._bdDown)closePlayerModal()" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
     <div class="bg-white w-full max-w-md rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4 shadow-xl">
       <div class="flex items-center justify-between">
         <div>
-          <h3 class="text-base font-bold text-slate-900">Add Player</h3>
-          <p class="text-xs text-slate-500">New players start with 1000 ELO</p>
+          <h3 id="playerModalTitle" class="text-base font-bold text-slate-900">Add Player</h3>
+          <p id="playerModalSubtitle" class="text-xs text-slate-500">New players start with 1000 ELO</p>
         </div>
         <button onclick="closePlayerModal()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-sm">✕</button>
       </div>
-      <input
-        id="modalNewPlayerName"
-        type="text"
-        placeholder="e.g. Nathan De Smet"
-        oninput="resetPlayerModalInput()"
-        onkeydown="if(event.key==='Enter')saveNewPlayer()"
-        class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
-      />
-      <button
-        type="button"
-        id="savePlayerBtn"
-        onclick="saveNewPlayer()"
-        class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition"
-      >
-        Add Player
-      </button>
+
+      <!-- Form View -->
+      <div id="playerModalFormBody" class="space-y-4">
+        <input
+          id="modalNewPlayerName"
+          type="text"
+          placeholder="e.g. Nathan De Smet"
+          oninput="resetPlayerModalInput()"
+          onkeydown="if(event.key==='Enter')saveNewPlayer()"
+          class="w-full p-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-medium focus:bg-white focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400"
+        />
+        <button
+          type="button"
+          id="savePlayerBtn"
+          onclick="saveNewPlayer()"
+          class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition"
+        >
+          Add Player
+        </button>
+      </div>
+
+      <!-- Confirmation View (Combine Players) -->
+      <div id="playerModalConfirmView" class="hidden space-y-4">
+        <div id="playerModalConfirmBody" class="p-4 rounded-xl bg-slate-50 border border-slate-200/80 text-sm text-slate-700 space-y-2.5"></div>
+        <div id="playerModalConfirmError" class="hidden text-xs font-semibold text-rose-600 bg-rose-50 border border-rose-200 rounded-xl p-3"></div>
+        <div class="grid grid-cols-2 gap-3">
+          <button
+            type="button"
+            id="playerModalConfirmCancelBtn"
+            onclick="cancelPlayerModalConfirmation()"
+            class="w-full py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold text-sm transition"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            id="playerModalConfirmActionBtn"
+            class="w-full py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-semibold text-sm shadow-xs transition"
+          >
+            Combine
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -725,8 +763,8 @@
       const singlesHistory = appState.serverSinglesHistory;
       const singles = appState.serverPlayers.map((p, idx) => ({
         name: p.name,
-        short: p.short || getShortName(p.name),
-        initials: p.initials || getInitials(p.name),
+        short: getShortName(p.name),
+        initials: getInitials(p.name),
         elo: p.singlesElo,
         w: p.singlesW,
         l: p.singlesL,
@@ -735,8 +773,8 @@
       }));
       const doubles = appState.serverPlayers.map((p, idx) => ({
         name: p.name,
-        short: p.short || getShortName(p.name),
-        initials: p.initials || getInitials(p.name),
+        short: getShortName(p.name),
+        initials: getInitials(p.name),
         elo: p.doublesElo,
         w: p.doublesW,
         l: p.doublesL,
@@ -1211,6 +1249,10 @@
 
       document.getElementById("profileAvatar").textContent = getInitials(playerName);
       document.getElementById("profileName").textContent = playerName;
+      const editPlayerBtn = document.getElementById("editProfilePlayerBtn");
+      if (editPlayerBtn) {
+        editPlayerBtn.classList.toggle("hidden", !appState.adminPassword);
+      }
 
       const dMatches = data.doublesHistory.filter(m => m.t1.includes(playerName) || m.t2.includes(playerName));
       const sMatches = data.singlesHistory.filter(m => m.p1 === playerName || m.p2 === playerName);
@@ -2923,11 +2965,38 @@
 
     let playerModalResetTimer = null;
 
+    function showPlayerModalFormView() {
+      const isEditing = Boolean(appState.editingPlayer);
+      const titleEl = document.getElementById("playerModalTitle");
+      const subEl = document.getElementById("playerModalSubtitle");
+      const formBody = document.getElementById("playerModalFormBody");
+      const confirmView = document.getElementById("playerModalConfirmView");
+      const confirmErr = document.getElementById("playerModalConfirmError");
+
+      if (titleEl) titleEl.textContent = isEditing ? "Edit Player" : "Add Player";
+      if (subEl) {
+        subEl.textContent = isEditing
+          ? "Rename player or combine with an existing player"
+          : "New players start with 1000 ELO";
+        subEl.classList.remove("hidden");
+      }
+      if (formBody) formBody.classList.remove("hidden");
+      if (confirmView) confirmView.classList.add("hidden");
+      if (confirmErr) confirmErr.classList.add("hidden");
+    }
+
+    function cancelPlayerModalConfirmation() {
+      showPlayerModalFormView();
+      const input = document.getElementById("modalNewPlayerName");
+      if (input) input.focus();
+    }
+
     function resetPlayerModalInput() {
       if (playerModalResetTimer) {
         clearTimeout(playerModalResetTimer);
         playerModalResetTimer = null;
       }
+      const isEditing = Boolean(appState.editingPlayer);
       const input = document.getElementById("modalNewPlayerName");
       if (input) {
         input.placeholder = "e.g. Nathan De Smet";
@@ -2936,7 +3005,7 @@
       const btn = document.getElementById("savePlayerBtn");
       if (btn) {
         btn.disabled = false;
-        btn.textContent = "Add Player";
+        btn.textContent = isEditing ? "Save" : "Add Player";
       }
     }
 
@@ -2944,10 +3013,11 @@
       if (playerModalResetTimer) {
         clearTimeout(playerModalResetTimer);
       }
+      const isEditing = Boolean(appState.editingPlayer);
       const btn = document.getElementById("savePlayerBtn");
       if (btn) {
         btn.disabled = false;
-        btn.textContent = "Add Player";
+        btn.textContent = isEditing ? "Save" : "Add Player";
       }
       const input = document.getElementById("modalNewPlayerName");
       if (input) {
@@ -2964,6 +3034,8 @@
         handleAdminButtonClick();
         return;
       }
+      appState.editingPlayer = null;
+      showPlayerModalFormView();
       resetPlayerModalInput();
       document.getElementById("modalNewPlayerName").value = "";
       const m = document.getElementById("playerModal");
@@ -2973,12 +3045,105 @@
       document.getElementById("modalNewPlayerName").focus();
     }
 
+    function openEditPlayerModal() {
+      if (!appState.adminPassword || !appState.profilePlayer) {
+        handleAdminButtonClick();
+        return;
+      }
+      appState.editingPlayer = appState.profilePlayer;
+      showPlayerModalFormView();
+      resetPlayerModalInput();
+      const input = document.getElementById("modalNewPlayerName");
+      input.value = appState.editingPlayer;
+      const m = document.getElementById("playerModal");
+      m.classList.remove("hidden");
+      m.classList.add("flex");
+      syncBodyScrollLock();
+      input.focus();
+      input.select();
+    }
+
     function closePlayerModal() {
+      appState.editingPlayer = null;
+      showPlayerModalFormView();
       resetPlayerModalInput();
       const m = document.getElementById("playerModal");
       m.classList.add("hidden");
       m.classList.remove("flex");
       syncBodyScrollLock();
+    }
+
+    function promptCombinePlayersConfirmation(oldName, targetName) {
+      const titleEl = document.getElementById("playerModalTitle");
+      const subEl = document.getElementById("playerModalSubtitle");
+      const formBody = document.getElementById("playerModalFormBody");
+      const confirmView = document.getElementById("playerModalConfirmView");
+      const confirmBody = document.getElementById("playerModalConfirmBody");
+      const confirmErr = document.getElementById("playerModalConfirmError");
+      const actionBtn = document.getElementById("playerModalConfirmActionBtn");
+      const cancelBtn = document.getElementById("playerModalConfirmCancelBtn");
+
+      if (titleEl) titleEl.textContent = "Combine Players?";
+      if (subEl) subEl.classList.add("hidden");
+
+      confirmBody.innerHTML = `
+        <p class="text-xs sm:text-sm text-slate-600">
+          Player <b>${escapeHtml(targetName)}</b> already exists in the roster.
+        </p>
+        <p class="text-xs sm:text-sm text-slate-600">
+          Would you like to combine <b>${escapeHtml(oldName)}</b> into <b>${escapeHtml(targetName)}</b> and transfer all their matches?
+        </p>
+      `;
+      confirmErr.classList.add("hidden");
+      cancelBtn.disabled = false;
+      actionBtn.disabled = false;
+      actionBtn.textContent = "Combine";
+      actionBtn.onclick = () => executeRenamePlayer(targetName, true);
+
+      formBody.classList.add("hidden");
+      confirmView.classList.remove("hidden");
+    }
+
+    function executeRenamePlayer(newName, allowMerge) {
+      const oldName = appState.editingPlayer;
+      if (!oldName) return;
+
+      const inConfirm = !document.getElementById("playerModalConfirmView").classList.contains("hidden");
+      const btn = inConfirm
+        ? document.getElementById("playerModalConfirmActionBtn")
+        : document.getElementById("savePlayerBtn");
+      const cancelBtn = document.getElementById("playerModalConfirmCancelBtn");
+      const confirmErr = document.getElementById("playerModalConfirmError");
+
+      if (confirmErr) confirmErr.classList.add("hidden");
+      btn.textContent = "Saving...";
+      btn.disabled = true;
+      if (inConfirm && cancelBtn) cancelBtn.disabled = true;
+
+      callBackendPost({
+        action: "renamePlayer",
+        payload: { oldName, newName, allowMerge: Boolean(allowMerge) },
+        adminPassword: appState.adminPassword
+      })
+        .then(res => {
+          btn.disabled = false;
+          if (cancelBtn) cancelBtn.disabled = false;
+          appState.profilePlayer = newName;
+          applyServerState(res.data);
+          closePlayerModal();
+        })
+        .catch(err => {
+          btn.disabled = false;
+          if (cancelBtn) cancelBtn.disabled = false;
+          const msg = (err && err.message) || "Failed to update player!";
+          if (inConfirm) {
+            btn.textContent = "Combine";
+            confirmErr.textContent = msg;
+            confirmErr.classList.remove("hidden");
+          } else {
+            showPlayerModalError(msg);
+          }
+        });
     }
 
     function saveNewPlayer() {
@@ -2992,7 +3157,41 @@
         showPlayerModalError("Name must be 2–40 characters!");
         return;
       }
+      if (/^[=+\-@]/.test(name)) {
+        showPlayerModalError("Invalid leading character!");
+        return;
+      }
       const data = getComputedData();
+
+      if (appState.editingPlayer) {
+        const oldName = appState.editingPlayer;
+        if (name === oldName) {
+          closePlayerModal();
+          return;
+        }
+        const existingMatch = (data.playerNames || []).find(p => p.toLowerCase() === name.toLowerCase());
+        if (existingMatch && existingMatch.toLowerCase() !== oldName.toLowerCase()) {
+          const oldL = oldName.toLowerCase();
+          const targetL = existingMatch.toLowerCase();
+          const conflictDoubles = (data.doublesHistory || []).find(m => {
+            const all = [...m.t1, ...m.t2].map(x => String(x).toLowerCase());
+            return all.includes(oldL) && all.includes(targetL);
+          });
+          const conflictSingles = (data.singlesHistory || []).find(m => {
+            const all = [m.p1, m.p2].map(x => String(x).toLowerCase());
+            return all.includes(oldL) && all.includes(targetL);
+          });
+          if (conflictDoubles || conflictSingles) {
+            showPlayerModalError("Cannot combine: played in same match!");
+            return;
+          }
+          promptCombinePlayersConfirmation(oldName, existingMatch);
+          return;
+        }
+        executeRenamePlayer(name, false);
+        return;
+      }
+
       if ((data.playerNames || []).some(p => p.toLowerCase() === name.toLowerCase())) {
         showPlayerModalError("Player already exists!");
         return;

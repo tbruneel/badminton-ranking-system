@@ -1618,11 +1618,11 @@ body.vscode-dark code.language-json .hljs-comment {
 <h3 id="21-three-sheet-schema">2.1 Three-Sheet Schema</h3>
 <ol>
 <li>
-<p><strong><code>Players</code> (<code>A1:K50+</code>)</strong></p>
+<p><strong><code>Players</code> (<code>A1:I50+</code>)</strong></p>
 <ul>
-<li><strong>Columns <code>A–C</code>:</strong> <code>Player Name</code>, <code>Short Name</code> (auto-extracted first name with disambiguating last initial when two players share a first name), and <code>Initials</code> (2-letter avatar code).</li>
-<li><strong>Columns <code>D–G</code> (Singles):</strong> <code>Singles W</code>, <code>Singles L</code>, <code>Singles T</code> (<code>COUNTIFS</code> over <code>Singles_Matches</code>), and <code>Singles ELO</code> (<code>1000 + SUMIF</code> of all personal deltas in <code>Singles_Matches</code>).</li>
-<li><strong>Columns <code>H–K</code> (Doubles):</strong> <code>Doubles W</code>, <code>Doubles L</code>, <code>Doubles T</code> (<code>COUNTIFS</code> across both team slots in <code>Doubles_Matches</code>), and <code>Doubles ELO</code> (<code>1000 + SUMIF</code> across all 4 player columns in <code>Doubles_Matches</code>).</li>
+<li><strong>Column <code>A</code>:</strong> <code>Player Name</code> (short names and avatar initials are derived on the frontend from the player name).</li>
+<li><strong>Columns <code>B–E</code> (Singles):</strong> <code>Singles W</code>, <code>Singles L</code>, <code>Singles T</code> (<code>COUNTIFS</code> over <code>Singles_Matches</code>), and <code>Singles ELO</code> (<code>1000 + SUMIF</code> of all personal deltas in <code>Singles_Matches</code>).</li>
+<li><strong>Columns <code>F–I</code> (Doubles):</strong> <code>Doubles W</code>, <code>Doubles L</code>, <code>Doubles T</code> (<code>COUNTIFS</code> across both team slots in <code>Doubles_Matches</code>), and <code>Doubles ELO</code> (<code>1000 + SUMIF</code> across all 4 player columns in <code>Doubles_Matches</code>).</li>
 </ul>
 </li>
 <li>
