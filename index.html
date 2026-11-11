@@ -285,7 +285,7 @@
   <!-- ===================================================================== -->
   <!-- MODAL 1: PLAYER PROFILE (Switchable Statistics & Match History Pages) -->
   <!-- ===================================================================== -->
-  <div id="playerProfileModal" onclick="if(event.target===this)closePlayerProfile()" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-3 sm:p-6 overscroll-contain">
+  <div id="playerProfileModal" onmousedown="this._bdDown=(event.target===this)" onclick="if(event.target===this&&this._bdDown)closePlayerProfile()" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-3 sm:p-6 overscroll-contain">
     <div class="bg-white w-full max-w-2xl rounded-2xl border border-slate-200 shadow-xl overflow-hidden h-[82vh] max-h-[680px] flex flex-col">
       <!-- Modal Header -->
       <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between gap-3 shrink-0">
@@ -351,7 +351,7 @@
   <!-- ===================================================================== -->
   <!-- MODAL 2: ADMIN PASSWORD UNLOCK                                        -->
   <!-- ===================================================================== -->
-  <div id="adminAuthModal" onclick="if(event.target===this)closeAdminAuthModal()" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+  <div id="adminAuthModal" onmousedown="this._bdDown=(event.target===this)" onclick="if(event.target===this&&this._bdDown)closeAdminAuthModal()" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
     <div class="bg-white w-full max-w-sm rounded-2xl border border-slate-200 p-5 space-y-3.5 shadow-xl">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-2.5">
@@ -383,13 +383,10 @@
   <!-- ===================================================================== -->
   <!-- MODAL 3: LOG MATCH (Admin Only)                                       -->
   <!-- ===================================================================== -->
-  <div id="matchModal" onclick="if(event.target===this)closeMatchModal()" class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-900/50 backdrop-blur-xs p-4 pt-[6vh] sm:pt-[10vh] overflow-y-auto">
-    <div onclick="handleMatchModalCardClick(event)" class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4 shadow-xl">
+  <div id="matchModal" onmousedown="this._bdDown=(event.target===this);if(this._bdDown)closeAllPlayerCombos()" onclick="if(event.target===this&&this._bdDown)closeMatchModal()" class="fixed inset-0 z-50 hidden items-start justify-center bg-slate-900/50 backdrop-blur-xs p-4 pt-[6vh] sm:pt-[10vh] overflow-y-auto">
+    <div onmousedown="handleMatchModalCardClick(event)" class="bg-white w-full max-w-lg rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4 shadow-xl">
       <div class="flex items-center justify-between">
-        <div>
-          <h3 class="text-base sm:text-lg font-bold text-slate-900">Log Match Result</h3>
-          <p class="text-xs text-slate-500">Automatically updates Google Sheet &amp; recalculates ELO</p>
-        </div>
+        <h3 class="text-base sm:text-lg font-bold text-slate-900">Log Match Result</h3>
         <button type="button" onclick="closeMatchModal()" class="w-8 h-8 rounded-lg bg-slate-100 text-slate-500 hover:text-slate-800 flex items-center justify-center text-sm">✕</button>
       </div>
 
@@ -478,20 +475,20 @@
           <div class="flex items-center gap-2 shrink-0">
             <!-- Set 1 -->
             <div id="setCol1" class="flex flex-col gap-2.5">
-              <input id="ms1a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <input id="ms1b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              <input id="ms1a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              <input id="ms1b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
             </div>
 
             <!-- Set 2 -->
             <div id="setCol2" class="hidden flex-col gap-2.5">
-              <input id="ms2a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <input id="ms2b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              <input id="ms2a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              <input id="ms2b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
             </div>
 
             <!-- Set 3 -->
             <div id="setCol3" class="hidden flex-col gap-2.5">
-              <input id="ms3a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
-              <input id="ms3b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              <input id="ms3a" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+              <input id="ms3b" type="number" min="0" max="30" placeholder="–" oninput="updateModalPreview()" class="w-14 h-10 text-center font-bold border border-slate-200 bg-white rounded-xl text-sm text-slate-900 placeholder:text-slate-400 focus:placeholder:text-transparent focus:outline-none focus:ring-2 focus:ring-slate-900/10 focus:border-slate-400 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
             </div>
 
             <button
@@ -524,7 +521,7 @@
   <!-- ===================================================================== -->
   <!-- MODAL 4: ADD NEW PLAYER (Admin Only)                                  -->
   <!-- ===================================================================== -->
-  <div id="playerModal" onclick="if(event.target===this)closePlayerModal()" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
+  <div id="playerModal" onmousedown="this._bdDown=(event.target===this)" onclick="if(event.target===this&&this._bdDown)closePlayerModal()" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
     <div class="bg-white w-full max-w-md rounded-2xl border border-slate-200 p-5 sm:p-6 space-y-4 shadow-xl">
       <div class="flex items-center justify-between">
         <div>
@@ -1064,11 +1061,16 @@
         return el && !el.classList.contains("hidden");
       });
       if (anyOpen) {
-        document.documentElement.style.overflow = "hidden";
-        document.body.style.overflow = "hidden";
+        if (document.body.style.overflow !== "hidden") {
+          const sbw = window.innerWidth - document.documentElement.clientWidth;
+          if (sbw > 0) {
+            document.body.style.paddingRight = `${sbw}px`;
+          }
+          document.body.style.overflow = "hidden";
+        }
       } else {
-        document.documentElement.style.overflow = "";
         document.body.style.overflow = "";
+        document.body.style.paddingRight = "";
       }
     }
 
@@ -1629,6 +1631,7 @@
     // ADMIN MODALS: LOG MATCH & ADD PLAYER
     // =========================================================================
     const PLAYER_COMBO_IDS = ["mT1P1", "mT1P2", "mT2P1", "mT2P2"];
+    const comboActiveIdx = { mT1P1: 0, mT1P2: 0, mT2P1: 0, mT2P2: 0 };
 
     function syncComboBtnIcon(id) {
       const input = document.getElementById(id);
@@ -1664,6 +1667,29 @@
       return set;
     }
 
+    function syncComboOptionHighlight(id) {
+      const list = document.getElementById(`comboList_${id}`);
+      if (!list) return;
+      const opts = Array.from(list.querySelectorAll("[data-combo-option]"));
+      if (opts.length === 0) return;
+      const activeIndex = ((comboActiveIdx[id] || 0) % opts.length + opts.length) % opts.length;
+      comboActiveIdx[id] = activeIndex;
+      opts.forEach((btn, idx) => {
+        btn.classList.toggle("bg-slate-100", idx === activeIndex);
+      });
+      opts[activeIndex].scrollIntoView({ block: "nearest" });
+    }
+
+    function setComboActiveIndex(id, idx) {
+      comboActiveIdx[id] = idx;
+      const list = document.getElementById(`comboList_${id}`);
+      if (!list) return;
+      const opts = Array.from(list.querySelectorAll("[data-combo-option]"));
+      opts.forEach((btn, i) => {
+        btn.classList.toggle("bg-slate-100", i === idx);
+      });
+    }
+
     function renderPlayerComboList(id, filterByInput) {
       const input = document.getElementById(id);
       const list = document.getElementById(`comboList_${id}`);
@@ -1684,14 +1710,19 @@
         return;
       }
 
-      list.innerHTML = matches.map(p => {
+      const activeIndex = Math.min(Math.max(0, comboActiveIdx[id] || 0), matches.length - 1);
+      comboActiveIdx[id] = activeIndex;
+
+      list.innerHTML = matches.map((p, idx) => {
         const elo = eloMap[p]?.elo ?? CONFIG.startingElo;
+        const activeCls = idx === activeIndex ? "bg-slate-100" : "";
         return `
           <button
             type="button"
             data-combo-option="${escapeHtml(p)}"
+            onmouseenter="setComboActiveIndex('${id}', ${idx})"
             onmousedown="event.preventDefault(); selectPlayerComboOption('${id}', '${escapeJsStr(p)}')"
-            class="w-full px-3 py-1.5 text-left hover:bg-slate-100 flex items-center justify-between gap-2 transition"
+            class="w-full px-3 py-1.5 text-left flex items-center justify-between gap-2 transition ${activeCls}"
           >
             <span class="truncate font-medium text-slate-800">${escapeHtml(p)}</span>
             <span class="text-xs text-slate-400 tabular-nums shrink-0">${elo}</span>
@@ -1702,6 +1733,7 @@
 
     function openPlayerCombo(id) {
       closeAllPlayerCombos(id);
+      comboActiveIdx[id] = 0;
       syncComboBtnIcon(id);
       renderPlayerComboList(id, false);
       const list = document.getElementById(`comboList_${id}`);
@@ -1710,6 +1742,7 @@
 
     function onPlayerComboInput(id) {
       closeAllPlayerCombos(id);
+      comboActiveIdx[id] = 0;
       syncComboBtnIcon(id);
       renderPlayerComboList(id, true);
       const list = document.getElementById(`comboList_${id}`);
@@ -1746,20 +1779,30 @@
 
     function onPlayerComboKeydown(event, id) {
       const list = document.getElementById(`comboList_${id}`);
+      const isOpen = list && !list.classList.contains("hidden");
+      const opts = isOpen ? Array.from(list.querySelectorAll("[data-combo-option]")) : [];
+
       if (event.key === "Escape") {
-        if (list && !list.classList.contains("hidden")) {
+        if (isOpen) {
           event.stopPropagation();
           list.classList.add("hidden");
         }
         return;
       }
+
+      if ((event.key === "Tab" || event.key === "ArrowDown" || event.key === "ArrowUp") && isOpen && opts.length > 0) {
+        event.preventDefault();
+        const step = (event.key === "ArrowUp" || (event.key === "Tab" && event.shiftKey)) ? -1 : 1;
+        comboActiveIdx[id] = ((comboActiveIdx[id] || 0) + step + opts.length) % opts.length;
+        syncComboOptionHighlight(id);
+        return;
+      }
+
       if (event.key === "Enter") {
         event.preventDefault();
-        if (list && !list.classList.contains("hidden")) {
-          const firstOpt = list.querySelector("[data-combo-option]");
-          if (firstOpt) {
-            selectPlayerComboOption(id, firstOpt.getAttribute("data-combo-option"));
-          }
+        if (isOpen && opts.length > 0) {
+          const idx = Math.min(Math.max(0, comboActiveIdx[id] || 0), opts.length - 1);
+          selectPlayerComboOption(id, opts[idx].getAttribute("data-combo-option"));
         }
       }
     }
