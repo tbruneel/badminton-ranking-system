@@ -393,7 +393,7 @@ function verifyAdminPasscode_(providedKey) {
   const cache = CacheService.getScriptCache();
   const failCount = Number(cache.get('AUTH_FAIL_COUNT') || 0);
   if (failCount >= MAX_FAILED_ATTEMPTS) {
-    throw new Error('Too many failed login attempts. Admin mode is locked for 15 minutes.');
+    throw new Error('Too many attempts. Locked 15m.');
   }
 
   const props = PropertiesService.getScriptProperties();
@@ -401,13 +401,13 @@ function verifyAdminPasscode_(providedKey) {
   const storedHash = props.getProperty('ADMIN_PASSWORD_HASH');
 
   if (!salt || !storedHash) {
-    throw new Error('Admin password is not set yet. In your Google Sheet top menu, click "🔒 Badminton Admin" -> "🔑 Set / Change Admin Password...".');
+    throw new Error('Password not configured in Sheet');
   }
 
   const candidateHash = sha256Hex_(salt + ':' + String(providedKey || ''));
   if (!timingSafeEqual_(candidateHash, storedHash.toLowerCase())) {
     cache.put('AUTH_FAIL_COUNT', String(failCount + 1), LOCKOUT_SECONDS);
-    throw new Error('Invalid password.');
+    throw new Error('Invalid password');
   }
 
   if (failCount > 0) {
