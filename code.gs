@@ -12,12 +12,12 @@
  * 1. Create a new blank Google Sheet and open Extensions -> Apps Script.
  * 2. Delete any HTML files, paste this file into `Code.gs`, and save (Ctrl+S).
  * 3. Reload the Google Sheet and click the top menu:
- *      "🔒 Badminton Admin" -> "🛠️ Initialize / Repair Database"
- *      "🔒 Badminton Admin" -> "🔑 Set / Change Admin Password..."
+ *      "Badminton Admin" -> "Initialize Database"
+ *      "Badminton Admin" -> "Set Admin Password"
  * 4. In Apps Script, click Deploy -> New deployment -> Web app:
  *      - Execute as: Me
  *      - Who has access: Anyone
- * 5. Copy the `/exec` Web App URL into `CONFIG.apiUrl` in `index.html`.
+ * 5. Copy the `/exec` Web App URL into `window.RANKING_CONFIG.apiUrl` in your subpage `index.html`.
  */
 
 const INITIAL_PLAYER_SLOTS = 50;   // Rows 2..50 pre-filled on init (auto-expands beyond 50)
@@ -30,10 +30,9 @@ const LOCKOUT_SECONDS = 900;       // 15 minutes
 
 function onOpen() {
   SpreadsheetApp.getUi()
-    .createMenu('🔒 Badminton Admin')
-    .addItem('🛠️ Initialize / Repair Database', 'initializeDatabaseFromMenu')
-    .addSeparator()
-    .addItem('🔑 Set / Change Admin Password...', 'promptAndSaveAdminPassword')
+    .createMenu('Badminton Admin')
+    .addItem('Initialize Database', 'initializeDatabaseFromMenu')
+    .addItem('Set Admin Password', 'promptAndSaveAdminPassword')
     .addToUi();
 }
 
@@ -56,75 +55,90 @@ function getSpreadsheet_() {
   }
   const savedId = props.getProperty('SPREADSHEET_ID');
   if (!savedId) {
-    throw new Error('No bound Google Sheet found. Bind this script via Extensions -> Apps Script and run "Initialize / Repair Database" once.');
+    throw new Error('No bound Google Sheet found. Bind this script via Extensions -> Apps Script and run "Initialize Database" once.');
   }
   return SpreadsheetApp.openById(savedId);
 }
 
 /**
- * Menu handler to initialize or repair the 3 minimal database sheets on any blank/existing spreadsheet.
+ * Menu handler to initialize the 3 database sheets on a blank spreadsheet,
+ * or reset them to a clean empty state after confirmation if they already exist.
  */
 function initializeDatabaseFromMenu() {
   const ui = SpreadsheetApp.getUi();
   const ss = getSpreadsheet_();
   PropertiesService.getScriptProperties().setProperty('SPREADSHEET_ID', ss.getId());
-  const created = ensureDatabase_(ss, true);
+
+  const hasExisting = Boolean(
+    ss.getSheetByName('Players') ||
+    ss.getSheetByName('Doubles_Matches') ||
+    ss.getSheetByName('Singles_Matches')
+  );
+
+  if (hasExisting) {
+    const confirm = ui.alert(
+      'Reset Database',
+      'Database sheets already exist. Do you want to reset all sheets to a clean empty database? This will permanently delete all existing players and matches.',
+      ui.ButtonSet.OK_CANCEL
+    );
+    if (confirm !== ui.Button.OK) return;
+    ensureDatabase_(ss, true);
+    ui.alert(
+      'Database Reset',
+      'The Players, Doubles_Matches, and Singles_Matches sheets have been reset to a clean state.',
+      ui.ButtonSet.OK
+    );
+    return;
+  }
+
+  ensureDatabase_(ss, true);
   ui.alert(
-    'Database Ready',
-    created.length > 0
-      ? 'Created & initialized tabs: ' + created.join(', ')
-      : 'Verified all 3 database tabs (Players, Doubles_Matches, Singles_Matches) and repaired formulas.',
+    'Database Initialized',
+    'Created the Players, Doubles_Matches, and Singles_Matches sheets.',
     ui.ButtonSet.OK
   );
 }
 
 /**
- * Ensures the 3 minimal database sheets (`Players`, `Doubles_Matches`, `Singles_Matches`) exist.
- * Automatically provisions missing tabs, writes Row 1 headers + formulas, and removes empty default sheets.
+ * Ensures the 3 database sheets (`Players`, `Doubles_Matches`, `Singles_Matches`) exist.
+ * When `resetExisting` is true, existing database tabs are cleared and re-initialized from scratch.
  */
-function ensureDatabase_(ss, forceRepairFormulas) {
-  const created = [];
-
+function ensureDatabase_(ss, resetExisting) {
   let playersSheet = ss.getSheetByName('Players');
   if (!playersSheet) {
     playersSheet = ss.insertSheet('Players', 0);
     setupPlayersSheet_(playersSheet, INITIAL_PLAYER_SLOTS);
-    created.push('Players');
-  } else if (forceRepairFormulas) {
-    repairPlayersFormulas_(playersSheet);
+  } else if (resetExisting) {
+    playersSheet.clear();
+    setupPlayersSheet_(playersSheet, INITIAL_PLAYER_SLOTS);
   }
 
   let doublesSheet = ss.getSheetByName('Doubles_Matches');
   if (!doublesSheet) {
     doublesSheet = ss.insertSheet('Doubles_Matches', 1);
     setupDoublesSheet_(doublesSheet, INITIAL_MATCH_SLOTS);
-    created.push('Doubles_Matches');
-  } else if (forceRepairFormulas) {
-    repairDoublesFormulas_(doublesSheet);
+  } else if (resetExisting) {
+    doublesSheet.clear();
+    setupDoublesSheet_(doublesSheet, INITIAL_MATCH_SLOTS);
   }
 
   let singlesSheet = ss.getSheetByName('Singles_Matches');
   if (!singlesSheet) {
     singlesSheet = ss.insertSheet('Singles_Matches', 2);
     setupSinglesSheet_(singlesSheet, INITIAL_MATCH_SLOTS);
-    created.push('Singles_Matches');
-  } else if (forceRepairFormulas) {
-    repairSinglesFormulas_(singlesSheet);
+  } else if (resetExisting) {
+    singlesSheet.clear();
+    setupSinglesSheet_(singlesSheet, INITIAL_MATCH_SLOTS);
   }
 
-  // Delete default blank sheet (e.g. "Sheet1", "Blad1") if completely empty
-  if (created.length > 0) {
-    const keepNames = new Set(['Players', 'Doubles_Matches', 'Singles_Matches']);
-    ss.getSheets().forEach(sh => {
-      if (!keepNames.has(sh.getName()) && sh.getLastRow() === 0 && sh.getLastColumn() === 0 && ss.getSheets().length > 3) {
-        try {
-          ss.deleteSheet(sh);
-        } catch (_) {}
-      }
-    });
-  }
-
-  return created;
+  const keepNames = new Set(['Players', 'Doubles_Matches', 'Singles_Matches']);
+  ss.getSheets().forEach(sh => {
+    if (!keepNames.has(sh.getName()) && sh.getLastRow() === 0 && sh.getLastColumn() === 0 && ss.getSheets().length > 3) {
+      try {
+        ss.deleteSheet(sh);
+      } catch (_) {}
+    }
+  });
 }
 
 function playerRowFormulas_(r) {
@@ -242,15 +256,6 @@ function setupPlayersSheet_(sheet, slots) {
   styleDatabaseSheet_(sheet, headers.length, rows.length);
 }
 
-function repairPlayersFormulas_(sheet) {
-  const maxRow = Math.max(sheet.getLastRow(), INITIAL_PLAYER_SLOTS);
-  const formulas = [];
-  for (let r = 2; r <= maxRow; r++) {
-    formulas.push(playerRowFormulas_(r));
-  }
-  sheet.getRange(2, 2, formulas.length, 10).setValues(formulas);
-}
-
 function setupDoublesSheet_(sheet, matchSlots) {
   const headers = [
     'Match #', 'Date',
@@ -275,20 +280,6 @@ function setupDoublesSheet_(sheet, matchSlots) {
   styleDatabaseSheet_(sheet, headers.length, rows.length);
 }
 
-function repairDoublesFormulas_(sheet) {
-  sortMatchesByDate_(sheet, true);
-  const maxRow = Math.max(sheet.getLastRow(), INITIAL_MATCH_SLOTS + 2);
-  const colA = [];
-  const calcCols = [];
-  for (let r = 3; r <= maxRow; r++) {
-    colA.push([`=IF(C${r}="","",ROW()-2)`]);
-    calcCols.push(doublesCalcFormulas_(r));
-  }
-  sheet.getRange(3, 1, colA.length, 1).setValues(colA);
-  sheet.getRange(3, 2, colA.length, 1).setNumberFormat('yyyy/mm/dd hh:mm');
-  sheet.getRange(3, 13, calcCols.length, 9).setValues(calcCols);
-}
-
 function setupSinglesSheet_(sheet, matchSlots) {
   const headers = [
     'Match #', 'Date', 'Player 1', 'Player 2',
@@ -311,20 +302,6 @@ function setupSinglesSheet_(sheet, matchSlots) {
   styleDatabaseSheet_(sheet, headers.length, rows.length);
 }
 
-function repairSinglesFormulas_(sheet) {
-  sortMatchesByDate_(sheet, false);
-  const maxRow = Math.max(sheet.getLastRow(), INITIAL_MATCH_SLOTS + 2);
-  const colA = [];
-  const calcCols = [];
-  for (let r = 3; r <= maxRow; r++) {
-    colA.push([`=IF(C${r}="","",ROW()-2)`]);
-    calcCols.push(singlesCalcFormulas_(r));
-  }
-  sheet.getRange(3, 1, colA.length, 1).setValues(colA);
-  sheet.getRange(3, 2, colA.length, 1).setNumberFormat('yyyy/mm/dd hh:mm');
-  sheet.getRange(3, 11, calcCols.length, 7).setValues(calcCols);
-}
-
 function styleDatabaseSheet_(sheet, numCols, numRows) {
   sheet.setFrozenRows(1);
   sheet.getRange(1, 1, 1, numCols).setFontWeight('bold').setBackground('#F3F4F6');
@@ -342,30 +319,28 @@ function promptAndSaveAdminPassword() {
   const ui = SpreadsheetApp.getUi();
   const response = ui.prompt(
     'Set Admin Password',
-    'Enter a new Admin Password (at least 8 characters).\nOnly its salted SHA-256 hash will be stored in ScriptProperties:',
+    'Enter a new admin password (minimum 8 characters):',
     ui.ButtonSet.OK_CANCEL
   );
   if (response.getSelectedButton() !== ui.Button.OK) return;
 
   const password = String(response.getResponseText() || '').trim();
   if (password.length < 8) {
-    ui.alert('Password too short', 'Please choose a password with at least 8 characters.', ui.ButtonSet.OK);
+    ui.alert('Invalid Password', 'Password must be at least 8 characters.', ui.ButtonSet.OK);
     return;
   }
 
   const salt = Utilities.getUuid();
   const hash = sha256Hex_(salt + ':' + password);
-  const props = PropertiesService.getScriptProperties();
-  props.setProperties({
+  PropertiesService.getScriptProperties().setProperties({
     ADMIN_SALT: salt,
     ADMIN_PASSWORD_HASH: hash
   });
-  props.deleteProperty('ADMIN_PASSCODE');
   CacheService.getScriptCache().remove('AUTH_FAIL_COUNT');
 
   ui.alert(
     'Admin Password Saved',
-    'Your salted SHA-256 password hash has been saved to ScriptProperties. Plain text was NOT stored.',
+    'The admin password has been updated.',
     ui.ButtonSet.OK
   );
 }
@@ -467,15 +442,12 @@ function doGet() {
 }
 
 /**
- * Pure JSON POST endpoint — handles state reads and authenticated admin mutations.
+ * Pure JSON POST endpoint — handles authenticated admin mutations.
  */
 function doPost(e) {
   try {
     const body = JSON.parse((e && e.postData && e.postData.contents) || '{}');
-    const action = body.action || 'state';
-    if (action === 'state') {
-      return jsonResponse_({ ok: true, data: getAppState() });
-    }
+    const action = body.action;
     if (action === 'verifyAdmin') {
       return jsonResponse_(verifyAdminPassword(body.adminPassword));
     }
@@ -596,15 +568,6 @@ function getAppState() {
     doublesHistory,
     singlesHistory
   };
-}
-
-function getKnownPlayerSet_(ss) {
-  const playersSheet = ss.getSheetByName('Players');
-  const maxRow = Math.max(playersSheet.getLastRow(), 2);
-  const names = playersSheet.getRange(2, 1, maxRow - 1, 1).getValues()
-    .map(r => String(r[0]).trim())
-    .filter(Boolean);
-  return new Set(names);
 }
 
 function ensurePlayersExist_(ss, playerNames, autoCreate) {

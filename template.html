@@ -641,8 +641,7 @@
       ...(window.RANKING_CONFIG || {})
     };
 
-    const urlParams = new URLSearchParams(window.location.search);
-    const ACTIVE_API_URL = (urlParams.get("api") || CONFIG.apiUrl || "").trim();
+    const ACTIVE_API_URL = (CONFIG.apiUrl || "").trim();
 
     let appState = {
       discipline: "doubles",       // "doubles" | "singles"
@@ -722,12 +721,8 @@
     }
 
     function getComputedData() {
-      const doublesHistory = appState.serverDoublesHistory.map(m =>
-        m.winner === 0 ? { ...m, delta1: 0, delta2: 0 } : m
-      );
-      const singlesHistory = appState.serverSinglesHistory.map(m =>
-        m.winner === 0 ? { ...m, delta1: 0, delta2: 0 } : m
-      );
+      const doublesHistory = appState.serverDoublesHistory;
+      const singlesHistory = appState.serverSinglesHistory;
       const singles = appState.serverPlayers.map((p, idx) => ({
         name: p.name,
         short: p.short || getShortName(p.name),
@@ -1258,7 +1253,6 @@
       const winRate = total > 0 ? Math.round((pStats.w / total) * 100) + "%" : "—";
 
       const rawMatchesChrono = [...activeMatches].reverse();
-      let runningElo = CONFIG.startingElo;
       let peakElo = CONFIG.startingElo;
       let peakDate = null;
       let setsWon = 0, setsLost = 0, ptsFor = 0, ptsAgainst = 0;
@@ -1271,13 +1265,11 @@
           const partner = onT1 ? (isFirstPartner ? m.t1[1] : m.t1[0]) : (isFirstPartner ? m.t2[1] : m.t2[0]);
           const opponents = onT1 ? m.t2 : m.t1;
           const outcome = m.winner === 0 ? "tie" : ((onT1 && m.winner === 1) || (!onT1 && m.winner === 2) ? "win" : "loss");
-          const delta = m.winner === 0 ? 0 : (onT1 ? m.delta1 : m.delta2);
-          const sheetPre = m.preElo ? (onT1 ? (isFirstPartner ? m.preElo.t1p1 : m.preElo.t1p2) : (isFirstPartner ? m.preElo.t2p1 : m.preElo.t2p2)) : null;
-          const partnerElo = m.preElo ? (onT1 ? (isFirstPartner ? m.preElo.t1p2 : m.preElo.t1p1) : (isFirstPartner ? m.preElo.t2p2 : m.preElo.t2p1)) : CONFIG.startingElo;
-          const opponentElos = m.preElo ? (onT1 ? [m.preElo.t2p1, m.preElo.t2p2] : [m.preElo.t1p1, m.preElo.t1p2]) : [CONFIG.startingElo, CONFIG.startingElo];
-          const preElo = typeof sheetPre === "number" && !isNaN(sheetPre) ? sheetPre : runningElo;
+          const delta = onT1 ? m.delta1 : m.delta2;
+          const preElo = onT1 ? (isFirstPartner ? m.preElo.t1p1 : m.preElo.t1p2) : (isFirstPartner ? m.preElo.t2p1 : m.preElo.t2p2);
+          const partnerElo = onT1 ? (isFirstPartner ? m.preElo.t1p2 : m.preElo.t1p1) : (isFirstPartner ? m.preElo.t2p2 : m.preElo.t2p1);
+          const opponentElos = onT1 ? [m.preElo.t2p1, m.preElo.t2p2] : [m.preElo.t1p1, m.preElo.t1p2];
           const postElo = preElo + delta;
-          runningElo = postElo;
           if (postElo >= peakElo && postElo > CONFIG.startingElo) {
             peakElo = postElo;
             peakDate = m.date;
@@ -1317,12 +1309,10 @@
           const isP1 = m.p1 === playerName;
           const opponent = isP1 ? m.p2 : m.p1;
           const outcome = m.winner === 0 ? "tie" : ((isP1 && m.winner === 1) || (!isP1 && m.winner === 2) ? "win" : "loss");
-          const delta = m.winner === 0 ? 0 : (isP1 ? m.delta1 : m.delta2);
-          const sheetPre = m.preElo ? (isP1 ? m.preElo.p1 : m.preElo.p2) : null;
-          const opponentElo = m.preElo ? (isP1 ? m.preElo.p2 : m.preElo.p1) : CONFIG.startingElo;
-          const preElo = typeof sheetPre === "number" && !isNaN(sheetPre) ? sheetPre : runningElo;
+          const delta = isP1 ? m.delta1 : m.delta2;
+          const preElo = isP1 ? m.preElo.p1 : m.preElo.p2;
+          const opponentElo = isP1 ? m.preElo.p2 : m.preElo.p1;
           const postElo = preElo + delta;
-          runningElo = postElo;
           if (postElo >= peakElo && postElo > CONFIG.startingElo) {
             peakElo = postElo;
             peakDate = m.date;
@@ -2674,7 +2664,7 @@
       document.getElementById("loadingScreen").classList.remove("hidden");
 
       if (!ACTIVE_API_URL) {
-        showErrorPage("Missing API URL. Set CONFIG.apiUrl in index.html or pass ?api=<EXEC_URL>.");
+        showErrorPage("Missing API URL in window.RANKING_CONFIG.");
         return;
       }
 

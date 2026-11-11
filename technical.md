@@ -56,9 +56,9 @@ Because these formulas depend strictly on **row order** (top to bottom) rather t
 - [`sortMatchesByDate_`](file:///d:/Development/badminton-ranking-system/code.gs#L186-L224) in [`code.gs`](./code.gs) automatically sorts the match input columns (`Col B–L` for Doubles, `Col B–J` for Singles) chronologically by the timestamp in `Col B` (using a stable sort that preserves row order when timestamps are identical).
 - Because the formula columns (`Col A` and `Col M–U` / `Col K–Q`) stay anchored to their row indices, the Sheet immediately recalculates the entire ELO history in the updated chronological order whenever a match date is edited or added out of order.
 
-### 2.3 Self-Healing Formula Repair
+### 2.3 Database Initialization & Reset
 
-Running **🔒 Badminton Admin → 🛠️ Initialize / Repair Database** executes `repairPlayersFormulas_`, `repairDoublesFormulas_`, and `repairSinglesFormulas_`. This re-sorts matches by date and rewrites every formula cell across all three tabs while preserving all player names, dates, and set scores.
+Running **Badminton Admin → Initialize Database** creates and formats the `Players`, `Doubles_Matches`, and `Singles_Matches` tabs on a blank Google Sheet, or prompts for confirmation before resetting an existing spreadsheet to a clean empty database.
 
 ---
 
