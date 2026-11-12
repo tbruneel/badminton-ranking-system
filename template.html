@@ -797,12 +797,17 @@
         t: p.doublesT,
         order: idx
       }));
+      const compareLeaderboardPlayers = (a, b) => {
+        const aPlayed = (a.w + a.l + a.t) > 0 ? 1 : 0;
+        const bPlayed = (b.w + b.l + b.t) > 0 ? 1 : 0;
+        return bPlayed - aPlayed || b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order;
+      };
       return {
         playerNames: appState.serverPlayers.map(p => p.name),
         singlesMap: Object.fromEntries(singles.map(p => [p.name, p])),
         doublesMap: Object.fromEntries(doubles.map(p => [p.name, p])),
-        sortedSingles: [...singles].sort((a, b) => b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order),
-        sortedDoubles: [...doubles].sort((a, b) => b.elo - a.elo || b.w - a.w || a.l - b.l || a.order - b.order),
+        sortedSingles: [...singles].sort(compareLeaderboardPlayers),
+        sortedDoubles: [...doubles].sort(compareLeaderboardPlayers),
         doublesHistory,
         singlesHistory
       };
@@ -977,6 +982,7 @@
         };
         lbContainer.innerHTML = filteredList.map(p => {
           const total = p.w + p.l + p.t;
+          const hasPlayed = total > 0;
           const winRateStr = formatWinRateStr(p.w, total);
           const rankBadge = p.rank === 1
             ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-yellow-200/80 text-yellow-900 font-bold text-xs shrink-0">1</span>`
@@ -998,7 +1004,7 @@
                   ${escapeHtml(p.initials)}
                 </div>
                 <div class="min-w-0">
-                  <div class="lb-name text-sm font-semibold text-slate-900 truncate">
+                  <div class="lb-name text-sm font-semibold ${hasPlayed ? 'text-slate-900' : 'text-slate-400'} truncate">
                     ${escapeHtml(p.name)}
                   </div>
                   <div class="sm:hidden text-xs text-slate-500 mt-0.5">
