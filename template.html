@@ -862,7 +862,8 @@
     // PODIUM RENDERING (Distinct Gold, Silver, and Copper-Bronze Palettes)
     // =========================================================================
     function renderPodiumSlots(top3, discipline) {
-      if (!top3 || top3.length === 0) {
+      const activeTop3 = (top3 || []).filter(p => p && (p.w + p.l + p.t) > 0);
+      if (activeTop3.length === 0) {
         return `<div class="col-span-3 py-6 text-center text-sm text-slate-400">No players found.</div>`;
       }
       const styles = [
@@ -887,7 +888,7 @@
       ];
 
       return [0, 1, 2].map(i => {
-        const p = top3[i];
+        const p = activeTop3[i];
         const st = styles[i];
         if (!p) {
           return `
