@@ -820,7 +820,7 @@
       return total > 0 ? Math.round((won / total) * 100) + "%" : "—";
     }
 
-    function formatWltInlineHtml(w, l, t, showWinRate = false, digits = null, alignPct = false) {
+    function formatWltInlineHtml(w, l, t, showWinRate = false, digits = null, alignPct = false, muted = false) {
       const total = w + l + t;
       const wNum = digits ? `<span class="inline-block text-right" style="min-width:${digits.w}ch">${w}</span>` : `${w}`;
       const lNum = digits ? `<span class="inline-block text-right" style="min-width:${digits.l}ch">${l}</span>` : `${l}`;
@@ -829,13 +829,16 @@
       const pctHtml = showWinRate
         ? `<span class="text-slate-400 font-normal ${pctWidthCls}">(${formatWinRateStr(w, total)})</span>`
         : "";
+      const wCls = muted ? "text-slate-400 font-semibold" : "text-emerald-600 font-semibold";
+      const lCls = muted ? "text-slate-400 font-semibold" : "text-rose-500 font-semibold";
+      const tCls = muted ? "text-slate-400 font-semibold" : "text-slate-600 font-semibold";
       return `
         <span class="inline-flex items-center gap-0.5 tabular-nums whitespace-nowrap">
-          <span class="text-emerald-600 font-semibold">${wNum}W</span>
+          <span class="${wCls}">${wNum}W</span>
           <span class="text-slate-300">-</span>
-          <span class="text-rose-500 font-semibold">${lNum}L</span>
+          <span class="${lCls}">${lNum}L</span>
           <span class="text-slate-300">-</span>
-          <span class="text-slate-600 font-semibold">${tNum}T</span>
+          <span class="${tCls}">${tNum}T</span>
           ${pctHtml}
         </span>
       `;
@@ -984,11 +987,11 @@
           const total = p.w + p.l + p.t;
           const hasPlayed = total > 0;
           const winRateStr = formatWinRateStr(p.w, total);
-          const rankBadge = p.rank === 1
+          const rankBadge = hasPlayed && p.rank === 1
             ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-yellow-200/80 text-yellow-900 font-bold text-xs shrink-0">1</span>`
-            : p.rank === 2
+            : hasPlayed && p.rank === 2
             ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-slate-200 text-slate-700 font-bold text-xs shrink-0">2</span>`
-            : p.rank === 3
+            : hasPlayed && p.rank === 3
             ? `<span class="inline-flex items-center justify-center w-6 h-6 rounded-lg bg-[#f3ded4] text-[#6d3720] font-bold text-xs shrink-0">3</span>`
             : `<span class="inline-flex items-center justify-center w-6 h-6 text-slate-400 font-semibold text-xs shrink-0">${p.rank}</span>`;
 
@@ -1000,7 +1003,7 @@
             >
               <div class="flex items-center gap-3 min-w-0 sm:col-span-2">
                 ${rankBadge}
-                <div class="lb-avatar w-9 h-9 rounded-xl bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 transition">
+                <div class="lb-avatar w-9 h-9 rounded-xl bg-slate-100 ${hasPlayed ? 'text-slate-700' : 'text-slate-400'} font-bold text-xs flex items-center justify-center shrink-0 transition">
                   ${escapeHtml(p.initials)}
                 </div>
                 <div class="min-w-0">
@@ -1008,21 +1011,21 @@
                     ${escapeHtml(p.name)}
                   </div>
                   <div class="sm:hidden text-xs text-slate-500 mt-0.5">
-                    ${formatWltInlineHtml(p.w, p.l, p.t, true)}
+                    ${formatWltInlineHtml(p.w, p.l, p.t, true, null, false, !hasPlayed)}
                   </div>
                 </div>
               </div>
 
               <div class="hidden sm:flex items-center justify-center text-xs">
-                ${formatWltInlineHtml(p.w, p.l, p.t, false, lbDigits)}
+                ${formatWltInlineHtml(p.w, p.l, p.t, false, lbDigits, false, !hasPlayed)}
               </div>
 
-              <div class="hidden sm:block text-center text-xs font-medium text-slate-500 tabular-nums whitespace-nowrap">
+              <div class="hidden sm:block text-center text-xs font-medium ${hasPlayed ? 'text-slate-500' : 'text-slate-400'} tabular-nums whitespace-nowrap">
                 ${winRateStr}
               </div>
 
               <div class="text-right shrink-0">
-                <span class="text-base font-bold text-slate-900 tabular-nums">${p.elo}</span>
+                <span class="text-base font-bold ${hasPlayed ? 'text-slate-900' : 'text-slate-400'} tabular-nums">${p.elo}</span>
               </div>
             </button>
           `;
